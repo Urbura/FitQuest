@@ -465,7 +465,7 @@
       const { achievement, progress } = upcoming[0];
       return '<aside class="achievement-in-reach" aria-label="Achievement in reach">' +
         '<img src="assets/icons/' + achievementBadge(achievement) +
-        '.svg?v=20261013-centered-badge" alt="" width="40" height="40">' +
+        '.svg?v=20261013-medal-vector" alt="" width="40" height="40">' +
         '<div><small>Achievement in reach</small><strong>' + safeText(achievement.name) +
         '</strong><span>' + progress + ' / ' + achievement.goal + '</span>' +
         '<progress max="' + achievement.goal + '" value="' + progress +
@@ -497,7 +497,7 @@
             return '<' + tag + (unlocked ? ' type="button" data-view-achievement="' + a.id + '"' : '') + ' class="achievement ' + (unlocked ? 'unlocked' : 'locked') + '">' +
               '<span class="achievement-symbol" aria-hidden="true"><img src="assets/icons/' +
               (unlocked ? achievementBadge(a) : 'collection-locked') +
-              '.svg?v=20261013-centered-badge" alt="" width="56" height="56"></span>' +
+              '.svg?v=20261013-medal-vector" alt="" width="56" height="56"></span>' +
               '<div><strong>' + safeText(a.name) + '</strong>' +
                (a.id === 'five-perfect-scores' && unlocked ? ' <span class="perfect-day-medal-count" aria-label="' + stats.perfectDayMedals + ' Five for Five medals earned">×' + stats.perfectDayMedals + ' medals</span>' : '') +
                (isNew ? ' <span class="achievement-new">New</span>' : '') + '<small>' + safeText(a.description) +
