@@ -315,10 +315,14 @@
 
     // Collections: achievements are derived from existing levels and check-in history.
     // Only the list of viewed badge IDs is saved; earned achievements cannot be lost.
+    const TOTAL_LEVEL_RANKS = {
+      10: 'Bronze', 25: 'Silver', 50: 'Gold', 75: 'Platinum',
+      100: 'Emerald', 150: 'Diamond', 200: 'Master', 250: 'Grandmaster',
+    };
     const ACHIEVEMENTS = [
       ...[3, 7, 14, 30, 100].map(n => ({ id: 'days-' + n, category: 'Consistency', name: n + ' Active Days', description: 'Check in on ' + n + ' different days', goal: n, kind: 'days' })),
       ...[3, 7, 14, 30].map(n => ({ id: 'streak-' + n, category: 'Consistency', name: n + '-Day Streak', description: 'Check in ' + n + ' days in a row', goal: n, kind: 'streak' })),
-      ...[10, 25, 50, 75, 100, 150, 200, 250].map(n => ({ id: 'total-' + n, category: 'Levels', name: 'Total Level ' + n, description: 'Reach Total Level ' + n, goal: n, kind: 'total' })),
+      ...[10, 25, 50, 75, 100, 150, 200, 250].map(n => ({ id: 'total-' + n, category: 'Levels', name: TOTAL_LEVEL_RANKS[n], description: 'Reach Total Level ' + n, goal: n, kind: 'total' })),
       ...[10, 25, 50].map(n => ({ id: 'skill-any-' + n, category: 'Skills', name: 'Skill Level ' + n, description: 'Reach Level ' + n + ' in any skill', goal: n, kind: 'skill' })),
       ...SKILLS.map((skill, i) => ({ id: 'specialist-' + i, category: 'Skills', name: skill.name + ' Specialist', description: 'Reach Level 25 in ' + skill.name, goal: 25, kind: 'specialist', skill: i })),
       { id: 'all-skills-10', category: 'Skills', name: 'Well Rounded', description: 'Reach Level 10 in all five skills', goal: 10, kind: 'all' },
@@ -432,12 +436,12 @@
             const progress = achievementProgress(a, stats), unlocked = progress >= a.goal;
             return '<div class="achievement ' + (unlocked ? 'unlocked' : 'locked') + '">' +
               '<span class="achievement-symbol" aria-hidden="true"><img src="assets/icons/' +
-              (unlocked ? 'achievement-' + achievementMedalTier(a) : 'collection-locked') +
+              (unlocked ? (a.kind === 'total' ? 'rank-' + TOTAL_LEVEL_RANKS[a.goal].toLowerCase() : 'achievement-' + achievementMedalTier(a)) : 'collection-locked') +
               '.svg" alt="" width="40" height="40"></span>' +
               '<div><strong>' + safeText(a.name) + '</strong><small>' + safeText(a.description) +
               '</small><progress max="' + a.goal + '" value="' + Math.min(a.goal, progress) +
               '" aria-label="' + safeText(a.name) + ' progress"></progress><small>' +
-              Math.min(a.goal, progress) + ' / ' + a.goal + (unlocked ? ' · ' + achievementMedalTier(a) + ' medal · Unlocked!' : '') +
+              Math.min(a.goal, progress) + ' / ' + a.goal + (unlocked ? ' · ' + (a.kind === 'total' ? TOTAL_LEVEL_RANKS[a.goal] + ' rank' : achievementMedalTier(a) + ' medal') + ' · Unlocked!' : '') +
               '</small></div></div>';
           }).join('') + '</div></section>';
         }).join('') + '</section>';
