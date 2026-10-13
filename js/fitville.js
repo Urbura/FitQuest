@@ -451,7 +451,7 @@
             return '<div class="achievement ' + (unlocked ? 'unlocked' : 'locked') + '">' +
               '<span class="achievement-symbol" aria-hidden="true"><img src="assets/icons/' +
               (unlocked ? achievementBadge(a) : 'collection-locked') +
-              '.svg?v=20261013-fixed-ribbons" alt="" width="56" height="56"></span>' +
+              '.svg?v=20261013-centered-badge" alt="" width="56" height="56"></span>' +
               '<div><strong>' + safeText(a.name) + '</strong><small>' + safeText(a.description) +
               '</small><progress max="' + a.goal + '" value="' + Math.min(a.goal, progress) +
               '" aria-label="' + safeText(a.name) + ' progress"></progress><small>' +
