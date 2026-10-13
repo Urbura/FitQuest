@@ -320,6 +320,7 @@
       100: 'Emerald', 150: 'Diamond', 200: 'Master', 250: 'Grandmaster',
     };
     const ACHIEVEMENTS = [
+      { id: 'first-check-in', category: 'Consistency', name: 'First Check-In', description: 'Complete your first check-in in any skill', goal: 1, kind: 'days' },
       ...[3, 7, 14, 30, 100].map(n => ({ id: 'days-' + n, category: 'Consistency', name: n + ' Active Days', description: 'Check in on ' + n + ' different days', goal: n, kind: 'days' })),
       ...[3, 7, 14, 30].map(n => ({ id: 'streak-' + n, category: 'Consistency', name: n + '-Day Streak', description: 'Check in ' + n + ' days in a row', goal: n, kind: 'streak' })),
       ...[10, 25, 50, 75, 100, 150, 200, 250].map(n => ({ id: 'total-' + n, category: 'Levels', name: TOTAL_LEVEL_RANKS[n], description: 'Reach Total Level ' + n, goal: n, kind: 'total' })),
@@ -414,6 +415,19 @@
         default: return 'silver';
       }
     }
+    function achievementBadge(achievement) {
+      if (achievement.id === 'first-check-in') return 'achievement-first-check-in';
+      if (achievement.kind === 'specialist') return 'specialist-' + SKILL_SYMBOLS[achievement.skill];
+      if (achievement.kind === 'all') return 'achievement-well-rounded';
+      if (achievement.kind === 'total') return 'rank-' + TOTAL_LEVEL_RANKS[achievement.goal].toLowerCase();
+      return 'achievement-' + achievementMedalTier(achievement);
+    }
+    function achievementRewardLabel(achievement) {
+      if (achievement.kind === 'total') return TOTAL_LEVEL_RANKS[achievement.goal] + ' rank';
+      if (achievement.kind === 'specialist' || achievement.kind === 'all' || achievement.id === 'first-check-in')
+        return 'Badge earned';
+      return achievementMedalTier(achievement) + ' medal';
+    }
     const expandedAchievementCategories = new Set();
     function renderCollections() {
       const stats = achievementStats(), earned = earnedAchievements();
@@ -436,12 +450,12 @@
             const progress = achievementProgress(a, stats), unlocked = progress >= a.goal;
             return '<div class="achievement ' + (unlocked ? 'unlocked' : 'locked') + '">' +
               '<span class="achievement-symbol" aria-hidden="true"><img src="assets/icons/' +
-              (unlocked ? (a.kind === 'total' ? 'rank-' + TOTAL_LEVEL_RANKS[a.goal].toLowerCase() : 'achievement-' + achievementMedalTier(a)) : 'collection-locked') +
+              (unlocked ? achievementBadge(a) : 'collection-locked') +
               '.svg" alt="" width="40" height="40"></span>' +
               '<div><strong>' + safeText(a.name) + '</strong><small>' + safeText(a.description) +
               '</small><progress max="' + a.goal + '" value="' + Math.min(a.goal, progress) +
               '" aria-label="' + safeText(a.name) + ' progress"></progress><small>' +
-              Math.min(a.goal, progress) + ' / ' + a.goal + (unlocked ? ' · ' + (a.kind === 'total' ? TOTAL_LEVEL_RANKS[a.goal] + ' rank' : achievementMedalTier(a) + ' medal') + ' · Unlocked!' : '') +
+              Math.min(a.goal, progress) + ' / ' + a.goal + (unlocked ? ' · ' + achievementRewardLabel(a) + ' · Unlocked!' : '') +
               '</small></div></div>';
           }).join('') + '</div></section>';
         }).join('') + '</section>';
