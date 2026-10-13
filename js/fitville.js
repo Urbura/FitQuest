@@ -1040,6 +1040,7 @@
         notify(SKILLS[i].name + ' is already checked in today.');
         return;
       }
+      queueLevels(i, result.before, result.after, result.totalBefore, result.totalAfter);
       const bonus = awardFiveForFiveBonus();
       const persisted = save();
       render(false);
@@ -1057,8 +1058,7 @@
               ? ' · saved.'
               : ' · temporary; export a backup to keep this progress.'),
       );
-      if (!bonus) queueLevels(i, result.before, result.after, result.totalBefore, result.totalAfter);
-      else { reward('+5 XP to all five skills'); notify('🏅 Five for Five! ' + bonus.medals + ' medals · +5 XP to every skill!'); }
+      if (bonus) { reward('+5 XP to all five skills'); notify('🏅 Five for Five! ' + bonus.medals + ' medals · +5 XP to every skill!'); }
       const newBadges = DEV ? [] : earnedAchievements().filter(id => !earnedBefore.includes(id));
       if (newBadges.length) notify('🏆 ' + newBadges.length + ' achievement' + (newBadges.length === 1 ? '' : 's') + ' unlocked! Check Collections at the top.');
     }
