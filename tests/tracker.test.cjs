@@ -427,3 +427,28 @@ test('title rewards have distinct badges and do not promote backgrounds', () => 
   }
   assert.doesNotMatch(t.nextRewardText(), /background/);
 });
+
+test('developer Total Level override also controls rank achievements', () => {
+  const t = tracker();
+  t.preview(250);
+  assert.equal(t.achievementStats().total, 250);
+  assert.equal(t.earnedAchievements().filter(id => id.startsWith('total-')).length, 8);
+  assert.equal(t.earnedAchievements().filter(id => id.startsWith('specialist-')).length, 0);
+  t.preview(null);
+  assert.equal(t.achievementStats().total, 5);
+});
+
+test('full profile preview applies all levels and clears the Total Level override', () => {
+  const t = tracker();
+  t.preview(250);
+  assert.equal(t.setProfileLevels([40, 25, 41, 33, 35]), true);
+  assert.equal(t.achievementStats().total, 174);
+  assert.deepEqual(Array.from(t.achievementStats().levels), [40, 25, 41, 33, 35]);
+  assert.equal(t.earnedAchievements().filter(id => id.startsWith('total-')).length, 6);
+  assert.equal(t.earnedAchievements().filter(id => id.startsWith('specialist-')).length, 5);
+  const original = JSON.stringify(t.state());
+  assert.equal(t.setProfileLevels([40, 25, 41, 33, 51]), false);
+  assert.equal(JSON.stringify(t.state()), original);
+  t.preview(null);
+  assert.equal(t.setProfileLevels([1, 1, 1, 1, 1]), false);
+});
