@@ -397,6 +397,19 @@
       button.setAttribute('aria-label', count ? 'Collections, ' + count + ' new achievements' : 'Collections');
       button.title = count ? 'Collections · ' + count + ' new' : 'Collections';
     }
+    function achievementMedalTier(achievement) {
+      const goal = achievement.goal;
+      switch (achievement.kind) {
+        case 'days': return goal >= 30 ? 'gold' : goal >= 14 ? 'silver' : 'bronze';
+        case 'streak': return goal >= 14 ? 'gold' : goal >= 7 ? 'silver' : 'bronze';
+        case 'total': return goal >= 150 ? 'gold' : goal >= 50 ? 'silver' : 'bronze';
+        case 'skill': return goal >= 50 ? 'gold' : goal >= 25 ? 'silver' : 'bronze';
+        case 'specialist': return 'silver';
+        case 'all': return 'gold';
+        case 'weekly': return 'gold';
+        default: return 'silver';
+      }
+    }
     const expandedAchievementCategories = new Set();
     function renderCollections() {
       const stats = achievementStats(), earned = earnedAchievements();
@@ -418,11 +431,13 @@
           achievements.map(a => {
             const progress = achievementProgress(a, stats), unlocked = progress >= a.goal;
             return '<div class="achievement ' + (unlocked ? 'unlocked' : 'locked') + '">' +
-              '<span class="achievement-symbol" aria-hidden="true"><img src="assets/icons/collection-' + (unlocked ? 'unlocked' : 'locked') + '.svg" alt="" width="40" height="40"></span>' +
+              '<span class="achievement-symbol" aria-hidden="true"><img src="assets/icons/' +
+              (unlocked ? 'achievement-' + achievementMedalTier(a) : 'collection-locked') +
+              '.svg" alt="" width="40" height="40"></span>' +
               '<div><strong>' + safeText(a.name) + '</strong><small>' + safeText(a.description) +
               '</small><progress max="' + a.goal + '" value="' + Math.min(a.goal, progress) +
               '" aria-label="' + safeText(a.name) + ' progress"></progress><small>' +
-              Math.min(a.goal, progress) + ' / ' + a.goal + (unlocked ? ' · Unlocked!' : '') +
+              Math.min(a.goal, progress) + ' / ' + a.goal + (unlocked ? ' · ' + achievementMedalTier(a) + ' medal · Unlocked!' : '') +
               '</small></div></div>';
           }).join('') + '</div></section>';
         }).join('') + '</section>';
