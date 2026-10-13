@@ -1301,3 +1301,12 @@ header nav .collections-icon { display: block; width: 30px; height: 30px; object
 .achievement-in-reach strong { font-size: 14px; }
 .achievement-in-reach span { float: right; margin-left: 8px; color: #597067; font-size: 12px; }
 .achievement-in-reach progress { display: block; height: 5px; margin: 6px 0 0; accent-color: #087cd9; }
+
+/* Current rank sits between the wordmark and Total Level without another grid column. */
+header .stats { flex-direction: row; align-items: center; gap: 6px; }
+#header-rank-badge { display: block; width: 40px; height: 40px; object-fit: contain; flex-shrink: 0; }
+#header-rank-badge[hidden] { display: none; }
+@media (max-width:600px) {
+  header .stats { gap: 3px; }
+  #header-rank-badge { width: 30px; height: 30px; }
+}
