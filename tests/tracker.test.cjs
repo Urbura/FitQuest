@@ -452,3 +452,14 @@ test('full profile preview applies all levels and clears the Total Level overrid
   t.preview(null);
   assert.equal(t.setProfileLevels([1, 1, 1, 1, 1]), false);
 });
+
+test('each skill mastery unlocks only when its own skill reaches level 50', () => {
+  const t = tracker();
+  t.preview(250);
+  t.setProfileLevels([49,49,49,49,49]);
+  assert.equal(t.earnedAchievements().filter(id => id.startsWith('mastery-')).length, 0);
+  t.setProfileLevels([50,49,49,49,49]);
+  assert.deepEqual(Array.from(t.earnedAchievements().filter(id => id.startsWith('mastery-'))), ['mastery-0']);
+  t.setProfileLevels([50,50,50,50,50]);
+  assert.equal(t.earnedAchievements().filter(id => id.startsWith('mastery-')).length, 5);
+});
