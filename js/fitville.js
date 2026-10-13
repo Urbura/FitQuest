@@ -56,6 +56,7 @@
         open = document.getElementById('dev-open');
       if (!panel || !open) return;
       if (DEV) {
+        syncDevProfileInputs();
         writeSession('fitville-dev-active', '1');
         panel.hidden = false;
         open.hidden = true;
@@ -77,6 +78,20 @@
       rewardForTotalLevel: totalReward,
       nextRewardForTotalLevel,
     } = globalThis.FitQuestProgression.createProgression(CONFIG);
+    function setProfileLevels(levels) {
+      if (!DEV || !Array.isArray(levels) || levels.length !== SKILLS.length ||
+          levels.some(value => !Number.isInteger(value) || value < 1 || value > MAX_LEVEL))
+        return false;
+      levels.forEach((value, i) => { state.skills[i].xp = XP[value]; });
+      devTotalLevel = null;
+      return true;
+    }
+    function syncDevProfileInputs() {
+      SKILLS.forEach((skill, i) => {
+        const input = document.getElementById('dev-profile-' + i);
+        if (input) input.value = level(state.skills[i].xp);
+      });
+    }
     function fresh() {
       return {
         coins: 0,
@@ -367,7 +382,7 @@
         best = Math.max(best, count);
         previous = count;
       }
-      return { activeDays: active.length, longest, weeklyBest, improved, levels: state.skills.map(s => level(s.xp)), total: totalSkillLevel() };
+      return { activeDays: active.length, longest, weeklyBest, improved, levels: state.skills.map(s => level(s.xp)), total: currentTotalLevel() };
     }
     function achievementProgress(a, s) {
       switch (a.kind) {
@@ -983,6 +998,7 @@
         return;
       }
       if (DEV && b.id === 'dev-open') {
+        syncDevProfileInputs();
         document.getElementById('dev-tools').hidden = false;
         document.getElementById('dev-open').hidden = true;
         return;
@@ -1005,6 +1021,18 @@
         devTotalLevel = null;
         render(false);
         notify('Total Level follows the sum of your skill levels again.');
+        return;
+      }
+      if (DEV && b.id === 'dev-apply-profile') {
+        const levels = SKILLS.map((skill, i) =>
+          Number(document.getElementById('dev-profile-' + i).value));
+        if (!setProfileLevels(levels)) {
+          notify('Enter a whole-number level from 1 to ' + MAX_LEVEL + ' for every skill.');
+          return;
+        }
+        document.getElementById('dev-total-level').value = totalSkillLevel();
+        render(false);
+        notify('Profile applied · Total Level ' + totalSkillLevel() + ' · preview only.');
         return;
       }
       if (DEV && b.id === 'dev-set-level') {
@@ -1297,6 +1325,7 @@
     if (typeof globalThis.__fitQuestTestHook === 'function') {
       globalThis.__fitQuestTestHook({
         XP, MAX_LEVEL, MAX_TOTAL_LEVEL, fresh, level, readSave, recordCheckIn,
+        achievementStats, earnedAchievements, setProfileLevels,
         editCheckIn, skillBonus, checkInXP, totalSkillLevel, totalReward,
         TOTAL_REWARDS, weeklyCheckInCount, day, nextReset, nextRewardText,
         queueLevels, dashboard, openSkillCheck, totalRewardsPanel, rewardBadge,
