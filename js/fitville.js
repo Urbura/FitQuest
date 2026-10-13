@@ -495,9 +495,10 @@
             const isNew = unseen.has(a.id);
             const tag = unlocked ? 'button' : 'div';
             return '<' + tag + (unlocked ? ' type="button" data-view-achievement="' + a.id + '"' : '') + ' class="achievement ' + (unlocked ? 'unlocked' : 'locked') + '">' +
-              '<span class="achievement-symbol" aria-hidden="true"><img src="assets/icons/' +
-              (unlocked ? achievementBadge(a) : 'collection-locked') +
-              '.svg?v=20261013-medal-vector" alt="" width="56" height="56"></span>' +
+              '<span class="achievement-symbol" aria-hidden="true">' +
+              (a.id === 'five-perfect-scores' ? "<svg class=\"five-for-five-medal\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 120\" role=\"img\" aria-label=\"Five for Five medal\"><path d=\"M23 7H47L53 44 39 52Z\" fill=\"#2576c7\" stroke=\"#163b77\" stroke-width=\"4\" stroke-linejoin=\"round\"/>\n  <path d=\"M53 7H77L62 52 47 44Z\" fill=\"#66c4f5\" stroke=\"#163b77\" stroke-width=\"4\" stroke-linejoin=\"round\"/>\n  <path d=\"M47 8H53L55 43 49 48Z\" fill=\"#c5eaff\"/>\n  <circle cx=\"50\" cy=\"76\" r=\"38\" fill=\"#a55b13\" stroke=\"#38280f\" stroke-width=\"5\"/>\n  <circle cx=\"50\" cy=\"74\" r=\"33\" fill=\"#f5bb37\" stroke=\"#ffe28a\" stroke-width=\"4\"/>\n  <path d=\"M50 42 59 61 80 64 65 80 69 101 50 91 31 101 35 80 20 64 41 61Z\" fill=\"#e89418\" stroke=\"#59340f\" stroke-width=\"4\" stroke-linejoin=\"round\"/>\n  <path d=\"M50 47 57 65 75 66 61 79 65 95 50 86 35 95 39 79 25 66 43 65Z\" fill=\"#ffe070\" stroke=\"#f9bd38\" stroke-width=\"2\" stroke-linejoin=\"round\"/>\n  <path d=\"M50 62 60 72 50 84 40 72Z\" fill=\"#c93639\" stroke=\"#7d1c27\" stroke-width=\"3\" stroke-linejoin=\"round\"/>\n  <path d=\"M50 64 56 72 50 77 45 71Z\" fill=\"#ff8b84\"/>\n  <path d=\"M29 61 39 55M67 55 73 62\" stroke=\"#fff2b0\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n</svg>" :
+                '<img src="assets/icons/' + (unlocked ? achievementBadge(a) : 'collection-locked') +
+                '.svg?v=20261013-medal-vector" alt="" width="56" height="56">') + '</span>' +
               '<div><strong>' + safeText(a.name) + '</strong>' +
                (a.id === 'five-perfect-scores' && unlocked ? ' <span class="perfect-day-medal-count" aria-label="' + stats.perfectDayMedals + ' Five for Five medals earned">×' + stats.perfectDayMedals + ' medals</span>' : '') +
                (isNew ? ' <span class="achievement-new">New</span>' : '') + '<small>' + safeText(a.description) +
