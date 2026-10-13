@@ -197,14 +197,14 @@ globalThis.FitQuestConfig = {
     }
   ],
   "themes": {
-    "sky": "linear-gradient(145deg, #d8f3ff, #eefbff)",
-    "ocean": "linear-gradient(145deg, #c9eef2, #e9f8fc)",
-    "meadow": "linear-gradient(145deg, #d8f0df, #f0f9e9)",
-    "lavender": "linear-gradient(145deg, #e6def7, #f7f1fc)",
-    "sunrise": "linear-gradient(145deg, #ffe7bf, #fff5e5)",
-    "ice": "linear-gradient(145deg, #c4dcf5, #e4edfc)",
-    "pearl": "linear-gradient(145deg, #e2e7f0, #f7f9fc)",
-    "rose": "linear-gradient(145deg, #f7dce5, #fff1f5)",
-    "lagoon": "linear-gradient(145deg, #bfece2, #e6fbf5)"
+    "sky": "linear-gradient(145deg, #93d8fc, #c8eeff)",
+    "ocean": "linear-gradient(145deg, #65cbdc, #b9eef4)",
+    "meadow": "linear-gradient(145deg, #89d19b, #d0f1ad)",
+    "lavender": "linear-gradient(145deg, #b69be8, #e6cef9)",
+    "sunrise": "linear-gradient(145deg, #ffbd72, #ffe1a3)",
+    "ice": "linear-gradient(145deg, #91b8ed, #c9dcff)",
+    "pearl": "linear-gradient(145deg, #b7c1d1, #e3e9f4)",
+    "rose": "linear-gradient(145deg, #ee9fc1, #ffd3df)",
+    "lagoon": "linear-gradient(145deg, #74d4ba, #c0f1dd)"
   }
 };
