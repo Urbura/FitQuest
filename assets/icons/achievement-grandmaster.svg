@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 112" role="img" aria-label="Grandmaster medal">
+<path d="M22 5H47L53 42 35 53Z" fill="#2657b0" stroke="#25335d" stroke-width="3"/>
+<path d="M53 5H78L65 53 47 42Z" fill="#7046b7" stroke="#25335d" stroke-width="3"/>
+<path d="M30 10H39L44 35 37 38Z" fill="#8ed8ff"/>
+<path d="M61 10H69L61 38 55 35Z" fill="#d1b5ff"/>
+<circle cx="50" cy="71" r="37" fill="#8a511a" stroke="#42301c" stroke-width="4"/>
+<circle cx="50" cy="69" r="32" fill="#f4bc43" stroke="#fff0ad" stroke-width="3"/>
+<path d="M50 37 58 54 77 56 63 70 67 91 50 82 33 91 37 70 23 56 42 54Z" fill="#d18b21" stroke="#59380f" stroke-width="3" stroke-linejoin="round"/>
+<path d="M50 42 56 58 72 60 60 71 63 86 50 78 37 86 40 71 28 60 44 58Z" fill="#ffdf70" stroke="#fff3b4" stroke-width="2"/>
+<path d="M35 68V62L42 66 50 57 58 66 65 62V68L61 77H39Z" fill="#b8791a" stroke="#613f19" stroke-width="2" stroke-linejoin="round"/>
+<path d="M38 65 43 68 50 60 57 68 62 65 59 74H41Z" fill="#fff0a3"/>
+<circle cx="50" cy="67" r="3" fill="#d64b63"/><circle cx="42" cy="70" r="2" fill="#55bde7"/><circle cx="58" cy="70" r="2" fill="#8e70dd"/>
+<path d="M31 55Q35 47 43 46M60 47Q69 50 73 58" stroke="#fff8d6" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+<path d="M18 34 20 39 25 41 20 43 18 48 16 43 11 41 16 39Z" fill="#fff1ad"/>
+<path d="M81 30 83 34 87 36 83 38 81 42 79 38 75 36 79 34Z" fill="#fff1ad"/>
+</svg>
