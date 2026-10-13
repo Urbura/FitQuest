@@ -410,7 +410,7 @@
     function updateCollectionBadge() {
       const button = document.querySelector('nav button[data-tab="collections"]');
       if (!button) return;
-      const count = DEV ? 0 : unseenAchievements().length;
+      const count = unseenAchievements().length;
       const badge = button.querySelector('.collection-count');
       if (badge) {
         badge.textContent = count > 9 ? '9+' : String(count);
@@ -464,7 +464,7 @@
         '" aria-label="' + safeText(achievement.name) + ' progress"></progress></div></aside>';
     }
     function renderCollections() {
-      const stats = achievementStats(), earned = earnedAchievements();
+      const stats = achievementStats(), earned = earnedAchievements(), unseen = new Set(unseenAchievements());
       return '<section class="card collections"><button class="back-button" data-tab="dashboard">← Back</button>' +
         '<h2>🏆 Collections</h2><p><strong>' + earned.length + ' / ' + ACHIEVEMENTS.length +
         '</strong> achievements unlocked</p><progress max="' + ACHIEVEMENTS.length + '" value="' + earned.length +
@@ -474,31 +474,35 @@
         ['Consistency', 'Levels', 'Personal Bests', 'Skills'].map((category, index) => {
           const achievements = ACHIEVEMENTS.filter(a => a.category === category);
           const unlockedCount = achievements.filter(a => achievementProgress(a, stats) >= a.goal).length;
+          const newCount = achievements.filter(a => unseen.has(a.id)).length;
           const expanded = expandedAchievementCategories.has(category);
           return '<section class="achievement-category"><h3><button class="category-toggle" data-achievement-category="' +
             category + '" aria-expanded="' + expanded + '" aria-controls="achievement-category-' + index +
             '"><span class="category-arrow" aria-hidden="true">' + (expanded ? '▾' : '▸') +
-            '</span><span>' + category + '</span><span class="category-count">' + unlockedCount +
+            '</span><span>' + category + '</span>' + (newCount ? '<span class="achievement-new">' + newCount + ' new</span>' : '') + '<span class="category-count">' + unlockedCount +
             ' / ' + achievements.length + ' unlocked</span></button></h3><div id="achievement-category-' +
             index + '" class="achievement-list"' + (expanded ? '' : ' hidden') + '>' +
           achievements.map(a => {
             const progress = achievementProgress(a, stats), unlocked = progress >= a.goal;
-            return '<div class="achievement ' + (unlocked ? 'unlocked' : 'locked') + '">' +
+            const isNew = unseen.has(a.id);
+            const tag = unlocked ? 'button' : 'div';
+            return '<' + tag + (unlocked ? ' type="button" data-view-achievement="' + a.id + '"' : '') + ' class="achievement ' + (unlocked ? 'unlocked' : 'locked') + '">' +
               '<span class="achievement-symbol" aria-hidden="true"><img src="assets/icons/' +
               (unlocked ? achievementBadge(a) : 'collection-locked') +
               '.svg?v=20261013-centered-badge" alt="" width="56" height="56"></span>' +
-              '<div><strong>' + safeText(a.name) + '</strong><small>' + safeText(a.description) +
+              '<div><strong>' + safeText(a.name) + '</strong>' + (isNew ? ' <span class="achievement-new">New</span>' : '') + '<small>' + safeText(a.description) +
               '</small><progress max="' + a.goal + '" value="' + Math.min(a.goal, progress) +
               '" aria-label="' + safeText(a.name) + ' progress"></progress><small>' +
               Math.min(a.goal, progress) + ' / ' + a.goal + (unlocked ? ' · ' + achievementRewardLabel(a) + ' · Unlocked!' : '') +
-              '</small></div></div>';
+              '</small></div></' + tag + '>';
           }).join('') + '</div></section>';
         }).join('') + '</section>';
     }
-    function markCollectionsViewed() {
-      if (DEV) return;
-      state.achievementsSeen = [...new Set([...(Array.isArray(state.achievementsSeen) ? state.achievementsSeen : []), ...earnedAchievements()])];
-      save();
+    function markAchievementViewed(id) {
+      if (!earnedAchievements().includes(id)) return false;
+      state.achievementsSeen = [...new Set([...(Array.isArray(state.achievementsSeen) ? state.achievementsSeen : []), id])];
+      if (!DEV) save();
+      return true;
     }
 
     // Dashboard and level celebrations
@@ -983,6 +987,11 @@
       }
       if (syncSharedSave()) render(false);
       refreshDayIfNeeded();
+      if (b.dataset.viewAchievement !== undefined) {
+        markAchievementViewed(b.dataset.viewAchievement);
+        render(false);
+        return;
+      }
       if (b.id === 'overall-level') {
         openTotalRewards();
         return;
@@ -1152,7 +1161,7 @@
       if (b.dataset.tab) {
         const targetTab = b.dataset.tab;
         tab = b.closest('nav') && tab === targetTab ? 'dashboard' : targetTab;
-        if (tab === 'collections') markCollectionsViewed();
+
         render();
         window.scrollTo(0, 0);
         return;
@@ -1346,6 +1355,7 @@
       globalThis.__fitQuestTestHook({
         XP, MAX_LEVEL, MAX_TOTAL_LEVEL, fresh, level, readSave, recordCheckIn,
         achievementStats, earnedAchievements, setProfileLevels,
+        unseenAchievements, markAchievementViewed,
         editCheckIn, skillBonus, checkInXP, totalSkillLevel, totalReward,
         TOTAL_REWARDS, weeklyCheckInCount, day, nextReset, nextRewardText,
         queueLevels, dashboard, openSkillCheck, totalRewardsPanel, rewardBadge,
