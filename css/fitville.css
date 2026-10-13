@@ -1565,3 +1565,20 @@ button { touch-action: manipulation; }
   font-weight: 700;
   white-space: nowrap;
 }
+
+/* Five for Five is a tall ribbon medal: scale it within the badge slot, never crop it. */
+.collections .achievement-symbol:has(img[src*="achievement-five-for-five"]) { overflow: visible; }
+.collections .achievement-symbol img[src*="achievement-five-for-five"] {
+  width: 100%;
+  height: 100%;
+  max-width: 43px;
+  max-height: 52px;
+  object-fit: contain;
+  object-position: center;
+}
+@media (orientation: landscape) and (max-height: 500px) {
+  .collections .achievement-symbol img[src*="achievement-five-for-five"] {
+    max-width: 27px;
+    max-height: 32px;
+  }
+}
