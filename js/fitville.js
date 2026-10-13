@@ -342,6 +342,7 @@
       ...[10, 25, 50].map(n => ({ id: 'skill-any-' + n, category: 'Skills', name: 'Skill Level ' + n, description: 'Reach Level ' + n + ' in any skill', goal: n, kind: 'skill' })),
       ...SKILLS.map((skill, i) => ({ id: 'specialist-' + i, category: 'Skills', name: skill.name + ' Specialist', description: 'Reach Level 25 in ' + skill.name, goal: 25, kind: 'specialist', skill: i })),
       ...SKILLS.map((skill, i) => ({ id: 'mastery-' + i, category: 'Skills', name: skill.name + ' Mastery', description: 'Reach Level 50 in ' + skill.name, goal: 50, kind: 'mastery', skill: i })),
+      { id: 'five-perfect-scores', category: 'Skills', name: 'Five for Five', description: 'Earn a 5/5 rating in all five skills on the same day', goal: 5, kind: 'perfect-day' },
       { id: 'all-skills-10', category: 'Skills', name: 'Well Rounded', description: 'Reach Level 10 in all five skills', goal: 10, kind: 'all' },
       { id: 'weekly-best', category: 'Personal Bests', name: 'New Weekly Best', description: 'Exceed your previous best number of active days in a completed week', goal: 1, kind: 'weekly' },
       { id: 'weekly-improvement', category: 'Personal Bests', name: 'On the Rise', description: 'Check in on more days than the previous completed week', goal: 1, kind: 'improved' },
@@ -383,11 +384,14 @@
         best = Math.max(best, count);
         previous = count;
       }
-      return { activeDays: active.length, longest, weeklyBest, improved, levels: state.skills.map(s => level(s.xp)), total: currentTotalLevel() };
+      const bestPerfectDay = Math.max(0, ...Object.values(state.days).map(entry =>
+        Array.isArray(entry && entry.scores) ? entry.scores.filter(score => score === 5).length : 0));
+      return { activeDays: active.length, longest, weeklyBest, improved, bestPerfectDay, levels: state.skills.map(s => level(s.xp)), total: currentTotalLevel() };
     }
     function achievementProgress(a, s) {
       switch (a.kind) {
         case 'days': return s.activeDays;
+        case 'perfect-day': return s.bestPerfectDay;
         case 'streak': return s.longest;
         case 'total': return s.total;
         case 'skill': return Math.max(...s.levels);
@@ -428,6 +432,7 @@
         case 'skill': return goal >= 50 ? 'gold' : goal >= 25 ? 'silver' : 'bronze';
         case 'specialist': return 'silver';
         case 'all': return 'gold';
+        case 'perfect-day': return 'gold';
         case 'weekly': return 'gold';
         default: return 'silver';
       }
