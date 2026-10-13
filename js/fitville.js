@@ -429,6 +429,22 @@
       return achievementMedalTier(achievement) + ' medal';
     }
     const expandedAchievementCategories = new Set();
+    function achievementInReach(stats) {
+      const upcoming = ACHIEVEMENTS.map(achievement => ({
+        achievement, progress: achievementProgress(achievement, stats),
+      })).filter(({ achievement, progress }) => progress < achievement.goal);
+      upcoming.sort((a, b) =>
+        b.progress / b.achievement.goal - a.progress / a.achievement.goal);
+      if (!upcoming.length) return '';
+      const { achievement, progress } = upcoming[0];
+      return '<aside class="achievement-in-reach" aria-label="Achievement in reach">' +
+        '<img src="assets/icons/' + achievementBadge(achievement) +
+        '.svg?v=20261013-centered-badge" alt="" width="40" height="40">' +
+        '<div><small>Achievement in reach</small><strong>' + safeText(achievement.name) +
+        '</strong><span>' + progress + ' / ' + achievement.goal + '</span>' +
+        '<progress max="' + achievement.goal + '" value="' + progress +
+        '" aria-label="' + safeText(achievement.name) + ' progress"></progress></div></aside>';
+    }
     function renderCollections() {
       const stats = achievementStats(), earned = earnedAchievements();
       return '<section class="card collections"><button class="back-button" data-tab="dashboard">← Back</button>' +
@@ -436,6 +452,7 @@
         '</strong> achievements unlocked</p><progress max="' + ACHIEVEMENTS.length + '" value="' + earned.length +
         '" aria-label="Collection completion"></progress>' +
         (DEV ? '<p class="muted">Developer preview. Achievements are not marked as viewed.</p>' : '') +
+        achievementInReach(stats) +
         ['Consistency', 'Levels', 'Personal Bests', 'Skills'].map((category, index) => {
           const achievements = ACHIEVEMENTS.filter(a => a.category === category);
           const unlockedCount = achievements.filter(a => achievementProgress(a, stats) >= a.goal).length;
