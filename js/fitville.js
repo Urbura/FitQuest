@@ -469,7 +469,7 @@
         '<h2>🏆 Collections</h2><p><strong>' + earned.length + ' / ' + ACHIEVEMENTS.length +
         '</strong> achievements unlocked</p><progress max="' + ACHIEVEMENTS.length + '" value="' + earned.length +
         '" aria-label="Collection completion"></progress>' +
-        (DEV ? '<p class="muted">Developer preview. Achievements are not marked as viewed.</p>' : '') +
+        (DEV ? '<p class="muted">Developer preview. Click badges to test notifications; your normal save is unchanged.</p>' : '') +
         achievementInReach(stats) +
         ['Consistency', 'Levels', 'Personal Bests', 'Skills'].map((category, index) => {
           const achievements = ACHIEVEMENTS.filter(a => a.category === category);
