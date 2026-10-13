@@ -1476,3 +1476,11 @@ button { touch-action: manipulation; }
   .weekly-check-ins { font-size: 11px; margin-top: 4px; }
   .star-reset { font-size: 10px; margin-top: 3px; }
 }
+
+/* In landscape, retain the completion message without restoring the full intro. */
+@media (orientation: landscape) and (max-height: 500px) {
+  body.tracker-home .tracker-intro:has(h2) { display: block; }
+  body.tracker-home .tracker-intro { display: block; }
+  body.tracker-home .tracker-intro h2 { font-size: 14px; line-height: 1.2; margin: 0 0 3px; }
+  body.tracker-home .tracker-intro p { display: none; }
+}
