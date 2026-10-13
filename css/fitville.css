@@ -1283,3 +1283,21 @@ header nav .collections-icon { display: block; width: 30px; height: 30px; object
 .collections .achievement { grid-template-columns: 56px minmax(0, 1fr); }
 .collections .achievement-symbol,
 .collections .achievement-symbol img { width: 56px; height: 56px; }
+
+/* One nearby goal keeps Collections focused without another achievement list. */
+.achievement-in-reach {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  margin-top: 12px;
+  border: 1px solid #b9d8e9;
+  border-radius: 12px;
+  background: #edf7ff;
+}
+.achievement-in-reach > img { flex-shrink: 0; object-fit: contain; }
+.achievement-in-reach > div { flex: 1; min-width: 0; }
+.achievement-in-reach small { display: block; color: #597067; font-size: 12px; }
+.achievement-in-reach strong { font-size: 14px; }
+.achievement-in-reach span { float: right; margin-left: 8px; color: #597067; font-size: 12px; }
+.achievement-in-reach progress { display: block; height: 5px; margin: 6px 0 0; accent-color: #087cd9; }
