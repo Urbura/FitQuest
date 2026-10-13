@@ -841,21 +841,46 @@
     function introScreen() {
       const pages = [
         ['Welcome to FitQuest!', 'Your everyday adventure starts here. Build healthy habits at your own pace.'],
-        ['Check in', 'Choose one of five skills and rate your progress from 0 to 5. Planned rest and recovery can count toward your goals.'],
-        ['Level up', 'Daily check-ins earn XP. Each skill has its own level, and all five contribute to your Total Level.'],
-        ['Collect rewards', 'Reach milestones to unlock achievements, titles, and backgrounds. Visit Collections to see your progress.']
+        ['Try a skill', 'Tap any highlighted skill below to preview its rating choices. This practice does not save a check-in or award XP.'],
+        ['Level up', 'Check-ins earn XP. Watch your skill levels and Total Level grow over time.'],
+        ['Collect rewards', 'Reach milestones for achievements, titles, and backgrounds. Find them in Collections.']
       ];
       const page = pages[introStep] || pages[0];
+      let demo = '';
+      if (introStep === 1) {
+        demo = '<div class="intro-demo-skills" aria-label="Practice skill selection">' +
+          SKILL_DISPLAY_ORDER.map(i => '<button class="intro-demo-skill" data-intro-skill="' + i +
+          '">' + skillIcon(i) + '<span>' + safeText(SKILLS[i].name) + '</span></button>').join('') +
+          '</div><div class="intro-practice" aria-live="polite">' +
+          (introPracticeSkill === null
+            ? '<p>Choose a skill to see how a daily check-in works.</p>'
+            : '<strong>' + safeText(SKILLS[introPracticeSkill].name) +
+              ' practice rating</strong><div class="intro-demo-ratings">' +
+              [0,1,2,3,4,5].map(score => '<button data-intro-rating="' + score +
+              '" aria-pressed="' + (introPracticeRating === score) + '">' + score + '</button>').join('') +
+              '</div><p>' + (introPracticeRating === null
+                ? 'Choose a score from 0 to 5.'
+                : 'You selected ' + introPracticeRating + '/5. In a real check-in, your rating saves immediately.') +
+              '</p>') + '</div>';
+      } else if (introStep === 2) {
+        demo = '<div class="intro-demo-highlight"><strong>Lv 1</strong><span>Skill progress → XP → Next level</span></div>';
+      } else if (introStep === 3) {
+        demo = '<div class="intro-demo-highlight"><img src="assets/icons/collection-trophy.svg" alt="" width="36" height="36"><span>Collections is in the top navigation bar.</span></div>';
+      }
       return '<section class="card fitquest-intro" aria-label="FitQuest introduction">' +
-        '<img src="assets/icons/collection-trophy.svg" alt="" width="72" height="72">' +
-        '<h2>' + page[0] + '</h2><p>' + page[1] + '</p>' +
+        '<img src="assets/icons/collection-trophy.svg" alt="" width="64" height="64">' +
+        '<h2>' + page[0] + '</h2><p>' + page[1] + '</p>' + demo +
         '<span class="intro-counter">' + (introStep === 0 ? 'Welcome' : 'Step ' + introStep + ' of 3') + '</span>' +
         '<div class="intro-actions"><button id="intro-skip">Skip</button>' +
         (introStep > 0 ? '<button id="intro-back">Back</button>' : '') +
         '<button id="intro-next">' + (introStep === 3 ? 'Start checking in' : introStep === 0 ? 'Begin adventure' : 'Next') + '</button></div></section>';
     }
+    let introPracticeSkill = null;
+    let introPracticeRating = null;
     function finishIntro() {
       introStep = -1;
+      introPracticeSkill = null;
+      introPracticeRating = null;
       rememberIntro();
       tab = 'dashboard';
       render(false);
@@ -1160,7 +1185,9 @@
         return;
       }
 
-      if (b.id === 'intro-replay') { introStep = 0; render(false); return; }
+      if (b.id === 'intro-replay') { introStep = 0; introPracticeSkill = null; introPracticeRating = null; render(false); return; }
+      if (introStep >= 0 && b.dataset.introSkill !== undefined) { introPracticeSkill = Number(b.dataset.introSkill); introPracticeRating = null; render(false); return; }
+      if (introStep >= 0 && b.dataset.introRating !== undefined) { introPracticeRating = Number(b.dataset.introRating); render(false); return; }
       if (b.id === 'intro-skip') { finishIntro(); return; }
       if (b.id === 'intro-next') { if (introStep >= 3) finishIntro(); else { introStep++; render(false); } return; }
       if (b.id === 'intro-back') { introStep = Math.max(0, introStep - 1); render(false); return; }
