@@ -1373,3 +1373,6 @@ dialog {
     padding-left: calc(5px + var(--safe-left));
   }
 }
+
+/* Theme colours cover the full app screen, including short Collections pages. */
+body { min-height: 100vh; min-height: 100dvh; }
