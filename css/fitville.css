@@ -1276,3 +1276,5 @@ header nav .collections-icon { display: block; width: 30px; height: 30px; object
 .collections .category-toggle[aria-expanded="true"] { border-bottom: 1px solid #b9d8e9; }
 .collections .achievement-category .achievement-list { margin: 0; padding: 10px; }
 .collections .achievement-list[hidden] { display: none; }
+
+.collections .achievement.unlocked { background: #effaf3; border-color: #a8d7ba; }
