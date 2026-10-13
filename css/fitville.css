@@ -1174,10 +1174,6 @@ header .stats #overall-title {
 }
 
 @media(orientation:landscape) and (max-height:500px) {
-  body.tracker-home .tracker-intro {
-    display: none;
-  }
-
   .skill-star {
     max-width: 650px;
   }
@@ -1477,10 +1473,8 @@ button { touch-action: manipulation; }
   .star-reset { font-size: 10px; margin-top: 3px; }
 }
 
-/* In landscape, retain the completion message without restoring the full intro. */
+/* Keep the completion heading visible while reducing landscape dashboard height. */
 @media (orientation: landscape) and (max-height: 500px) {
-  body.tracker-home .tracker-intro:has(h2) { display: block; }
-  body.tracker-home .tracker-intro { display: block; }
   body.tracker-home .tracker-intro h2 { font-size: 14px; line-height: 1.2; margin: 0 0 3px; }
   body.tracker-home .tracker-intro p { display: none; }
 }
@@ -1539,8 +1533,8 @@ button { touch-action: manipulation; }
 .intro-demo-skill .skill-symbol > span { width: 20px; height: 20px; }
 .intro-practice { min-height: 55px; font-size: 12px; }
 .intro-practice p { font-size: 12px; margin: 4px auto; }
-.intro-demo-ratings { display: flex; justify-content: center; gap: 5px; margin: 7px 0; }
-.intro-demo-ratings button { min-width: 36px; min-height: 36px; padding: 4px; }
+.intro-demo-ratings { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; margin: 7px 0; }
+.intro-demo-ratings button { min-width: 44px; min-height: 44px; padding: 4px; flex: 0 1 44px; }
 .intro-demo-ratings button[aria-pressed="true"] { background: #087bd9; color: white; outline: 2px solid #e2ac2e; }
 .intro-demo-highlight { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 10px; margin: 10px auto; border: 2px solid #e2ac2e; border-radius: 12px; background: #f1f9ff; font-size: 13px; }
 .intro-demo-highlight strong { font-size: 22px; }
