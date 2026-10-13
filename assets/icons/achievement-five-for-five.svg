@@ -1,1 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 74 96"><image width="74" height="96" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEoAAABgCAMAAACNORQTAAAASFBMVEXWjBDY2NgUDxEVXN6uVwevr68AAoeEhF78+61tMwfs21STJgW1rDnJeAVcWlYCAlgLR6/+/v4CAgICAKn+/rMAZP8AAHj/8k2PGOmbAAAA6ElEQVR42u3YjQ6CIBDAcbiARJLUit7/TTObzi2wDq71df8H+A2djgPRkSWYYoopppj6b0quhqEk9GuhqJ6SAmv9NhGSskpVx0R4qv59qor3NCW19iM1JOLhPqqBcs41dJSioACg3SQS6L+mPSVi6o4ydK89HBIxxRRTaWpvDBkVAiFlCKloOe8qxMtaFRUFqfBU+dQnvfcrS8Ksap5krht9c0vUy7Koefw4Lyuj6jJq6BVU0QM6a61TU7tl7ztNkFF6NT6lMsUUU0wx9Q3UdGNIQE33iPLDKBjvogh2Z+h91+mMmeEBdQHwAsWM7iKfYAAAAABJRU5ErkJggg==" style="image-rendering:pixelated"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 120" role="img" aria-label="Five for Five medal">
+  <!-- Transparent, self-contained vector art fits the complete medal in its viewBox. -->
+  <path d="M23 7H47L53 44 39 52Z" fill="#2576c7" stroke="#163b77" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M53 7H77L62 52 47 44Z" fill="#66c4f5" stroke="#163b77" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M47 8H53L55 43 49 48Z" fill="#c5eaff"/>
+  <circle cx="50" cy="76" r="38" fill="#a55b13" stroke="#38280f" stroke-width="5"/>
+  <circle cx="50" cy="74" r="33" fill="#f5bb37" stroke="#ffe28a" stroke-width="4"/>
+  <path d="M50 42 59 61 80 64 65 80 69 101 50 91 31 101 35 80 20 64 41 61Z" fill="#e89418" stroke="#59340f" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M50 47 57 65 75 66 61 79 65 95 50 86 35 95 39 79 25 66 43 65Z" fill="#ffe070" stroke="#f9bd38" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M50 62 60 72 50 84 40 72Z" fill="#c93639" stroke="#7d1c27" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M50 64 56 72 50 77 45 71Z" fill="#ff8b84"/>
+  <path d="M29 61 39 55M67 55 73 62" stroke="#fff2b0" stroke-width="3" stroke-linecap="round"/>
+</svg>
