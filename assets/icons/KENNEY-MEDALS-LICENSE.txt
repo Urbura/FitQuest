@@ -1,0 +1,7 @@
+Kenney Medals (1.1)
+Created by Kenney (https://kenney.nl/assets/medals)
+License: Creative Commons Zero (CC0)
+https://creativecommons.org/publicdomain/zero/1.0/
+Free for personal, educational and commercial use. Attribution is not required.
+Source mirror: https://github.com/Tiddybub/2d-assets/tree/main/ui/medals
+FitQuest extracts three individual medals from the original vector sheet.
