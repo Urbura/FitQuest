@@ -832,10 +832,39 @@
       document.getElementById('total-dialog').showModal();
     }
 
+    // A one-time, skippable introduction. Existing players go straight to the dashboard.
+    const INTRO_KEY = 'fitquest-intro-seen-v1';
+    let introStep = -1;
+    function rememberIntro() {
+      try { localStorage.setItem(INTRO_KEY, '1'); } catch (_) { /* Browsers may block storage. */ }
+    }
+    function introScreen() {
+      const pages = [
+        ['Welcome to FitQuest!', 'Your everyday adventure starts here. Build healthy habits at your own pace.'],
+        ['Check in', 'Choose one of five skills and rate your progress from 0 to 5. Planned rest and recovery can count toward your goals.'],
+        ['Level up', 'Daily check-ins earn XP. Each skill has its own level, and all five contribute to your Total Level.'],
+        ['Collect rewards', 'Reach milestones to unlock achievements, titles, and backgrounds. Visit Collections to see your progress.']
+      ];
+      const page = pages[introStep] || pages[0];
+      return '<section class="card fitquest-intro" aria-label="FitQuest introduction">' +
+        '<img src="assets/icons/collection-trophy.svg" alt="" width="72" height="72">' +
+        '<h2>' + page[0] + '</h2><p>' + page[1] + '</p>' +
+        '<span class="intro-counter">' + (introStep === 0 ? 'Welcome' : 'Step ' + introStep + ' of 3') + '</span>' +
+        '<div class="intro-actions"><button id="intro-skip">Skip</button>' +
+        (introStep > 0 ? '<button id="intro-back">Back</button>' : '') +
+        '<button id="intro-next">' + (introStep === 3 ? 'Start checking in' : introStep === 0 ? 'Begin adventure' : 'Next') + '</button></div></section>';
+    }
+    function finishIntro() {
+      introStep = -1;
+      rememberIntro();
+      tab = 'dashboard';
+      render(false);
+    }
     function renderSettings() {
       return '<button class="back-button" data-tab="dashboard">← Back to Dashboard</button><section class="card tools"><h2>⚙ Settings</h2><p class="muted">Progress stays in this browser. Export before switching devices or clearing browser data.</p><button id="export">Export FitQuest backup</button><p><label>Import FitQuest backup<br><input id="import" type="file" accept=".json,application/json" style="max-width:100%;margin-top:10px" aria-label="Import FitQuest backup"></label></p><button id="restart" class="restart wide">Reset tracker progress</button></section>';
     }
     function renderScreen() {
+      if (introStep >= 0) return introScreen();
       if (tab === 'collections') return renderCollections();
       if (tab === 'settings') return renderSettings();
       return dashboard();
@@ -843,7 +872,7 @@
 
     function render(persist = true) {
       document.body.classList.remove('map-home');
-      document.body.classList.toggle('tracker-home', tab === 'dashboard');
+      document.body.classList.toggle('tracker-home', tab === 'dashboard' && introStep < 0);
       renderHUD();
       document
         .querySelectorAll('nav button')
@@ -1131,6 +1160,10 @@
         return;
       }
 
+      if (b.id === 'intro-replay') { introStep = 0; render(false); return; }
+      if (b.id === 'intro-skip') { finishIntro(); return; }
+      if (b.id === 'intro-next') { if (introStep >= 3) finishIntro(); else { introStep++; render(false); } return; }
+      if (b.id === 'intro-back') { introStep = Math.max(0, introStep - 1); render(false); return; }
       if (b.id === 'level-next') {
         nextCelebration();
         return;
@@ -1409,6 +1442,10 @@
     });
     setupNoticeDismissal();
     setupDevUI();
+    try {
+      // Do not interrupt returning players or developer/test sessions.
+      if (!DEV && rejectedSave === null && !lastSavedRaw && localStorage.getItem(INTRO_KEY) !== '1') introStep = 0;
+    } catch (_) { /* Continue directly to the dashboard if storage is unavailable. */ }
     render(false);
     startupReady = true;
     save();
