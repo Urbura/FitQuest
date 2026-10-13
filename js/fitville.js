@@ -438,6 +438,7 @@
       }
     }
     function achievementBadge(achievement) {
+      if (achievement.id === 'five-perfect-scores') return 'achievement-five-for-five';
       if (achievement.id === 'first-check-in') return 'achievement-first-check-in';
       if (achievement.kind === 'specialist') return 'specialist-' + SKILL_SYMBOLS[achievement.skill];
       if (achievement.kind === 'mastery') return 'mastery-' + SKILL_SYMBOLS[achievement.skill];
