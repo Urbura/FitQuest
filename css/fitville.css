@@ -1310,3 +1310,9 @@ header .stats { flex-direction: row; align-items: center; gap: 6px; }
   header .stats { gap: 3px; }
   #header-rank-badge { width: 30px; height: 30px; }
 }
+
+.achievement-new { display: inline-block; padding: 2px 6px; border-radius: 999px; background: #d93636; color: white; font: 700 11px/1.4 system-ui,sans-serif; white-space: nowrap; }
+.collections button.achievement { width: 100%; text-align: left; color: #203c33; font-size: 16px; box-shadow: none; }
+.collections button.achievement .achievement-new { vertical-align: middle; }
+#header-rank-badge { width: 52px; height: 52px; }
+@media (max-width:600px) { #header-rank-badge { width: 36px; height: 36px; } }
