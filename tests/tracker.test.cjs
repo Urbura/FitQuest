@@ -463,3 +463,18 @@ test('each skill mastery unlocks only when its own skill reaches level 50', () =
   t.setProfileLevels([50,50,50,50,50]);
   assert.equal(t.earnedAchievements().filter(id => id.startsWith('mastery-')).length, 5);
 });
+
+test('achievement notifications clear individually and reject locked achievements', () => {
+  const t = tracker();
+  t.preview(250);
+  t.setProfileLevels([25,25,25,25,25]);
+  const before = t.unseenAchievements().length;
+  assert.ok(before > 1);
+  assert.equal(t.markAchievementViewed('total-10'), true);
+  assert.equal(t.unseenAchievements().length, before - 1);
+  assert.equal(t.unseenAchievements().includes('total-25'), true);
+  assert.equal(t.markAchievementViewed('total-250'), false);
+  assert.equal(t.unseenAchievements().length, before - 1);
+  assert.equal(t.markAchievementViewed('total-10'), true);
+  assert.equal(t.unseenAchievements().length, before - 1);
+});
