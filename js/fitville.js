@@ -1005,8 +1005,34 @@
         (result.delta > 0 ? '+' : '') + result.delta + ' XP' +
         (DEV ? ' · preview only.' : persisted ? ' · saved.' : ' · temporary; export a backup.'));
     }
+    // The first bonus-enabled session establishes a baseline for older saves.
+    // A paid milestone is never paid twice, even if today's ratings are edited.
+    function initializeFiveForFiveRewards() {
+      if (!Number.isInteger(state.fiveForFivePaidMilestones) || state.fiveForFivePaidMilestones < 0)
+        state.fiveForFivePaidMilestones = Math.floor(achievementStats().perfectDayMedals / 5);
+    }
+    function awardFiveForFiveBonus() {
+      const medals = achievementStats().perfectDayMedals;
+      const reached = Math.floor(medals / 5);
+      if (reached <= state.fiveForFivePaidMilestones) return null;
+      const before = state.skills.map(skill => level(skill.xp));
+      const totalBefore = totalSkillLevel();
+      // Catch up at most one new milestone per check-in. No retroactive bulk payouts.
+      state.fiveForFivePaidMilestones = reached;
+      state.skills.forEach(skill => { skill.xp += 5; });
+      const after = state.skills.map(skill => level(skill.xp));
+      const totalAfter = totalSkillLevel();
+      let priorTotal = totalBefore;
+      SKILLS.forEach((_, index) => {
+        const nextTotal = priorTotal + after[index] - before[index];
+        queueLevels(index, before[index], after[index], priorTotal, nextTotal);
+        priorTotal = nextTotal;
+      });
+      return { medals };
+    }
     function submitCheckIn(i, score) {
       const earnedBefore = DEV ? [] : earnedAchievements();
+      initializeFiveForFiveRewards();
       const result = recordCheckIn(i, score);
       if (result.status === 'invalid') return;
       document.getElementById('check-dialog').close();
@@ -1014,6 +1040,7 @@
         notify(SKILLS[i].name + ' is already checked in today.');
         return;
       }
+      const bonus = awardFiveForFiveBonus();
       const persisted = save();
       render(false);
       // A newer shared save can replace this state during saving.
@@ -1030,7 +1057,8 @@
               ? ' · saved.'
               : ' · temporary; export a backup to keep this progress.'),
       );
-      queueLevels(i, result.before, result.after, result.totalBefore, result.totalAfter);
+      if (!bonus) queueLevels(i, result.before, result.after, result.totalBefore, result.totalAfter);
+      else { reward('+5 XP to all five skills'); notify('🏅 Five for Five! ' + bonus.medals + ' medals · +5 XP to every skill!'); }
       const newBadges = DEV ? [] : earnedAchievements().filter(id => !earnedBefore.includes(id));
       if (newBadges.length) notify('🏆 ' + newBadges.length + ' achievement' + (newBadges.length === 1 ? '' : 's') + ' unlocked! Check Collections at the top.');
     }
@@ -1479,6 +1507,7 @@
     });
     setupNoticeDismissal();
     setupDevUI();
+    if (!DEV && rejectedSave === null) initializeFiveForFiveRewards();
     try {
       // Do not interrupt returning players or developer/test sessions.
       if (!DEV && rejectedSave === null && !lastSavedRaw && localStorage.getItem(INTRO_KEY) !== '1') introStep = 0;
