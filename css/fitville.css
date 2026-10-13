@@ -1582,3 +1582,27 @@ button { touch-action: manipulation; }
     max-height: 32px;
   }
 }
+
+/* Mobile medal treatment: taller ribbon, blended white pixels, and breathing room. */
+.collections .achievement:has(img[src*="achievement-five-for-five"]) {
+  grid-template-columns: 68px minmax(0, 1fr);
+  min-height: 86px;
+}
+.collections .achievement-symbol:has(img[src*="achievement-five-for-five"]) {
+  width: 68px;
+  height: 72px;
+  overflow: visible;
+}
+.collections .achievement-symbol img[src*="achievement-five-for-five"] {
+  width: 62px;
+  height: 72px;
+  max-width: none;
+  max-height: none;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+}
+@media (orientation: landscape) and (max-height: 500px) {
+  .collections .achievement:has(img[src*="achievement-five-for-five"]) { grid-template-columns: 48px minmax(0, 1fr); min-height: 60px; }
+  .collections .achievement-symbol:has(img[src*="achievement-five-for-five"]) { width: 46px; height: 50px; }
+  .collections .achievement-symbol img[src*="achievement-five-for-five"] { width: 42px; height: 49px; max-width: none; max-height: none; }
+}
