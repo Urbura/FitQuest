@@ -759,9 +759,26 @@
         ? devTotalLevel
         : totalSkillLevel();
     }
+    function rankForTotalLevel(totalLevel) {
+      let rank = null;
+      for (const [milestone, name] of Object.entries(TOTAL_LEVEL_RANKS)) {
+        if (totalLevel >= Number(milestone)) rank = name;
+      }
+      return rank;
+    }
     function renderHUD() {
       const totalLevel = currentTotalLevel(),
         reward = totalReward(totalLevel);
+      const rank = rankForTotalLevel(totalLevel);
+      const rankBadge = document.getElementById('header-rank-badge');
+      if (rankBadge) {
+        rankBadge.hidden = !rank;
+        if (rank) {
+          rankBadge.src = 'assets/icons/rank-' + rank.toLowerCase() + '.svg';
+          rankBadge.alt = rank + ' rank';
+          rankBadge.title = rank + ' rank';
+        }
+      }
       document.getElementById('overall-level-value').textContent = 'Total Level ' + totalLevel;
       document.getElementById('overall-title').innerHTML = rewardBadge(reward) + '<span>' + safeText(reward.title) + '</span>';
       if (document.getElementById('total-dialog').open)
