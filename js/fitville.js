@@ -397,6 +397,7 @@
       button.setAttribute('aria-label', count ? 'Collections, ' + count + ' new achievements' : 'Collections');
       button.title = count ? 'Collections · ' + count + ' new' : 'Collections';
     }
+    const expandedAchievementCategories = new Set();
     function renderCollections() {
       const stats = achievementStats(), earned = earnedAchievements();
       return '<section class="card collections"><button class="back-button" data-tab="dashboard">← Back</button>' +
@@ -404,12 +405,16 @@
         '</strong> achievements unlocked</p><progress max="' + ACHIEVEMENTS.length + '" value="' + earned.length +
         '" aria-label="Collection completion"></progress>' +
         (DEV ? '<p class="muted">Developer preview. Achievements are not marked as viewed.</p>' : '') +
-        ['Consistency', 'Levels', 'Personal Bests', 'Skills'].map(category => {
+        ['Consistency', 'Levels', 'Personal Bests', 'Skills'].map((category, index) => {
           const achievements = ACHIEVEMENTS.filter(a => a.category === category);
           const unlockedCount = achievements.filter(a => achievementProgress(a, stats) >= a.goal).length;
-          return '<details class="achievement-category"><summary><span>' + category +
-            '</span><span class="category-count">' + unlockedCount + ' / ' + achievements.length +
-            ' unlocked</span></summary><div class="achievement-list">' +
+          const expanded = expandedAchievementCategories.has(category);
+          return '<section class="achievement-category"><h3><button class="category-toggle" data-achievement-category="' +
+            category + '" aria-expanded="' + expanded + '" aria-controls="achievement-category-' + index +
+            '"><span class="category-arrow" aria-hidden="true">' + (expanded ? '▾' : '▸') +
+            '</span><span>' + category + '</span><span class="category-count">' + unlockedCount +
+            ' / ' + achievements.length + ' unlocked</span></button></h3><div id="achievement-category-' +
+            index + '" class="achievement-list"' + (expanded ? '' : ' hidden') + '>' +
           achievements.map(a => {
             const progress = achievementProgress(a, stats), unlocked = progress >= a.goal;
             return '<div class="achievement ' + (unlocked ? 'unlocked' : 'locked') + '">' +
@@ -419,7 +424,7 @@
               '" aria-label="' + safeText(a.name) + ' progress"></progress><small>' +
               Math.min(a.goal, progress) + ' / ' + a.goal + (unlocked ? ' · Unlocked!' : '') +
               '</small></div></div>';
-          }).join('') + '</div></details>';
+          }).join('') + '</div></section>';
         }).join('') + '</section>';
     }
     function markCollectionsViewed() {
@@ -881,6 +886,16 @@
     function handleTrackerClick(e) {
       const b = e.target.closest('button');
       if (!b) return;
+      if (b.dataset.achievementCategory !== undefined) {
+        const category = b.dataset.achievementCategory;
+        const expanded = !expandedAchievementCategories.has(category);
+        if (expanded) expandedAchievementCategories.add(category);
+        else expandedAchievementCategories.delete(category);
+        b.setAttribute('aria-expanded', String(expanded));
+        b.querySelector('.category-arrow').textContent = expanded ? '▾' : '▸';
+        document.getElementById(b.getAttribute('aria-controls')).hidden = !expanded;
+        return;
+      }
       if (syncSharedSave()) render(false);
       refreshDayIfNeeded();
       if (b.id === 'overall-level') {
