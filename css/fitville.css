@@ -1376,3 +1376,11 @@ dialog {
 
 /* Theme colours cover the full app screen, including short Collections pages. */
 body { min-height: 100vh; min-height: 100dvh; }
+
+body.tracker-home .star-xp,
+body.tracker-home .star-level,
+body.tracker-home .star-summary span,
+body.tracker-home .star-reset,
+body.tracker-home .tracker-intro p,
+body.tracker-home .tracker-intro .next-reward,
+body.tracker-home .weekly-check-ins { color: #203c33; }
