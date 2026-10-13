@@ -1278,3 +1278,8 @@ header nav .collections-icon { display: block; width: 30px; height: 30px; object
 .collections .achievement-list[hidden] { display: none; }
 
 .collections .achievement.unlocked { background: #effaf3; border-color: #a8d7ba; }
+
+/* Earned badges have enough space to remain visible on phone screens. */
+.collections .achievement { grid-template-columns: 56px minmax(0, 1fr); }
+.collections .achievement-symbol,
+.collections .achievement-symbol img { width: 56px; height: 56px; }
