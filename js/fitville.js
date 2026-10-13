@@ -341,6 +341,7 @@
       ...[10, 25, 50, 75, 100, 150, 200, 250].map(n => ({ id: 'total-' + n, category: 'Levels', name: TOTAL_LEVEL_RANKS[n], description: 'Reach Total Level ' + n, goal: n, kind: 'total' })),
       ...[10, 25, 50].map(n => ({ id: 'skill-any-' + n, category: 'Skills', name: 'Skill Level ' + n, description: 'Reach Level ' + n + ' in any skill', goal: n, kind: 'skill' })),
       ...SKILLS.map((skill, i) => ({ id: 'specialist-' + i, category: 'Skills', name: skill.name + ' Specialist', description: 'Reach Level 25 in ' + skill.name, goal: 25, kind: 'specialist', skill: i })),
+      ...SKILLS.map((skill, i) => ({ id: 'mastery-' + i, category: 'Skills', name: skill.name + ' Mastery', description: 'Reach Level 50 in ' + skill.name, goal: 50, kind: 'mastery', skill: i })),
       { id: 'all-skills-10', category: 'Skills', name: 'Well Rounded', description: 'Reach Level 10 in all five skills', goal: 10, kind: 'all' },
       { id: 'weekly-best', category: 'Personal Bests', name: 'New Weekly Best', description: 'Exceed your previous best number of active days in a completed week', goal: 1, kind: 'weekly' },
       { id: 'weekly-improvement', category: 'Personal Bests', name: 'On the Rise', description: 'Check in on more days than the previous completed week', goal: 1, kind: 'improved' },
@@ -390,7 +391,8 @@
         case 'streak': return s.longest;
         case 'total': return s.total;
         case 'skill': return Math.max(...s.levels);
-        case 'specialist': return s.levels[a.skill];
+        case 'specialist':
+        case 'mastery': return s.levels[a.skill];
         case 'all': return Math.min(...s.levels);
         case 'weekly': return s.weeklyBest ? 1 : 0;
         case 'improved': return s.improved ? 1 : 0;
@@ -433,13 +435,14 @@
     function achievementBadge(achievement) {
       if (achievement.id === 'first-check-in') return 'achievement-first-check-in';
       if (achievement.kind === 'specialist') return 'specialist-' + SKILL_SYMBOLS[achievement.skill];
+      if (achievement.kind === 'mastery') return 'mastery-' + SKILL_SYMBOLS[achievement.skill];
       if (achievement.kind === 'all') return 'achievement-well-rounded';
       if (achievement.kind === 'total') return 'rank-' + TOTAL_LEVEL_RANKS[achievement.goal].toLowerCase();
       return 'achievement-' + achievementMedalTier(achievement);
     }
     function achievementRewardLabel(achievement) {
       if (achievement.kind === 'total') return TOTAL_LEVEL_RANKS[achievement.goal] + ' rank';
-      if (achievement.kind === 'specialist' || achievement.kind === 'all' || achievement.id === 'first-check-in')
+      if (achievement.kind === 'specialist' || achievement.kind === 'mastery' || achievement.kind === 'all' || achievement.id === 'first-check-in')
         return 'Badge earned';
       return achievementMedalTier(achievement) + ' medal';
     }
