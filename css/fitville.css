@@ -436,7 +436,8 @@ body.tracker-home main {
   display: flex;
   flex-direction: column;
   padding: 14px 12px 12px;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 body.tracker-home .tracker-intro {
@@ -460,7 +461,7 @@ body.tracker-home .tracker-intro p {
   width: 100%;
   max-width: 500px;
   flex: 1;
-  min-height: 0;
+  min-height: 430px;
   max-height: 540px;
   margin: auto;
 }
@@ -500,7 +501,7 @@ body.tracker-home .tracker-intro p {
 
 .star-position-0 {
   left: 50%;
-  top: 15%;
+  top: 18%;
 }
 
 .star-position-1 {
@@ -1226,7 +1227,7 @@ header nav .collection-count[hidden] { display: none; }
 .collections .achievement progress { width: 100%; height: 7px; }
 @media(max-width:420px) {
   header nav { gap: 4px; }
-  header nav button[data-tab="collections"] { width: 38px; height: 38px; min-height: 38px; }
+  header nav button[data-tab="collections"] { width: 44px; height: 44px; min-height: 44px; }
   header nav button[data-tab="collections"] .collections-icon { font-size: 16px; }
 }
 
@@ -1384,3 +1385,47 @@ body.tracker-home .star-reset,
 body.tracker-home .tracker-intro p,
 body.tracker-home .tracker-intro .next-reward,
 body.tracker-home .weekly-check-ins { color: #203c33; }
+
+/* Mobile layout: touch controls, long labels, and small-height fallback. */
+button { touch-action: manipulation; }
+.collections progress {
+  appearance: none;
+  border: 0;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #d8e6ed;
+  accent-color: #087cd9;
+}
+.collections progress::-webkit-progress-bar { background: #d8e6ed; border-radius: 999px; }
+.collections progress::-webkit-progress-value { background: #087cd9; border-radius: 999px; }
+.collections progress::-moz-progress-bar { background: #087cd9; border-radius: 999px; }
+.collections .achievement > div { min-width: 0; overflow-wrap: anywhere; }
+#dev-tools input, #dev-tools select {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  margin: 4px 0 10px;
+  padding: 8px;
+  font: inherit;
+}
+#dev-tools summary { min-height: 44px; padding: 12px 0; cursor: pointer; }
+@media (max-width:600px) {
+  header .stats #overall-title { max-width: 106px; }
+  header .stats #overall-title > span { overflow: hidden; text-overflow: ellipsis; }
+  header .stats #overall-level { padding: 6px; }
+  header>div:has(#dev-open:not([hidden])) { grid-template-columns: minmax(0,1fr) auto auto; }
+  header>div:has(#dev-open:not([hidden])) .stats { grid-column: 2; }
+  header>div:has(#dev-open:not([hidden])) nav { grid-column: 3; }
+  header #dev-open { grid-column: 1 / -1; grid-row: 2; justify-self: end; min-height: 44px; }
+}
+@media (max-width:480px) {
+  .collections .category-toggle { display: grid; grid-template-columns: 10px minmax(0,1fr) auto; gap: 3px 8px; }
+  .collections .category-count { grid-column: 2 / -1; margin-left: 0; font-size: 11px; }
+  .collections .category-toggle .achievement-new { justify-self: end; }
+  .collections .achievement-category .achievement-list { padding: 8px; }
+  .collections .achievement { gap: 8px; padding: 8px; }
+  #check-dialog, #total-dialog { padding: 16px; }
+  #check-dialog .guided-scores { gap: 8px; }
+}
+@media (max-height:650px) { .skill-star { min-height: 360px; } }
+@media (orientation:landscape) and (max-height:500px) { .skill-star { min-height: 260px; } }
