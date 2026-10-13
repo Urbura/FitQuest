@@ -404,9 +404,13 @@
         '</strong> achievements unlocked</p><progress max="' + ACHIEVEMENTS.length + '" value="' + earned.length +
         '" aria-label="Collection completion"></progress>' +
         (DEV ? '<p class="muted">Developer preview. Achievements are not marked as viewed.</p>' : '') +
-        ['Consistency', 'Levels', 'Personal Bests', 'Skills'].map(category =>
-          '<h3>' + category + '</h3><div class="achievement-list">' +
-          ACHIEVEMENTS.filter(a => a.category === category).map(a => {
+        ['Consistency', 'Levels', 'Personal Bests', 'Skills'].map(category => {
+          const achievements = ACHIEVEMENTS.filter(a => a.category === category);
+          const unlockedCount = achievements.filter(a => achievementProgress(a, stats) >= a.goal).length;
+          return '<details class="achievement-category"><summary><span>' + category +
+            '</span><span class="category-count">' + unlockedCount + ' / ' + achievements.length +
+            ' unlocked</span></summary><div class="achievement-list">' +
+          achievements.map(a => {
             const progress = achievementProgress(a, stats), unlocked = progress >= a.goal;
             return '<div class="achievement ' + (unlocked ? 'unlocked' : 'locked') + '">' +
               '<span class="achievement-symbol" aria-hidden="true"><img src="assets/icons/collection-' + (unlocked ? 'unlocked' : 'locked') + '.svg" alt="" width="40" height="40"></span>' +
@@ -415,7 +419,8 @@
               '" aria-label="' + safeText(a.name) + ' progress"></progress><small>' +
               Math.min(a.goal, progress) + ' / ' + a.goal + (unlocked ? ' · Unlocked!' : '') +
               '</small></div></div>';
-          }).join('') + '</div>').join('') + '</section>';
+          }).join('') + '</div></details>';
+        }).join('') + '</section>';
     }
     function markCollectionsViewed() {
       if (DEV) return;
