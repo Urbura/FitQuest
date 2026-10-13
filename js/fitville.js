@@ -467,7 +467,7 @@
       const { achievement, progress } = upcoming[0];
       return '<aside class="achievement-in-reach" aria-label="Achievement in reach">' +
         '<img src="assets/icons/' + achievementBadge(achievement) +
-        '.svg?v=20261013-medal-vector" alt="" width="40" height="40">' +
+        '.svg?v=20261013-grandmaster-rose" alt="" width="40" height="40">' +
         '<div><small>Achievement in reach</small><strong>' + safeText(achievement.name) +
         '</strong><span>' + progress + ' / ' + achievement.goal + '</span>' +
         '<progress max="' + achievement.goal + '" value="' + progress +
@@ -506,8 +506,8 @@
   <path d=\"M57 82L62 77 64 85\" fill=\"none\" stroke=\"#fff1aa\" stroke-width=\"2\" stroke-linecap=\"round\"/>
   <path d=\"M47 68L50 65 52 69\" fill=\"none\" stroke=\"#ffe6de\" stroke-width=\"2\" stroke-linecap=\"round\"/>
   <path d=\"M29 61 39 55M67 55 73 62\" stroke=\"#fff2b0\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n</svg>" :
-                '<img src="assets/icons/' + (unlocked ? achievementBadge(a) : 'collection-locked') +
-                '.svg?v=20261013-medal-vector" alt="" width="56" height="56">') + '</span>' +
+                '<img src="assets/icons/' + (unlocked || a.id === 'all-skills-50' ? achievementBadge(a) : 'collection-locked') +
+                '.svg?v=20261013-grandmaster-rose" alt="" width="56" height="56">') + '</span>' +
               '<div><strong>' + safeText(a.name) + '</strong>' +
                (a.id === 'five-perfect-scores' && unlocked ? ' <span class="perfect-day-medal-count" aria-label="' + stats.perfectDayMedals + ' Five for Five medals earned">×' + stats.perfectDayMedals + ' medals</span>' : '') +
                (isNew ? ' <span class="achievement-new">New</span>' : '') + '<small>' + safeText(a.description) +
