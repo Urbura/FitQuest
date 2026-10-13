@@ -384,9 +384,11 @@
         best = Math.max(best, count);
         previous = count;
       }
-      const bestPerfectDay = Math.max(0, ...Object.values(state.days).map(entry =>
-        Array.isArray(entry && entry.scores) ? entry.scores.filter(score => score === 5).length : 0));
-      return { activeDays: active.length, longest, weeklyBest, improved, bestPerfectDay, levels: state.skills.map(s => level(s.xp)), total: currentTotalLevel() };
+      const perfectDayScores = Object.values(state.days).map(entry =>
+        Array.isArray(entry && entry.scores) ? entry.scores.filter(score => score === 5).length : 0);
+      const bestPerfectDay = Math.max(0, ...perfectDayScores);
+      const perfectDayMedals = perfectDayScores.filter(count => count === SKILLS.length).length;
+      return { activeDays: active.length, longest, weeklyBest, improved, bestPerfectDay, perfectDayMedals, levels: state.skills.map(s => level(s.xp)), total: currentTotalLevel() };
     }
     function achievementProgress(a, s) {
       switch (a.kind) {
@@ -496,7 +498,9 @@
               '<span class="achievement-symbol" aria-hidden="true"><img src="assets/icons/' +
               (unlocked ? achievementBadge(a) : 'collection-locked') +
               '.svg?v=20261013-centered-badge" alt="" width="56" height="56"></span>' +
-              '<div><strong>' + safeText(a.name) + '</strong>' + (isNew ? ' <span class="achievement-new">New</span>' : '') + '<small>' + safeText(a.description) +
+              '<div><strong>' + safeText(a.name) + '</strong>' +
+               (a.id === 'five-perfect-scores' && unlocked ? ' <span class="perfect-day-medal-count" aria-label="' + stats.perfectDayMedals + ' Five for Five medals earned">×' + stats.perfectDayMedals + ' medals</span>' : '') +
+               (isNew ? ' <span class="achievement-new">New</span>' : '') + '<small>' + safeText(a.description) +
               '</small><progress max="' + a.goal + '" value="' + Math.min(a.goal, progress) +
               '" aria-label="' + safeText(a.name) + ' progress"></progress><small>' +
               Math.min(a.goal, progress) + ' / ' + a.goal + (unlocked ? ' · ' + achievementRewardLabel(a) + ' · Unlocked!' : '') +
