@@ -1429,3 +1429,50 @@ button { touch-action: manipulation; }
 }
 @media (max-height:650px) { .skill-star { min-height: 360px; } }
 @media (orientation:landscape) and (max-height:500px) { .skill-star { min-height: 260px; } }
+
+/* Short landscape screens use a row instead of compressing the skill star. */
+@media (orientation:landscape) and (max-height:500px) {
+  body.tracker-home main { padding-top: 8px; }
+  .skill-star {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-rows: auto 1fr;
+    gap: 6px 10px;
+    align-items: center;
+    max-width: 720px;
+    min-height: 160px;
+    max-height: none;
+    margin: auto;
+  }
+  .star-summary {
+    position: static;
+    transform: none;
+    grid-column: 1 / -1;
+    grid-row: 1;
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 6px;
+  }
+  .star-summary strong { font-size: 20px; }
+  .star-summary span { font-size: 11px; }
+  .star-skill {
+    position: relative;
+    left: auto;
+    top: auto;
+    transform: none;
+    grid-row: 2;
+    width: 100%;
+    min-width: 0;
+    gap: 3px;
+    padding: 3px 0;
+  }
+  .star-skill .skill-symbol { width: 48px; height: 48px; }
+  .star-skill .skill-symbol > span { width: 28px; height: 28px; }
+  .star-skill strong { font-size: 12px; min-height: 28px; display: flex; align-items: center; justify-content: center; }
+  .star-level { font-size: 12px; }
+  .star-check { top: 19px; }
+  .star-skill .star-progress { max-width: 100px; }
+  .weekly-check-ins { font-size: 11px; margin-top: 4px; }
+  .star-reset { font-size: 10px; margin-top: 3px; }
+}
