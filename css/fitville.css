@@ -481,20 +481,20 @@ body.tracker-home .tracker-intro p {
 }
 
 .star-skill .skill-symbol {
-  width: clamp(56px,16vw,76px);
-  height: clamp(56px,16vw,76px);
+  width: clamp(64px,18vw,88px);
+  height: clamp(64px,18vw,88px);
   margin: 0;
   border: 2px solid var(--skill);
   box-shadow: 0 4px 12px #203c5514;
 }
 
 .star-skill .skill-symbol>span {
-  width: 34px;
-  height: 34px;
+  width: 40px;
+  height: 40px;
 }
 
 .star-skill strong {
-  font-size: 13px;
+  font-size: 15px;
   line-height: 1.15;
 }
 
@@ -578,7 +578,7 @@ body.tracker-home .tracker-intro p {
 .star-level {
   color: var(--skill);
   font-weight: 700;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .star-skill.is-complete .skill-symbol {
@@ -687,7 +687,7 @@ body.tracker-home .tracker-intro p {
 
 .star-xp {
   color: #597067;
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.2;
 }
 
@@ -1139,13 +1139,13 @@ header .stats #overall-title {
 
 @media(max-height:650px) {
   .star-skill .skill-symbol {
-    width: 50px;
-    height: 50px;
+    width: 56px;
+    height: 56px;
   }
 
   .star-skill .skill-symbol>span {
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
   }
 
   .star-skill {
@@ -1158,7 +1158,7 @@ header .stats #overall-title {
   }
 
   .star-xp {
-    font-size: 9px;
+    font-size: 10px;
   }
 
   body.tracker-home .tracker-intro .next-reward {
