@@ -1236,3 +1236,33 @@ header nav .collections-icon { display: block; width: 30px; height: 30px; object
 .collections .achievement-symbol { display: grid; place-items: center; width: 40px; height: 40px; }
 .collections .achievement-symbol img { display: block; width: 40px; height: 40px; object-fit: contain; }
 @media(max-width:420px) { header nav button[data-tab="collections"] .collections-icon { width: 27px; height: 27px; } }
+
+/* Native disclosure controls keep achievement categories compact and keyboard accessible. */
+.collections .achievement-category {
+  margin-top: 12px;
+  border: 1px solid #b9d8e9;
+  border-radius: 12px;
+  background: #f4faff;
+  overflow: hidden;
+}
+.collections .achievement-category summary {
+  min-height: 48px;
+  padding: 12px;
+  cursor: pointer;
+  font-weight: 700;
+}
+.collections .achievement-category summary::marker { color: #086bad; }
+.collections .category-count {
+  float: right;
+  margin-left: 8px;
+  color: #597067;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 24px;
+}
+.collections .achievement-category summary:focus-visible {
+  outline: 3px solid #087bd9;
+  outline-offset: -3px;
+}
+.collections .achievement-category[open] summary { border-bottom: 1px solid #b9d8e9; }
+.collections .achievement-category .achievement-list { margin: 0; padding: 10px; }
