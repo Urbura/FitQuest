@@ -861,9 +861,9 @@
     function introScreen() {
       const pages = [
         ['Welcome to FitQuest!', 'Your everyday adventure starts here. Build healthy habits at your own pace.'],
-        ['Try a skill', 'Tap any highlighted skill below to preview its rating choices. This practice does not save a check-in or award XP.'],
-        ['Level up', 'Check-ins earn XP. Watch your skill levels and Total Level grow over time.'],
-        ['Collect rewards', 'Reach milestones for achievements, titles, and backgrounds. Find them in Collections.']
+        ['Try a skill', 'Choose a skill and rate progress toward your own goal. Planned rest or recovery can count as meeting your goal. This is practice only.'],
+        ['Level up', 'Real check-ins earn XP equal to your rating, plus any unlocked skill bonus. A 0/5 earns 0 XP. Watch your skill and Total Levels grow.'],
+        ['Collect rewards', 'Earn achievements, titles, and backgrounds as you progress. Find them in Collections, then start your first real check-in!']
       ];
       const page = pages[introStep] || pages[0];
       let demo = '';
@@ -875,12 +875,12 @@
           (introPracticeSkill === null
             ? '<p>Choose a skill to see how a daily check-in works.</p>'
             : '<strong>' + safeText(SKILLS[introPracticeSkill].name) +
-              ' practice rating</strong><div class="intro-demo-ratings">' +
+              ' practice rating</strong><p class="muted">0 = No progress · 1 = Small start · 2 = Some progress · 3 = About halfway · 4 = Mostly met · 5 = Goal met</p><div class="intro-demo-ratings">' +
               [0,1,2,3,4,5].map(score => '<button data-intro-rating="' + score +
               '" aria-pressed="' + (introPracticeRating === score) + '">' + score + '</button>').join('') +
               '</div><p>' + (introPracticeRating === null
                 ? 'Choose a score from 0 to 5.'
-                : 'You selected ' + introPracticeRating + '/5. In a real check-in, your rating saves immediately.') +
+                : 'You chose ' + introPracticeRating + '/5 — ' + RATING_GUIDANCE[introPracticeRating] + '. Example at Level 1: +' + checkInXP(introPracticeRating, 1) + ' XP. Practice only: nothing saved.') +
               '</p>') + '</div>';
       } else if (introStep === 2) {
         demo = '<div class="intro-demo-highlight"><strong>Lv 1</strong><span>Skill progress → XP → Next level</span></div>';
