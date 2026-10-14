@@ -533,3 +533,21 @@ test('invalid quest metadata is rejected and old saves remain valid', () => {
     assert.throws(() => t.readSave(JSON.stringify(s)), /Invalid daily quest/);
   }
 });
+
+test('quest swaps are limited to two per reset day and remain limited after reload', () => {
+  const t = tracker();
+  assert.equal(t.swapDailyQuest(t.day()), true);
+  assert.equal(t.swapDailyQuest(t.day()), true);
+  const quest = JSON.stringify(t.dailyQuest());
+  assert.equal(t.swapDailyQuest(t.day()), false);
+  assert.equal(JSON.stringify(t.dailyQuest()), quest);
+  t.setState(t.readSave(JSON.stringify(t.state())));
+  assert.equal(t.swapDailyQuest(t.day()), false);
+  const tomorrow = tracker('2026-10-09T16:00:00Z');
+  tomorrow.setState(t.readSave(JSON.stringify(t.state())));
+  assert.equal(tomorrow.dailyQuest().swaps, 0);
+  assert.equal(tomorrow.swapDailyQuest(tomorrow.day()), true);
+  const legacy = JSON.parse(JSON.stringify(t.state()));
+  delete legacy.days[t.day()].quest.swaps;
+  assert.equal(t.readSave(JSON.stringify(legacy)).days[t.day()].quest.swaps, 0);
+});

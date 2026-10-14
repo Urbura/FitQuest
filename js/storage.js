@@ -36,8 +36,10 @@
           throw Error('Invalid check-in history');
         if (entry.quest !== undefined) {
           const q = entry.quest;
+          if (q && q.swaps === undefined) q.swaps = 0;
           if (!q || !Number.isInteger(q.skill) || q.skill < 0 || q.skill >= skillCount ||
               !Number.isInteger(q.index) || q.index < 0 || q.index >= config.dailyQuests[q.skill].length ||
+              !Number.isInteger(q.swaps) || q.swaps < 0 || q.swaps > 2 ||
               typeof q.completed !== 'boolean' || typeof q.everCompleted !== 'boolean' ||
               (q.completed && !q.everCompleted)) throw Error('Invalid daily quest');
         }

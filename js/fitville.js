@@ -393,7 +393,7 @@
       let seed = 2166136261;
       for (const character of key) seed = Math.imul(seed ^ character.charCodeAt(0), 16777619) >>> 0;
       const skill = seed % SKILLS.length;
-      return { skill, index: Math.floor(seed / SKILLS.length) % CONFIG.dailyQuests[skill].length, completed: false, everCompleted: false };
+      return { skill, index: Math.floor(seed / SKILLS.length) % CONFIG.dailyQuests[skill].length, completed: false, everCompleted: false, swaps: 0 };
     }
     function storeDailyQuest(quest) {
       if (!state.days[day()]) state.days[day()] = { scores: Array(SKILLS.length).fill(null), rates: Array(SKILLS.length).fill(null) };
@@ -415,7 +415,8 @@
     function swapDailyQuest(expectedDay) {
       if (expectedDay !== day()) return false;
       const quest = { ...dailyQuest() };
-      if (quest.everCompleted) return false;
+      if (quest.everCompleted || (quest.swaps || 0) >= 2) return false;
+      quest.swaps = (quest.swaps || 0) + 1;
       // Cycle skills and tasks so an unsuitable activity can always be replaced.
       quest.skill = (quest.skill + 1) % SKILLS.length;
       quest.index = (quest.index + 1) % CONFIG.dailyQuests[quest.skill].length;
@@ -427,7 +428,7 @@
       return '<section class="daily-quest"><div><strong>Daily Quest</strong><small>+2 XP · ' + safeText(SKILLS[quest.skill].name) + '</small></div>' +
         '<label><input type="checkbox" id="daily-quest-check" data-quest-day="' + day() + '"' + (quest.completed ? ' checked' : '') + '>' +
         '<span>' + safeText(CONFIG.dailyQuests[quest.skill][quest.index]) + '</span></label>' +
-        (quest.everCompleted ? '' : '<button type="button" data-swap-quest="' + day() + '">Swap</button>') + '</section>';
+        (quest.everCompleted ? '' : '<button type="button" data-swap-quest="' + day() + '"' + ((quest.swaps || 0) >= 2 ? ' disabled' : '') + '>Swap · ' + (2 - (quest.swaps || 0)) + ' left</button>') + '</section>';
     }
     function dashboard() {
       const entry = dailyEntry(),
