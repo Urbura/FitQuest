@@ -29,12 +29,11 @@ jobs:
           node-version: '22'
       - name: Check JavaScript syntax
         run: |
-          node --check js/config.js
-          node --check js/progression.js
-          node --check js/storage.js
-          node --check js/fitville.js
-      - name: Test tracker behavior
-        run: node --test tests/tracker.test.cjs
+          for file in js/*.js; do
+            node --check "$file"
+          done
+      - name: Test tracker and achievement behavior
+        run: node --test tests/*.test.cjs
 
   deploy:
     name: Deploy GitHub Pages

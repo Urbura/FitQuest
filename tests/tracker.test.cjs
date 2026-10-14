@@ -11,6 +11,7 @@ const source = readFileSync(join(__dirname, '../js/fitville.js'), 'utf8');
 const configSource = readFileSync(join(__dirname, '../js/config.js'), 'utf8');
 const progressionSource = readFileSync(join(__dirname, '../js/progression.js'), 'utf8');
 const storageSource = readFileSync(join(__dirname, '../js/storage.js'), 'utf8');
+const achievementsSource = readFileSync(join(__dirname, '../js/achievements.js'), 'utf8');
 const configContext = vm.createContext({});
 vm.runInContext(configSource, configContext);
 const config = configContext.FitQuestConfig;
@@ -46,6 +47,7 @@ function tracker(now = '2026-10-08T16:00:00Z') {
   vm.runInContext(configSource, context, { filename: 'js/config.js' });
   vm.runInContext(progressionSource, context, { filename: 'js/progression.js' });
   vm.runInContext(storageSource, context, { filename: 'js/storage.js' });
+  vm.runInContext(achievementsSource, context, { filename: 'js/achievements.js' });
   vm.runInContext(source, context, { filename: 'js/fitville.js', timeout: 1000 });
   assert.ok(context.tracker, 'Tracker logic must load without a startup error');
   return context.tracker;
