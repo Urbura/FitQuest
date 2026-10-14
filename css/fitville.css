@@ -1573,3 +1573,11 @@ button { touch-action: manipulation; }
 @media (orientation: landscape) and (max-height: 500px) {
   .collections .achievement-symbol .five-for-five-medal { width: 30px; height: 32px; }
 }
+
+/* Nearby milestones share the collection badge styling. */
+button.achievement-in-reach { width: 100%; text-align: left; cursor: pointer; font: inherit; }
+#nearby-dialog { max-height: 85dvh; overflow-y: auto; }
+.nearby-milestones { display: grid; gap: 10px; }
+.nearby-milestone { display: flex; align-items: center; gap: 12px; padding: 10px; border: 1px solid #d5e2df; border-radius: 12px; }
+.nearby-milestone img { flex-shrink: 0; object-fit: contain; }
+.nearby-milestone small { display: block; margin-top: 4px; }

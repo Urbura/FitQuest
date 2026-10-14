@@ -131,6 +131,31 @@ globalThis.FitQuestAchievements = {
       return achievementMedalTier(achievement) + ' medal';
     }
     const expandedAchievementCategories = new Set();
+    function nearbyLevelAchievements(stats = achievementStats()) {
+      return ACHIEVEMENTS.filter(a => ['total', 'skill', 'specialist', 'mastery', 'all'].includes(a.kind))
+        .map(achievement => {
+          const progress = achievementProgress(achievement, stats);
+          return { achievement, progress, remaining: achievement.goal - progress };
+        })
+        .filter(item => item.remaining > 0 && item.remaining <= 3)
+        .sort((a, b) => a.remaining - b.remaining || a.achievement.name.localeCompare(b.achievement.name));
+    }
+    function renderNearbyMilestones() {
+      const nearby = nearbyLevelAchievements();
+      if (!nearby.length) return '<p>No level milestones within three levels yet. Keep checking in to bring the next milestone closer.</p>';
+      return '<div class="nearby-milestones">' + nearby.map(({ achievement: a, remaining }) => {
+        const requirement = a.kind === 'total' ? 'Reach Total Level ' + a.goal :
+          a.kind === 'all' ? 'Reach Level ' + a.goal + ' in every skill' :
+          a.kind === 'skill' ? 'Reach Level ' + a.goal + ' in any skill' :
+          'Reach Level ' + a.goal + ' in ' + SKILLS[a.skill].name;
+        const distance = a.kind === 'total' ? remaining + ' Total Level' + (remaining === 1 ? '' : 's') + ' away' :
+          a.kind === 'all' ? 'Every skill within ' + remaining + ' level' + (remaining === 1 ? '' : 's') :
+          remaining + ' level' + (remaining === 1 ? '' : 's') + ' away';
+        return '<article class="nearby-milestone"><img src="assets/icons/' + achievementBadge(a) +
+          '.svg?v=20261014-star-position" alt="" width="48" height="48"><div><strong>' + safeText(a.name) +
+          '</strong><small>' + safeText(requirement) + '</small><small>' + distance + '</small></div></article>';
+      }).join('') + '</div>';
+    }
     function achievementInReach(stats) {
       const upcoming = ACHIEVEMENTS.map(achievement => ({
         achievement, progress: achievementProgress(achievement, stats),
@@ -139,13 +164,13 @@ globalThis.FitQuestAchievements = {
         b.progress / b.achievement.goal - a.progress / a.achievement.goal);
       if (!upcoming.length) return '';
       const { achievement, progress } = upcoming[0];
-      return '<aside class="achievement-in-reach" aria-label="Achievement in reach">' +
+      return '<button type="button" class="achievement-in-reach" data-nearby-milestones aria-haspopup="dialog" aria-controls="nearby-dialog" aria-label="Achievement in reach: view nearby level milestones">' +
         '<img src="assets/icons/' + achievementBadge(achievement) +
         '.svg?v=20261014-star-position" alt="" width="40" height="40">' +
         '<div><small>Achievement in reach</small><strong>' + safeText(achievement.name) +
         '</strong><span>' + progress + ' / ' + achievement.goal + '</span>' +
         '<progress max="' + achievement.goal + '" value="' + progress +
-        '" aria-label="' + safeText(achievement.name) + ' progress"></progress></div></aside>';
+        '" aria-label="' + safeText(achievement.name) + ' progress"></progress><small>View nearby milestones ›</small></div></button>';
     }
     function renderCollections() {
       const stats = achievementStats(), earned = earnedAchievements(), unseen = new Set(unseenAchievements());
@@ -193,6 +218,6 @@ globalThis.FitQuestAchievements = {
     }
 
 
-    return { TOTAL_LEVEL_RANKS, ACHIEVEMENTS, achievementStats, earnedAchievements, unseenAchievements, updateCollectionBadge, expandedAchievementCategories, renderCollections, markAchievementViewed };
+    return { TOTAL_LEVEL_RANKS, ACHIEVEMENTS, achievementStats, earnedAchievements, unseenAchievements, updateCollectionBadge, expandedAchievementCategories, renderCollections, markAchievementViewed, nearbyLevelAchievements, renderNearbyMilestones };
   }
 };

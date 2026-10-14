@@ -129,3 +129,24 @@ test('collection HTML shows new labels and hides them after viewing', () => {
   f.achievements.markAchievementViewed('first-check-in');
   assert.doesNotMatch(f.achievements.renderCollections(), /1 new/);
 });
+
+test('nearby milestones include only locked level goals within three levels, nearest first', () => {
+  const f = fixture();
+  const stats = { levels: [7, 7, 7, 7, 6], total: 22 };
+  const nearby = f.achievements.nearbyLevelAchievements(stats);
+  assert.ok(nearby.some(x => x.achievement.id === 'total-25' && x.remaining === 3));
+  assert.ok(nearby.some(x => x.achievement.id === 'skill-any-10' && x.remaining === 3));
+  assert.ok(!nearby.some(x => x.achievement.id === 'all-skills-10'));
+  assert.ok(!nearby.some(x => x.achievement.id === 'total-10'));
+  assert.ok(nearby.every(x => x.remaining > 0 && x.remaining <= 3));
+  assert.ok(nearby.every((x, i) => i === 0 || nearby[i - 1].remaining <= x.remaining));
+  stats.levels = [10, 10, 10, 10, 7];
+  assert.ok(f.achievements.nearbyLevelAchievements(stats).some(x => x.achievement.id === 'all-skills-10'));
+  stats.levels = [50, 50, 50, 50, 50];
+  stats.total = 250;
+  assert.equal(f.achievements.nearbyLevelAchievements(stats).length, 0);
+  assert.match(f.achievements.renderNearbyMilestones(), /No level milestones within three levels/);
+  f.setLevel(0, 7);
+  assert.match(f.achievements.renderNearbyMilestones(), /3 levels away/);
+  assert.match(f.achievements.renderCollections(), /data-nearby-milestones/);
+});
