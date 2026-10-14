@@ -1635,3 +1635,5 @@ header #header-rank-button { flex-basis: 52px; width: 52px; }
 @media (max-width:350px) {
   header .app-logo { width: 76px; }
 }
+
+header nav button[data-tab="settings"] .settings-icon { width: 24px; height: 24px; }

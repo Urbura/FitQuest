@@ -175,7 +175,7 @@ globalThis.FitQuestAchievements = {
     function renderCollections() {
       const stats = achievementStats(), earned = earnedAchievements(), unseen = new Set(unseenAchievements());
       return '<section class="card collections"><button class="back-button" data-tab="dashboard">← Back</button>' +
-        '<h2 class="collections-heading"><img src="assets/icons/collection-trophy.svg?v=20261014-centered" alt="" width="36" height="36">Collections</h2><p><strong>' + earned.length + ' / ' + ACHIEVEMENTS.length +
+        '<h2 class="collections-heading"><img src="assets/icons/collection-trophy.svg?v=20261014-lowered" alt="" width="36" height="36">Collections</h2><p><strong>' + earned.length + ' / ' + ACHIEVEMENTS.length +
         '</strong> achievements unlocked</p><progress max="' + ACHIEVEMENTS.length + '" value="' + earned.length +
         '" aria-label="Collection completion"></progress>' +
         (isDev() ? '<p class="muted">Developer preview. Click badges to test notifications; your normal save is unchanged.</p>' : '') +
