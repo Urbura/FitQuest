@@ -446,11 +446,7 @@
             '</button>'
           );
         }).join('') +
-        '</div><p class="weekly-check-ins" aria-live="polite">' +
-        weeklyCheckInText() +
-        '</p><p class="star-reset muted">' +
-        resetText() +
-        '</p>'
+        '</div>'
       );
     }
 
@@ -882,7 +878,9 @@
       ];
       return '<div class="journey-grid">' + items.map(([value, label]) =>
         '<div class="journey-stat"><strong>' + safeText(value) + '</strong><span>' + label + '</span></div>').join('') +
-        '</div>' + (summary.started ? '' : '<p class="muted">Your journey begins with your first check-in.</p>');
+        '</div><p class="weekly-check-ins" aria-live="polite">' + weeklyCheckInText() +
+        '</p><p class="muted">' + resetText() + '</p>' +
+        (summary.started ? '' : '<p class="muted">Your journey begins with your first check-in.</p>');
     }
     function rankProgressionPanel() {
       const total = currentTotalLevel();
