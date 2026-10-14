@@ -13,7 +13,7 @@
         <div class="muted">YOUR EVERYDAY ADVENTURE</div>
         <h1><button id="journey-open" type="button" aria-label="FitQuest: view your journey" aria-haspopup="dialog" aria-controls="journey-dialog"><img class="app-logo" src="assets/fitquest-logo-v1.webp" alt="FitQuest" width="640" height="189" fetchpriority="high" /></button></h1>
         <p class="muted">Track habits. Build your fitness skills.</p>
-        <div class="stats"><button id="header-rank-button" type="button" aria-haspopup="dialog" aria-controls="ranks-dialog" aria-label="View rank progression" hidden><img id="header-rank-badge" width="40" height="40" alt="" hidden /></button><button id="overall-level" type="button" aria-haspopup="dialog" aria-controls="total-dialog" title="View Total Level rewards"><span id="overall-title"></span><span id="overall-level-value"></span></button></div>
+        <div class="stats"><button id="header-rank-button" type="button" aria-haspopup="dialog" aria-controls="ranks-dialog" aria-label="View rank progression" hidden><img id="header-rank-badge" width="40" height="40" alt="" hidden /></button><button id="overall-level" type="button" aria-haspopup="dialog" aria-controls="total-dialog" title="View Total Level ranks"><span id="overall-title"></span><span id="overall-level-value"></span></button></div>
       </div>
     </header>
     <div id="dev-tools" hidden>
@@ -87,7 +87,7 @@
       <button id="level-next" class="wide">Continue</button>
     </dialog>
     <dialog id="total-dialog" aria-labelledby="total-heading">
-      <div class="row"><h2 id="total-heading">Total Level rewards</h2><button id="total-close" class="popup-close" aria-label="Close Total Level rewards">×</button></div>
+      <div class="row"><h2 id="total-heading">Total Level ranks</h2><button id="total-close" class="popup-close" aria-label="Close Total Level ranks">×</button></div>
       <div id="total-content"></div>
     </dialog>
     <dialog id="nearby-dialog" aria-labelledby="nearby-heading">
@@ -109,11 +109,11 @@
       <button data-tab="collections" title="Collections"><img class="collections-icon" src="assets/icons/collection-trophy.svg?v=20261014-centered" alt="" width="30" height="30" /><span class="collection-count" hidden></span>Collections</button>
        <button data-tab="settings"><span class="settings-icon" aria-hidden="true"></span>Settings</button>
     </nav>
-    <script src="js/config.js?v=20261014-rank-titles"></script>
+    <script src="js/config.js?v=20261014-ranks-only"></script>
     <script src="js/progression.js?v=20261008-progression"></script>
     <script src="js/storage.js?v=20261009-storage"></script>
     <script src="js/intro.js?v=20261013-intro-module"></script>
     <script src="js/achievements.js?v=20261014-nearby-milestones"></script>
-    <script src="js/fitville.js?v=20261014-journey"></script>
+    <script src="js/fitville.js?v=20261014-ranks-only"></script>
   </body>
 </html>

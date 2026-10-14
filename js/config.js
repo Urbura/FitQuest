@@ -134,63 +134,63 @@ globalThis.FitQuestConfig = {
   "totalRewards": [
     {
       "level": 5,
-      "title": "Starter",
+      "title": "Unranked",
       "badge": "shoe",
       "theme": "sky",
       "themeName": "Sky"
     },
     {
       "level": 10,
-      "title": "Beginner",
+      "title": "Bronze",
       "badge": "bottle",
       "theme": "pearl",
       "themeName": "Pearl"
     },
     {
       "level": 25,
-      "title": "Pathfinder",
+      "title": "Silver",
       "badge": "apple",
       "theme": "rose",
       "themeName": "Rose"
     },
     {
       "level": 50,
-      "title": "Explorer",
+      "title": "Gold",
       "badge": "stretch",
       "theme": "ice",
       "themeName": "Ice Blue"
     },
     {
       "level": 75,
-      "title": "Wayfinder",
+      "title": "Platinum",
       "badge": "rope",
       "theme": "lagoon",
       "themeName": "Lagoon"
     },
     {
       "level": 100,
-      "title": "Builder",
+      "title": "Emerald",
       "badge": "dumbbell",
       "theme": "ocean",
       "themeName": "Ocean"
     },
     {
       "level": 150,
-      "title": "Keeper",
+      "title": "Diamond",
       "badge": "heart",
       "theme": "meadow",
       "themeName": "Meadow"
     },
     {
       "level": 200,
-      "title": "Guardian",
+      "title": "Master",
       "badge": "kettlebell",
       "theme": "lavender",
       "themeName": "Lavender"
     },
     {
       "level": 250,
-      "title": "Champion",
+      "title": "Grandmaster",
       "badge": "trophy",
       "theme": "sunrise",
       "themeName": "Sunrise"

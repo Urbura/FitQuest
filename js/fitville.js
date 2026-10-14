@@ -368,6 +368,9 @@
       trophy: 'M10 5H22V13C22 22 10 22 10 13ZM10 8H5V12C5 17 10 17 11 17M22 8H27V12C27 17 22 17 21 17M16 20V26M10 28H22M13 10H15V15H13ZM17 10H19V15H17ZM15 12H17',
     };
     function rewardBadge(milestone, large = false) {
+      const rank = TOTAL_LEVEL_RANKS[milestone.level];
+      if (rank) return '<img class="reward-badge' + (large ? ' reward-badge-large' : '') +
+        '" src="assets/icons/rank-' + rank.toLowerCase() + '.svg?v=20261014-star-position" alt="" width="40" height="40">';
       const path = BADGE_PATHS[milestone.badge] || BADGE_PATHS.dumbbell;
       return '<svg class="reward-badge' + (large ? ' reward-badge-large' : '') +
         '" viewBox="0 0 40 40" aria-hidden="true" focusable="false">' +
@@ -379,7 +382,7 @@
       const current = currentTotalLevel(),
         next = nextRewardForTotalLevel(current);
       if (!next) return 'All Total Level rewards unlocked!';
-      return 'Next title at Total Level ' + next.level + ': ' + next.title;
+      return 'Next rank at Total Level ' + next.level + ': ' + next.title;
     }
     function dashboard() {
       const entry = dailyEntry(),
@@ -511,7 +514,7 @@
           (milestone
             ? rewardBadge(milestone, true) +
               '<h3>' + safeText(milestone.title) + ' unlocked</h3>' +
-              '<p>Your new title and badge are displayed in your Total Level button.</p>'
+              '<p>Your new rank is displayed beside your Total Level.</p>'
             : '<h3>Your first total level-up!</h3>' +
               '<p>You’re building a healthy habit. Small, consistent steps add up—keep checking in toward your own goals.</p>' +
               '<p class="muted">Your Total Level adds up all five skill levels. Each skill level-up increases your Total Level.</p>');
@@ -617,7 +620,7 @@
         }
       }
       document.getElementById('overall-level-value').textContent = 'Total Level ' + totalLevel;
-      document.getElementById('overall-title').innerHTML = rewardBadge(reward) + '<span>' + safeText(reward.title) + '</span>';
+      document.getElementById('overall-title').innerHTML = '<span>' + safeText(rank || 'Unranked') + '</span>';
       if (document.getElementById('total-dialog').open)
         document.getElementById('total-content').innerHTML = totalRewardsPanel();
       updateCollectionBadge();
