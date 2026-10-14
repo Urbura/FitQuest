@@ -45,7 +45,7 @@ Start with **js/config.js** for names, titles, rewards, colours, or balancing. S
 Find the entry in `totalRewards` and edit its `title`:
 
 ```js
-{ level: 25, title: 'Habit Pathfinder', theme: 'rose', themeName: 'Rose' }
+{ level: 25, title: 'Pathfinder', theme: 'rose', themeName: 'Rose' }
 ```
 
 The header, next-reward message, and celebration all use this entry.

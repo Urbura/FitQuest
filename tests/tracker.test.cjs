@@ -138,7 +138,7 @@ test('reward milestones have distinct titles and themes and unlock at the correc
     if (reward.level > 5) assert.notEqual(t.totalReward(reward.level - 1).title, reward.title);
   }
   t.preview(50);
-  assert.match(t.nextRewardText(), /^Next title at Total Level 75: Habit Wayfinder$/);
+  assert.match(t.nextRewardText(), /^Next title at Total Level 75: Wayfinder$/);
   t.preview(250);
   assert.equal(t.nextRewardText(), 'All Total Level rewards unlocked!');
 });
@@ -151,7 +151,7 @@ test('first Total Level and reward celebrations queue once, with skill celebrati
   assert.equal(first.queued()[0].total, true);
   const milestone = tracker();
   milestone.queueLevels(0, 9, 10, 49, 50);
-  assert.equal(milestone.queued()[0].milestone.title, 'Habit Explorer');
+  assert.equal(milestone.queued()[0].milestone.title, 'Explorer');
   const later = tracker();
   later.queueLevels(0, 10, 10, 50, 50);
   assert.equal(later.queued().length, 0);
@@ -393,7 +393,7 @@ test('reward pages show one configured milestone with correct unlock status', ()
       assert.equal(panel.includes('id="reward-next" disabled'), index === config.totalRewards.length - 1);
     }
     const next = config.totalRewards.find(reward => reward.level > current);
-    assert.ok(t.totalRewardsPanel().includes(next ? next.title : 'Habit Champion'));
+    assert.ok(t.totalRewardsPanel().includes(next ? next.title : 'Champion'));
     if (!next) assert.match(t.totalRewardsPanel(), /All Total Level rewards unlocked!/);
   }
 });

@@ -134,63 +134,63 @@ globalThis.FitQuestConfig = {
   "totalRewards": [
     {
       "level": 5,
-      "title": "Habit Starter",
+      "title": "Starter",
       "badge": "shoe",
       "theme": "sky",
       "themeName": "Sky"
     },
     {
       "level": 10,
-      "title": "Habit Beginner",
+      "title": "Beginner",
       "badge": "bottle",
       "theme": "pearl",
       "themeName": "Pearl"
     },
     {
       "level": 25,
-      "title": "Habit Pathfinder",
+      "title": "Pathfinder",
       "badge": "apple",
       "theme": "rose",
       "themeName": "Rose"
     },
     {
       "level": 50,
-      "title": "Habit Explorer",
+      "title": "Explorer",
       "badge": "stretch",
       "theme": "ice",
       "themeName": "Ice Blue"
     },
     {
       "level": 75,
-      "title": "Habit Wayfinder",
+      "title": "Wayfinder",
       "badge": "rope",
       "theme": "lagoon",
       "themeName": "Lagoon"
     },
     {
       "level": 100,
-      "title": "Habit Builder",
+      "title": "Builder",
       "badge": "dumbbell",
       "theme": "ocean",
       "themeName": "Ocean"
     },
     {
       "level": 150,
-      "title": "Habit Keeper",
+      "title": "Keeper",
       "badge": "heart",
       "theme": "meadow",
       "themeName": "Meadow"
     },
     {
       "level": 200,
-      "title": "Habit Guardian",
+      "title": "Guardian",
       "badge": "kettlebell",
       "theme": "lavender",
       "themeName": "Lavender"
     },
     {
       "level": 250,
-      "title": "Habit Champion",
+      "title": "Champion",
       "badge": "trophy",
       "theme": "sunrise",
       "themeName": "Sunrise"
