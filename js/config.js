@@ -120,7 +120,7 @@ globalThis.FitQuestConfig = {
       "crownSymbol": "☾"
     },
     {
-      "name": "Healthy Eating",
+      "name": "Diet",
       "hint": "How well did you meet your eating goals today?",
       "icon": "salad",
       "color": "#4f7836",

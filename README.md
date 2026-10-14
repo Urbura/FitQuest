@@ -1,6 +1,6 @@
 # FitQuest
 
-FitQuest is a lightweight, mobile-friendly daily habit tracker. Users rate Sleep, Healthy Eating, Stretching, Cardio, and Strength from 0–5. Check-ins earn skill XP, unlock titles and backgrounds, and show weekly participation.
+FitQuest is a lightweight, mobile-friendly daily habit tracker. Users rate Sleep, Diet, Stretching, Cardio, and Strength from 0–5. Check-ins earn skill XP, unlock titles and backgrounds, and show weekly participation.
 
 ## Run locally
 
