@@ -1592,3 +1592,10 @@ button.achievement-in-reach { width: 100%; text-align: left; cursor: pointer; fo
 .rank-progression-item small { display: block; margin-top: 3px; }
 .rank-progression-item.current-rank { border-color: #087cd9; background: #edf7ff; }
 .rank-status { font-size: 12px; }
+
+#journey-open { display: block; padding: 0; border: 0; background: transparent; min-height: 44px; }
+#journey-dialog { max-height: 85dvh; overflow-y: auto; }
+.journey-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.journey-stat { padding: 14px 10px; border: 1px solid #d5e2df; border-radius: 12px; text-align: center; }
+.journey-stat strong { display: block; font-size: 22px; color: #087cd9; }
+.journey-stat span { display: block; margin-top: 6px; font-size: 13px; }

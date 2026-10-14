@@ -480,3 +480,21 @@ test('achievement notifications clear individually and reject locked achievement
   assert.equal(t.markAchievementViewed('total-10'), true);
   assert.equal(t.unseenAchievements().length, before - 1);
 });
+
+test('journey counts elapsed reset days, includes zero check-ins and does not count corrections twice', () => {
+  const t = tracker('2026-10-14T16:00:00Z');
+  assert.equal(t.journeySummary().started, false);
+  assert.equal(t.journeySummary().checkIns, 0);
+  const s = t.fresh();
+  s.days['2026-10-12'] = { scores: [0, 5, null, null, null] };
+  t.setState(s);
+  assert.equal(t.journeySummary().elapsedDays, 2);
+  assert.equal(t.journeySummary().checkIns, 2);
+  t.recordCheckIn(0, 3);
+  assert.equal(t.journeySummary().checkIns, 3);
+  t.editCheckIn(0, 5, t.day());
+  assert.equal(t.journeySummary().checkIns, 3);
+  t.recordCheckIn(1, 5); t.recordCheckIn(2, 5); t.recordCheckIn(3, 5); t.recordCheckIn(4, 5);
+  assert.equal(t.journeySummary().medals, 1);
+  assert.match(t.journeyPanel(), /Five for Five medals/);
+});

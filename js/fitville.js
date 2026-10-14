@@ -856,6 +856,31 @@
     }
 
     // User actions and backup import
+    function journeySummary() {
+      const today = day();
+      const dates = Object.keys(state.days).filter(key => /^\d{4}-\d{2}-\d{2}$/.test(key) && key <= today && checkedCount(state.days[key]) > 0).sort();
+      const elapsedDays = dates.length ? Math.floor((Date.parse(today + 'T00:00:00Z') - Date.parse(dates[0] + 'T00:00:00Z')) / 86400000) : 0;
+      return {
+        started: dates.length > 0,
+        elapsedDays,
+        checkIns: dates.reduce((sum, key) => sum + checkedCount(state.days[key]), 0),
+        totalLevel: currentTotalLevel(),
+        rank: rankForTotalLevel(currentTotalLevel()) || 'Unranked',
+        medals: achievementStats().perfectDayMedals,
+      };
+    }
+    function journeyPanel() {
+      const summary = journeySummary();
+      const items = [
+        [summary.started ? String(summary.elapsedDays) : 'Not started', 'Days since first check-in'],
+        [String(summary.checkIns), 'Total check-ins'],
+        [summary.rank, 'Total Level ' + summary.totalLevel],
+        [String(summary.medals), 'Five for Five medals'],
+      ];
+      return '<div class="journey-grid">' + items.map(([value, label]) =>
+        '<div class="journey-stat"><strong>' + safeText(value) + '</strong><span>' + label + '</span></div>').join('') +
+        '</div>' + (summary.started ? '' : '<p class="muted">Your journey begins with your first check-in.</p>');
+    }
     function rankProgressionPanel() {
       const total = currentTotalLevel();
       const current = rankForTotalLevel(total);
@@ -871,6 +896,17 @@
     function handleTrackerClick(e) {
       const b = e.target.closest('button');
       if (!b) return;
+      if (b.id === 'journey-close') {
+        document.getElementById('journey-dialog').close();
+        return;
+      }
+      if (b.id === 'journey-open') {
+        if (syncSharedSave()) render(false);
+        refreshDayIfNeeded();
+        document.getElementById('journey-content').innerHTML = journeyPanel();
+        document.getElementById('journey-dialog').showModal();
+        return;
+      }
       if (b.id === 'ranks-close') {
         document.getElementById('ranks-dialog').close();
         return;
@@ -1278,7 +1314,7 @@
     if (typeof globalThis.__fitQuestTestHook === 'function') {
       globalThis.__fitQuestTestHook({
         XP, MAX_LEVEL, MAX_TOTAL_LEVEL, fresh, level, readSave, recordCheckIn,
-        achievementStats, earnedAchievements, setProfileLevels,
+        achievementStats, earnedAchievements, setProfileLevels, journeySummary, journeyPanel,
         unseenAchievements, markAchievementViewed,
         editCheckIn, skillBonus, checkInXP, totalSkillLevel, totalReward,
         TOTAL_REWARDS, weeklyCheckInCount, day, nextReset, nextRewardText,
