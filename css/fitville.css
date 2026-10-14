@@ -1623,3 +1623,15 @@ header #dev-open { flex-basis: 100%; margin-left: auto; }
   header .app-logo { width: 80px; }
   header #overall-level { padding: 4px; }
 }
+
+/* Give the wordmark breathing room and align gaps to control boundaries. */
+header #journey-open { padding: 3px 6px; }
+header h1 { flex: 0 0 auto; }
+header #header-rank-button { flex-basis: 52px; width: 52px; }
+@media (max-width:600px) {
+  header #header-rank-button { flex-basis: 44px; width: 44px; }
+  header #journey-open { padding: 3px 4px; }
+}
+@media (max-width:350px) {
+  header .app-logo { width: 76px; }
+}
