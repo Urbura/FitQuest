@@ -607,6 +607,8 @@
       const rank = rankForTotalLevel(totalLevel);
       const rankBadge = document.getElementById('header-rank-badge');
       if (rankBadge) {
+        const rankButton = document.getElementById('header-rank-button');
+        if (rankButton) rankButton.hidden = !rank;
         rankBadge.hidden = !rank;
         if (rank) {
           rankBadge.src = 'assets/icons/rank-' + rank.toLowerCase() + '.svg?v=20261014-star-position';
@@ -854,9 +856,32 @@
     }
 
     // User actions and backup import
+    function rankProgressionPanel() {
+      const total = currentTotalLevel();
+      const current = rankForTotalLevel(total);
+      return '<div class="rank-progression-list">' + Object.entries(TOTAL_LEVEL_RANKS).map(([threshold, rank]) => {
+        const unlocked = total >= Number(threshold);
+        const status = rank === current ? 'Current rank' : unlocked ? 'Unlocked' : 'Locked';
+        return '<article class="rank-progression-item' + (rank === current ? ' current-rank' : '') + '">' +
+          '<img src="assets/icons/rank-' + rank.toLowerCase() + '.svg?v=20261014-star-position" alt="" width="48" height="48">' +
+          '<div><strong>' + safeText(rank) + '</strong><small>Total Level ' + threshold + '</small></div>' +
+          '<small class="rank-status">' + status + '</small></article>';
+      }).join('') + '</div>';
+    }
     function handleTrackerClick(e) {
       const b = e.target.closest('button');
       if (!b) return;
+      if (b.id === 'ranks-close') {
+        document.getElementById('ranks-dialog').close();
+        return;
+      }
+      if (b.id === 'header-rank-button') {
+        if (syncSharedSave()) render(false);
+        refreshDayIfNeeded();
+        document.getElementById('ranks-content').innerHTML = rankProgressionPanel();
+        document.getElementById('ranks-dialog').showModal();
+        return;
+      }
       if (b.id === 'nearby-close') {
         document.getElementById('nearby-dialog').close();
         return;

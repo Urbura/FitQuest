@@ -1581,3 +1581,14 @@ button.achievement-in-reach { width: 100%; text-align: left; cursor: pointer; fo
 .nearby-milestone { display: flex; align-items: center; gap: 12px; padding: 10px; border: 1px solid #d5e2df; border-radius: 12px; }
 .nearby-milestone img { flex-shrink: 0; object-fit: contain; }
 .nearby-milestone small { display: block; margin-top: 4px; }
+
+#header-rank-button { padding: 0; border: 0; background: transparent; flex-shrink: 0; min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; }
+#header-rank-button[hidden] { display: none; }
+#ranks-dialog { max-height: 85dvh; overflow-y: auto; }
+.rank-progression-list { display: grid; gap: 8px; }
+.rank-progression-item { display: flex; align-items: center; gap: 10px; padding: 8px; border: 1px solid #d5e2df; border-radius: 12px; }
+.rank-progression-item img { flex-shrink: 0; object-fit: contain; }
+.rank-progression-item div { flex: 1; }
+.rank-progression-item small { display: block; margin-top: 3px; }
+.rank-progression-item.current-rank { border-color: #087cd9; background: #edf7ff; }
+.rank-status { font-size: 12px; }
