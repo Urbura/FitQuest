@@ -384,6 +384,51 @@
       if (!next) return 'All Total Level rewards unlocked!';
       return 'Next rank at Total Level ' + next.level + ': ' + next.title;
     }
+    // A day-derived random seed keeps the suggested quest stable across reloads.
+    // Saved swaps and completion live beside that day's check-ins.
+    function dailyQuest() {
+      const key = day();
+      const saved = state.days[key] && state.days[key].quest;
+      if (saved) return saved;
+      let seed = 2166136261;
+      for (const character of key) seed = Math.imul(seed ^ character.charCodeAt(0), 16777619) >>> 0;
+      const skill = seed % SKILLS.length;
+      return { skill, index: Math.floor(seed / SKILLS.length) % CONFIG.dailyQuests[skill].length, completed: false, everCompleted: false };
+    }
+    function storeDailyQuest(quest) {
+      if (!state.days[day()]) state.days[day()] = { scores: Array(SKILLS.length).fill(null), rates: Array(SKILLS.length).fill(null) };
+      state.days[day()].quest = quest;
+    }
+    function setQuestCompleted(completed, expectedDay) {
+      if (expectedDay !== day()) return { status: 'expired' };
+      if (typeof completed !== 'boolean') return { status: 'invalid' };
+      const quest = { ...dailyQuest() };
+      if (quest.completed === completed) return { status: 'unchanged' };
+      const before = level(state.skills[quest.skill].xp), totalBefore = totalSkillLevel();
+      const firstCompletion = completed && !quest.everCompleted;
+      state.skills[quest.skill].xp = Math.max(0, state.skills[quest.skill].xp + (completed ? 2 : -2));
+      quest.completed = completed;
+      quest.everCompleted = quest.everCompleted || completed;
+      storeDailyQuest(quest);
+      return { status: 'updated', skill: quest.skill, firstCompletion, before, after: level(state.skills[quest.skill].xp), totalBefore, totalAfter: totalSkillLevel() };
+    }
+    function swapDailyQuest(expectedDay) {
+      if (expectedDay !== day()) return false;
+      const quest = { ...dailyQuest() };
+      if (quest.everCompleted) return false;
+      // Cycle skills and tasks so an unsuitable activity can always be replaced.
+      quest.skill = (quest.skill + 1) % SKILLS.length;
+      quest.index = (quest.index + 1) % CONFIG.dailyQuests[quest.skill].length;
+      storeDailyQuest(quest);
+      return true;
+    }
+    function dailyQuestPanel() {
+      const quest = dailyQuest();
+      return '<section class="daily-quest"><div><strong>Daily Quest</strong><small>+2 XP · ' + safeText(SKILLS[quest.skill].name) + '</small></div>' +
+        '<label><input type="checkbox" id="daily-quest-check" data-quest-day="' + day() + '"' + (quest.completed ? ' checked' : '') + '>' +
+        '<span>' + safeText(CONFIG.dailyQuests[quest.skill][quest.index]) + '</span></label>' +
+        (quest.everCompleted ? '' : '<button type="button" data-swap-quest="' + day() + '">Swap</button>') + '</section>';
+    }
     function dashboard() {
       const entry = dailyEntry(),
         doneCount = checkedCount(entry),
@@ -446,7 +491,7 @@
             '</button>'
           );
         }).join('') +
-        '</div>'
+        '</div>' + dailyQuestPanel()
       );
     }
 
@@ -942,6 +987,10 @@
       }
       if (syncSharedSave()) render(false);
       refreshDayIfNeeded();
+      if (b.dataset.swapQuest !== undefined) {
+        if (swapDailyQuest(b.dataset.swapQuest)) { save(); render(false); }
+        return;
+      }
       if (b.dataset.viewAchievement !== undefined) {
         markAchievementViewed(b.dataset.viewAchievement);
         render(false);
@@ -1160,6 +1209,24 @@
         setTimeout(() => URL.revokeObjectURL(url), 1000);
       }
     }
+    document.addEventListener('change', (event) => {
+      if (event.target.id !== 'daily-quest-check') return;
+      const completed = event.target.checked, expectedDay = event.target.dataset.questDay;
+      const apply = () => {
+        syncSharedSave();
+        const result = setQuestCompleted(completed, expectedDay);
+        if (result.status !== 'updated') { render(false); return; }
+        if (result.firstCompletion) queueLevels(result.skill, result.before, result.after, result.totalBefore, result.totalAfter);
+        const persisted = save();
+        render(false);
+        notify(SKILLS[result.skill].name + (completed ? ' · +2 XP' : ' · quest reward removed') +
+          (DEV ? ' · preview only.' : persisted ? ' · saved.' : ' · temporary; export a backup.'));
+        if (result.firstCompletion && celebrations.length) showLevel();
+      };
+      if (typeof navigator !== 'undefined' && navigator.locks)
+        navigator.locks.request('fitness-level-up-save', apply).catch(() => notify('Could not save the quest. Please try again.'));
+      else apply();
+    });
     document.addEventListener('click', (e) => {
       if (!e.target.closest('button')) return;
       if (typeof navigator !== 'undefined' && navigator.locks) {
@@ -1315,7 +1382,7 @@
     if (typeof globalThis.__fitQuestTestHook === 'function') {
       globalThis.__fitQuestTestHook({
         XP, MAX_LEVEL, MAX_TOTAL_LEVEL, fresh, level, readSave, recordCheckIn,
-        achievementStats, earnedAchievements, setProfileLevels, journeySummary, journeyPanel,
+        achievementStats, earnedAchievements, setProfileLevels, journeySummary, journeyPanel, dailyQuest, setQuestCompleted, swapDailyQuest,
         unseenAchievements, markAchievementViewed,
         editCheckIn, skillBonus, checkInXP, totalSkillLevel, totalReward,
         TOTAL_REWARDS, weeklyCheckInCount, day, nextReset, nextRewardText,

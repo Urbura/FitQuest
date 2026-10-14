@@ -498,3 +498,38 @@ test('journey counts elapsed reset days, includes zero check-ins and does not co
   assert.equal(t.journeySummary().medals, 1);
   assert.match(t.journeyPanel(), /Five for Five medals/);
 });
+
+test('daily quest awards exactly two XP to its skill, survives reload and reverses without duplicates', () => {
+  const t = tracker();
+  const q = t.dailyQuest();
+  assert.equal(JSON.stringify(t.dailyQuest()), JSON.stringify(q));
+  const result = t.setQuestCompleted(true, t.day());
+  assert.equal(result.status, 'updated');
+  t.state().skills.forEach((s, i) => assert.equal(s.xp, i === q.skill ? 2 : 0));
+  assert.equal(t.weeklyCheckInCount(), 0);
+  assert.equal(t.setQuestCompleted(true, t.day()).status, 'unchanged');
+  assert.equal(t.swapDailyQuest(t.day()), false);
+  t.setState(t.readSave(JSON.stringify(t.state())));
+  assert.equal(t.dailyQuest().completed, true);
+  assert.equal(t.setQuestCompleted(false, t.day()).status, 'updated');
+  assert.equal(t.state().skills[q.skill].xp, 0);
+  assert.equal(t.setQuestCompleted(true, t.day()).firstCompletion, false);
+  assert.equal(t.state().skills[q.skill].xp, 2);
+  assert.equal(t.setQuestCompleted(false, '2026-10-07').status, 'expired');
+  const tomorrow = tracker('2026-10-09T16:00:00Z');
+  tomorrow.setState(t.readSave(JSON.stringify(t.state())));
+  assert.equal(tomorrow.dailyQuest().completed, false);
+  assert.equal(tomorrow.swapDailyQuest(tomorrow.day()), true);
+  assert.match(t.dashboard(), /Daily Quest/);
+});
+
+test('invalid quest metadata is rejected and old saves remain valid', () => {
+  const t = tracker();
+  assert.ok(t.readSave(JSON.stringify(t.fresh())));
+  t.setQuestCompleted(true, t.day());
+  for (const invalid of [{skill: 5}, {index: -1}, {completed: true, everCompleted: false}]) {
+    const s = JSON.parse(JSON.stringify(t.state()));
+    Object.assign(s.days[t.day()].quest, invalid);
+    assert.throws(() => t.readSave(JSON.stringify(s)), /Invalid daily quest/);
+  }
+});

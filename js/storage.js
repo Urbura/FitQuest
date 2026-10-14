@@ -34,6 +34,13 @@
       for (const entry of Object.values(save.days)) {
         if (!entry || typeof entry !== 'object' || Array.isArray(entry))
           throw Error('Invalid check-in history');
+        if (entry.quest !== undefined) {
+          const q = entry.quest;
+          if (!q || !Number.isInteger(q.skill) || q.skill < 0 || q.skill >= skillCount ||
+              !Number.isInteger(q.index) || q.index < 0 || q.index >= config.dailyQuests[q.skill].length ||
+              typeof q.completed !== 'boolean' || typeof q.everCompleted !== 'boolean' ||
+              (q.completed && !q.everCompleted)) throw Error('Invalid daily quest');
+        }
         if (entry.scores === undefined) entry.scores = Array(skillCount).fill(null);
         if (
           !Array.isArray(entry.scores) ||
