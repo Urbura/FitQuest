@@ -609,7 +609,7 @@
       if (rankBadge) {
         rankBadge.hidden = !rank;
         if (rank) {
-          rankBadge.src = 'assets/icons/rank-' + rank.toLowerCase() + '.svg';
+          rankBadge.src = 'assets/icons/rank-' + rank.toLowerCase() + '.svg?v=20261014-star-position';
           rankBadge.alt = rank + ' rank';
           rankBadge.title = rank + ' rank';
         }
