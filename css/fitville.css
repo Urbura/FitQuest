@@ -1609,3 +1609,17 @@ button.achievement-in-reach { width: 100%; text-align: left; cursor: pointer; fo
 
 .collections-heading { display: flex; align-items: center; gap: 8px; }
 .collections-heading img { flex-shrink: 0; object-fit: contain; }
+
+/* Put every header control in one row with equal space between neighbours. */
+header > div { display: flex; align-items: center; justify-content: space-between; gap: 6px; flex-wrap: wrap; }
+header .stats, header nav { display: contents; }
+header h1 { flex: 0 1 auto; }
+header .app-logo { width: clamp(80px, 25vw, 170px); }
+header #overall-level { flex: 0 1 auto; min-width: 0; }
+header #header-rank-button { flex: 0 0 44px; }
+header #dev-open { flex-basis: 100%; margin-left: auto; }
+@media (max-width:350px) {
+  header > div { gap: 3px; }
+  header .app-logo { width: 80px; }
+  header #overall-level { padding: 4px; }
+}
