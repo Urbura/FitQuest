@@ -2,8 +2,6 @@ name: Check and deploy FitQuest
 
 on:
   push:
-    branches:
-      - main
   pull_request:
     branches:
       - main
@@ -32,13 +30,13 @@ jobs:
           for file in js/*.js; do
             node --check "$file"
           done
-      - name: Test tracker and achievement behavior
+      - name: Test tracker, achievements, and developer tools
         run: node --test tests/*.test.cjs
 
   deploy:
     name: Deploy GitHub Pages
     needs: checks
-    if: github.event_name != 'pull_request'
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     permissions:
       contents: read
       pages: write

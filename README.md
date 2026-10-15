@@ -32,7 +32,9 @@ Use http://localhost:8000/?dev for developer mode. It previews skill and Total L
 | `js/fitville.js` | Check-in coordination, save handling, UI rendering, celebrations, and browser events |
 | `css/fitville.css` | Component styles with consolidated selectors; one block per responsive condition at the end |
 | `assets/icons/` | Local SVG icons and their licensing information |
-| `tests/tracker.test.cjs` | Regression checks for the production tracker logic |
+| `tests/tracker.test.cjs` | Progression, check-ins, corrections, quests, and save validation |
+| `tests/achievements.test.cjs` | Achievement unlocks, notifications, and collection rendering |
+| `tests/developer.test.cjs` | Developer session backups, restore/exit, and blocked session storage |
 | `.github/workflows/deploy-pages.yml` | Runs checks, then deploys GitHub Pages |
 
 The older `fitville` filenames remain valid and are intentional. Visible app branding is FitQuest.
@@ -78,7 +80,7 @@ Each entry in `skills` contains its name, hint, icon, colour, regular titles, ma
 - Total Level is the sum of all five skill levels, ranging from 5–250.
 - Check-ins are limited to one per skill per reset day. Completed skills offer **Edit today’s rating** until the daily reset. Corrections replace the original XP contribution, retain the original bonus, and do not replay celebrations or increase participation counts. A zero rating earns zero XP; positive ratings receive the bonus earned by the skill level before that check-in.
 
-Each skill needs 1,421 total XP to reach level 50. Perfect daily check-ins with the current bonuses take 191 days. Changes to XP settings recalculate levels from existing saved XP; review that effect before deploying.
+Each skill needs 1,421 total XP to reach level 50. Perfect daily check-ins with the current skill bonuses take 191 days when counting check-in XP alone. Daily quest XP and the Five for Five medal bonus can shorten that time. Changes to XP settings recalculate levels from existing saved XP; review that effect before deploying.
 
 Changing the maximum level also requires checking title counts, Total Level reward milestones, developer input limits in `index.html`, and regression expectations.
 
@@ -94,15 +96,18 @@ Install Node.js 22 or newer, then run these commands from the repository folder:
 node --check js/config.js
 node --check js/progression.js
 node --check js/storage.js
+node --check js/intro.js
+node --check js/achievements.js
+node --check js/developer.js
 node --check js/fitville.js
 node --test tests/*.test.cjs
 ```
 
-Checks cover XP thresholds, Total Levels, rewards, duplicate check-ins, reset boundaries, weekly counts, bonus XP, completion messages, save validation, and configuration consistency.
+Checks cover XP thresholds, Total Levels, rewards, duplicate check-ins, reset boundaries, weekly counts, bonus XP, completion messages, save validation, configuration consistency, achievement notifications, and developer backup/restore protection.
 
-Progression tests import `createProgression(config)` from `js/progression.js` directly. Its functions do not depend on a browser, storage, or mutable tracker state. Integration tests load the production configuration, progression module, storage module, and tracker code in an isolated environment. The tests are grouped by topic and each `test('description', ...)` states the behavior it expects. `assert.equal` checks an exact value; `assert.throws` checks that invalid data is rejected. The tracker exposes a small test-only hook (`__fitQuestTestHook`) when the isolated test environment provides it. This avoids rewriting application source code. In normal browser use, the hook is absent and startup proceeds normally. As the application is split into modules, prefer direct module tests over adding more test hooks.
+Progression tests import `createProgression(config)` from `js/progression.js` directly. Its functions do not depend on a browser, storage, or mutable tracker state. Integration tests load the production configuration, progression, storage, achievements, developer tools, and tracker code in an isolated environment. The tests are grouped by topic and each `test('description', ...)` states the behavior it expects. `assert.equal` checks an exact value; `assert.throws` checks that invalid data is rejected. The tracker exposes a small test-only hook (`__fitQuestTestHook`) when the isolated test environment provides it. This avoids rewriting application source code. In normal browser use, the hook is absent and startup proceeds normally. As the application is split into modules, prefer direct module tests over adding more test hooks.
 
-GitHub runs checks on pushes to main and on pull requests. Deployment depends on successful checks; pull requests do not deploy. These logic checks do not replace phone-screen visual testing.
+The single workflow in `.github/workflows/deploy-pages.yml` checks JavaScript syntax and runs all test files on every branch push, pull requests targeting `main`, and manual runs. Deployment requires passing checks and a run on `main`; feature branches and pull requests do not deploy. These logic checks do not replace phone-screen visual testing.
 
 ## Save compatibility
 
@@ -114,7 +119,7 @@ Both normal loading and backup imports use `readSave()` from `js/storage.js`. Up
 
 ## Before publishing a change
 
-Run the automated checks and preview the normal dashboard and developer mode. Test the check-in and celebration dialogs on a small screen. If you change an asset, update its version suffix in `index.html` so browsers request the new file.
+Run the automated checks and preview the normal dashboard and developer mode. Test the check-in and celebration dialogs on a small screen. If you change a CSS file, script, or asset, update its version suffix in `index.html` (or its referencing module) so browsers request the new file.
 
 Developer tools now live in their own module, with explicit callbacks for reading and restoring app state. They own preview state and session backups; the main coordinator blocks normal save writes during previews. Future refactoring should separate save coordination and UI rendering while retaining behaviour and save compatibility.
 
