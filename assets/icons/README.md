@@ -14,3 +14,5 @@ Distributed under the MIT License. See LICENSE.txt.
 All-skills Levels 20, 30, 40 and 50 have progressively ornamented original SVG medals. Regenerate with `python scripts/generate-all-skills-badges.py`; Level 50 keeps the existing `achievement-grandmaster.svg` filename and remains hidden until earned.
 
 Generic Skill Level 10, 25, and 50 achievements use original numbered bronze, silver, and crowned gold crests. Regenerate with `python scripts/generate-skill-medals.py`.
+
+The 3/7/14/30-day streak medals share a red ribbon, flame emblem, and numbered face, escalating from bronze through silver and gold to crowned platinum. Regenerate with `python scripts/generate-streak-medals.py`.

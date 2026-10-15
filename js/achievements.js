@@ -126,7 +126,7 @@ globalThis.FitQuestAchievements = {
     function achievementBadge(achievement) {
       if (achievement.kind === 'skill') return 'achievement-skill-' + achievement.goal;
       if (achievement.id === 'days-7') return 'achievement-active-7';
-      if (achievement.id === 'streak-30') return 'achievement-streak-30';
+      if (achievement.kind === 'streak') return 'achievement-streak-' + achievement.goal;
       if (achievement.kind === 'completionist') return 'achievement-legend';
       if (achievement.id === 'all-skills-50') return 'achievement-grandmaster';
       if (achievement.id === 'five-perfect-scores') return 'achievement-five-for-five';

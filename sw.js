@@ -2,7 +2,7 @@
 // Updates wait for existing windows to close; never mix releases in an open session.
 'use strict';
 const CACHE_PREFIX = 'fitquest-shell-';
-const CACHE_NAME = CACHE_PREFIX + '20261015-v19';
+const CACHE_NAME = CACHE_PREFIX + '20261015-v20';
 const APP_FILES = [
   "./",
   "index.html",
@@ -17,7 +17,7 @@ const APP_FILES = [
   "js/progression.js?v=20261008-progression",
   "js/storage.js?v=20261014-two-swaps",
   "js/intro.js?v=20261013-intro-module",
-  "js/achievements.js?v=20261015-skill-medals",
+  "js/achievements.js?v=20261015-streak-series",
   "js/save-manager.js?v=20261015-module",
   "js/developer.js?v=20261015-visible-test-tools",
   "js/celebrations.js?v=20261015-legend",
@@ -48,6 +48,9 @@ const APP_FILES = [
   "assets/icons/achievement-platinum.svg",
   "assets/icons/achievement-active-7.svg",
   "assets/icons/achievement-streak-30.svg",
+  "assets/icons/achievement-streak-3.svg",
+  "assets/icons/achievement-streak-7.svg",
+  "assets/icons/achievement-streak-14.svg",
   "assets/icons/achievement-legend.png",
   "assets/icons/achievement-grandmaster.svg",
   "assets/icons/achievement-all-skills-20.svg",

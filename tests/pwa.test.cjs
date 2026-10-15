@@ -17,7 +17,7 @@ function worker() {
   const context = vm.createContext({ URL, Request, Response, Set,
     self: { registration: { scope }, clients: { async claim() { claimed = true; } },
       addEventListener: (name, handler) => { handlers[name] = handler; } },
-    caches: { async open() { return cache; }, async keys() { return ['unrelated-cache', 'fitquest-shell-old', 'fitquest-shell-20261015-v19']; },
+    caches: { async open() { return cache; }, async keys() { return ['unrelated-cache', 'fitquest-shell-old', 'fitquest-shell-20261015-v20']; },
       async delete(name) { deleted.push(name); } },
     fetch: async () => { if (!network) throw Error('offline'); return new Response('network'); },
   });
