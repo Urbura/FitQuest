@@ -1,6 +1,7 @@
-/* FitQuest: shared controls, dashboard and dialogs, then header layout.
-   All viewport overrides are grouped at the end, from wide to narrow. */
+/* FitQuest styles: base components first, then one block per viewport condition.
+   Edit existing component rules rather than appending overrides. */
 
+/* Shared elements and controls */
 * {
   box-sizing: border-box;
 }
@@ -110,9 +111,6 @@ button:focus-visible {
   cursor: pointer;
   touch-action: pan-x;
   position: fixed;
-  top: 14px;
-  left: 16px;
-  right: 16px;
   max-width: 680px;
   margin: auto;
   background: #183f35;
@@ -123,6 +121,9 @@ button:focus-visible {
   box-shadow: 0 8px 30px #203c3325;
   border: 1px solid #eac67a;
   animation: toast .25s ease-out;
+  top: calc(14px + var(--safe-top));
+  left: calc(16px + var(--safe-left));
+  right: calc(16px + var(--safe-right));
 }
 
 .reward {
@@ -139,39 +140,6 @@ button:focus-visible {
   border-radius: 20px;
   padding: 15px 22px;
   animation: reward 1.8s ease-out forwards;
-}
-
-@keyframes reward {
-0% {
-    opacity: 0;
-    transform: translate(-50%,20px) scale(.8);
-  }
-
-  20% {
-    opacity: 1;
-    transform: translate(-50%,0) scale(1);
-  }
-
-  80% {
-    opacity: 1;
-  }
-
-  100% {
-    opacity: 0;
-    transform: translate(-50%,-90px);
-  }
-}
-
-@keyframes toast {
-from {
-    transform: translateY(-15px);
-    opacity: 0;
-  }
-
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
 }
 
 h1,h2,h3 {
@@ -210,11 +178,14 @@ nav[hidden] {
   display: none;
 }
 
+/* Page and dialog foundations */
 body {
   margin: 0;
   color: #203c33;
   font: 16px system-ui,sans-serif;
   background: var(--tracker-background, linear-gradient(145deg,#d8f3ff,#eefbff));
+  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 button {
@@ -228,6 +199,7 @@ button {
   transition: transform .15s,background .2s;
   box-shadow: 0 3px 0 #183f3520;
   background: #087cd9;
+  touch-action: manipulation;
 }
 
 .choices button[aria-pressed=true] {
@@ -250,11 +222,12 @@ dialog {
   background: linear-gradient(145deg,#e2f5ff,#fffdf4);
   color: #203c55;
   max-width: 390px;
-  width: calc(100% - 32px);
   padding: 30px 22px;
   text-align: center;
-  overflow: hidden;
   box-shadow: 0 20px 80px #15326555;
+  width: calc(100% - 32px - var(--safe-left) - var(--safe-right));
+  max-height: calc(100dvh - 32px - var(--safe-top) - var(--safe-bottom));
+  overflow: auto;
 }
 
 dialog::backdrop {
@@ -285,22 +258,6 @@ dialog::backdrop {
   width: 7px;
   height: 7px;
   box-shadow: 0 0 10px 2px #ffffff88;
-}
-
-@keyframes burst {
-0% {
-    opacity: 0;
-    transform: translate(0,0) scale(0);
-  }
-
-  15% {
-    opacity: 1;
-  }
-
-  100% {
-    opacity: 0;
-    transform: translate(var(--dx),var(--dy)) scale(.3);
-  }
 }
 
 .back-button {
@@ -368,26 +325,30 @@ dialog::backdrop {
 main {
   padding: 10px 16px 24px;
   max-width: 720px;
+  padding-right: calc(16px + var(--safe-right));
+  padding-bottom: calc(24px + var(--safe-bottom));
+  padding-left: calc(16px + var(--safe-left));
 }
 
 html {
   background: #087bd9;
 }
 
+/* Developer tools */
 #dev-tools {
   position: fixed;
   z-index: 9998;
-  top: 12px;
-  right: 12px;
   max-width: 360px;
-  width: calc(100% - 24px);
   background: #fff1f1;
   border: 3px solid #d94a4a;
   border-radius: 18px;
   padding: 14px;
   box-shadow: 0 10px 30px #0003;
-  max-height: 85vh;
   overflow: auto;
+  top: calc(12px + var(--safe-top));
+  right: calc(12px + var(--safe-right));
+  width: calc(100% - 24px - var(--safe-left) - var(--safe-right));
+  max-height: calc(100dvh - 24px - var(--safe-top) - var(--safe-bottom));
 }
 
 .tracker-intro {
@@ -426,6 +387,7 @@ html {
   height: 48px;
 }
 
+/* Dashboard and skill star */
 body.tracker-home {
   overflow: hidden;
 }
@@ -438,6 +400,9 @@ body.tracker-home main {
   padding: 14px 12px 12px;
   overflow-x: hidden;
   overflow-y: auto;
+  padding-right: calc(12px + var(--safe-right));
+  padding-bottom: calc(12px + var(--safe-bottom));
+  padding-left: calc(12px + var(--safe-left));
 }
 
 body.tracker-home .tracker-intro {
@@ -730,6 +695,7 @@ body.tracker-home .tracker-intro .next-reward {
   margin: 7px 0 0;
 }
 
+/* Header and navigation */
 header {
   color: white;
   padding: 7px 12px 8px;
@@ -737,14 +703,19 @@ header {
   border-bottom: 2px solid #9de1ff;
   background: linear-gradient(110deg,#087bd9,#29b5f1);
   box-shadow: 0 3px 12px #0869ac25;
+  padding-top: calc(7px + var(--safe-top));
+  padding-right: calc(12px + var(--safe-right));
+  padding-bottom: 8px;
+  padding-left: calc(12px + var(--safe-left));
 }
 
 header>div {
-  display: grid;
   max-width: 900px;
+  display: flex;
   align-items: center;
-  grid-template-columns: minmax(0,1fr) auto auto;
-  gap: 8px;
+  justify-content: space-between;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
 header>div>.muted,header>div>p {
@@ -758,25 +729,22 @@ header h1 {
   color: #fff;
   text-shadow: 0 2px 2px #07568b60;
   letter-spacing: .2px;
-  grid-column: 1;
-  grid-row: 1;
   max-width: none;
   min-width: 0;
   white-space: nowrap;
   font-size: clamp(12px,3.1vw,24px);
+  flex: 0 0 auto;
 }
 
 header .stats {
-  display: flex;
+  display: contents;
   flex-wrap: wrap;
   justify-content: flex-end;
-  flex-direction: column;
-  align-items: flex-end;
   margin: 0;
-  grid-column: 2;
-  grid-row: 1;
-  gap: 2px;
   white-space: nowrap;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
 }
 
 header .stats>:is(span,button) {
@@ -798,6 +766,9 @@ header .stats #overall-title {
   font-weight: 700;
   font-size: 12px;
   line-height: 1.2;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 nav {
@@ -813,8 +784,7 @@ nav {
 }
 
 header nav {
-  grid-column: 3;
-  grid-row: 1;
+  display: contents;
   margin: 0;
 }
 
@@ -872,27 +842,14 @@ nav button:focus-visible {
 }
 
 header #dev-open {
-  grid-column: 2;
-  grid-row: 1;
   padding: 6px 8px;
   min-height: 28px;
   font-size: 11px;
   white-space: nowrap;
+  flex-basis: 100%;
+  margin-left: auto;
 }
 
-header>div:has(#dev-open:not([hidden])) {
-  grid-template-columns: minmax(0,1fr) auto auto auto;
-}
-
-header>div:has(#dev-open:not([hidden])) .stats {
-  grid-column: 3;
-}
-
-header>div:has(#dev-open:not([hidden])) nav {
-  grid-column: 4;
-}
-
-/* Total Level opens a scrollable reward roadmap on small screens. */
 header .stats #overall-level {
   display: flex;
   flex-direction: column;
@@ -911,6 +868,7 @@ header .stats #overall-level:focus-visible {
   outline-color: #fff3a5;
 }
 
+/* Total Level rewards */
 #total-dialog {
   max-width: 460px;
   max-height: 85dvh;
@@ -936,7 +894,7 @@ header .stats #overall-level:focus-visible {
   color: #086bad;
 }
 
-.total-progress, .total-milestone progress {
+.total-progress,.total-milestone progress {
   accent-color: #087cd9;
 }
 
@@ -987,13 +945,12 @@ header .stats #overall-level:focus-visible {
   color: #185c3b;
 }
 
-/* Compact wordmark shares the header row with level and settings controls. */
 header .app-logo {
   display: block;
-  width: clamp(90px, 28vw, 170px);
   max-width: 100%;
   height: auto;
   object-fit: contain;
+  width: clamp(80px, 25vw, 170px);
 }
 
 .reward-navigation {
@@ -1023,7 +980,6 @@ header .app-logo {
   font-size: 13px;
 }
 
-/* Title badges are visible rewards; background colours remain decorative. */
 .reward-badge {
   width: 22px;
   height: 22px;
@@ -1038,30 +994,716 @@ header .app-logo {
   margin: 12px auto;
 }
 
-header .stats #overall-title {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
 .reward-title {
   text-align: center;
 }
 
-#level-content > .reward-badge-large {
+#level-content>.reward-badge-large {
   width: 84px;
   height: 84px;
 }
 
-/* Responsive layout and reduced-motion preferences. */
+header nav button[data-tab="collections"] {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
 
+header nav .collection-count {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  min-width: 19px;
+  height: 19px;
+  padding: 1px 4px;
+  border-radius: 12px;
+  background: #e84e48;
+  color: #fff;
+  font: 700 11px/17px system-ui, sans-serif;
+  box-shadow: 0 1px 3px #1238;
+}
+
+header nav .collection-count[hidden] {
+  display: none;
+}
+
+/* Collections and achievements */
+.collections .achievement-list {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0 20px;
+}
+
+.collections .achievement {
+  display: grid;
+  gap: 10px;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid #b9d8e9;
+  border-radius: 12px;
+  background: #f4faff;
+  grid-template-columns: 56px minmax(0, 1fr);
+}
+
+.collections .achievement.locked {
+  opacity: .72;
+}
+
+.collections .achievement-symbol {
+  font-size: 24px;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+}
+
+.collections .achievement small {
+  display: block;
+  font-size: 12px;
+  margin: 3px 0;
+}
+
+.collections .achievement progress {
+  width: 100%;
+  height: 7px;
+}
+
+header nav .collections-icon {
+  display: block;
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  margin: auto;
+}
+
+.collections .achievement-symbol img {
+  display: block;
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.collections .achievement-category {
+  margin-top: 12px;
+  border: 1px solid #b9d8e9;
+  border-radius: 12px;
+  background: #f4faff;
+  overflow: hidden;
+}
+
+.collections .category-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 48px;
+  padding: 12px;
+  border-radius: 0;
+  background: transparent;
+  color: #203c33;
+  box-shadow: none;
+  text-align: left;
+  font-size: 16px;
+  font-weight: 700;
+  touch-action: manipulation;
+}
+
+.collections .category-arrow {
+  color: #086bad;
+}
+
+.collections .category-count {
+  margin-left: auto;
+  color: #597067;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.collections .category-toggle:focus-visible {
+  outline: 3px solid #087bd9;
+  outline-offset: -3px;
+}
+
+.collections .category-toggle[aria-expanded="true"] {
+  border-bottom: 1px solid #b9d8e9;
+}
+
+.collections .achievement-category .achievement-list {
+  margin: 0;
+  padding: 10px;
+}
+
+.collections .achievement-list[hidden] {
+  display: none;
+}
+
+.collections .achievement.unlocked {
+  background: #effaf3;
+  border-color: #a8d7ba;
+}
+
+.collections .achievement-symbol,.collections .achievement-symbol img {
+  width: 56px;
+  height: 56px;
+}
+
+.achievement-in-reach {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  margin-top: 12px;
+  border: 1px solid #b9d8e9;
+  border-radius: 12px;
+  background: #edf7ff;
+}
+
+.achievement-in-reach>img {
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+.achievement-in-reach>div {
+  flex: 1;
+  min-width: 0;
+}
+
+.achievement-in-reach small {
+  display: block;
+  color: #597067;
+  font-size: 12px;
+}
+
+.achievement-in-reach strong {
+  font-size: 14px;
+}
+
+.achievement-in-reach span {
+  float: right;
+  margin-left: 8px;
+  color: #597067;
+  font-size: 12px;
+}
+
+.achievement-in-reach progress {
+  display: block;
+  height: 5px;
+  margin: 6px 0 0;
+  accent-color: #087cd9;
+}
+
+#header-rank-badge {
+  display: block;
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+#header-rank-badge[hidden] {
+  display: none;
+}
+
+.achievement-new {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: #d93636;
+  color: white;
+  font: 700 11px/1.4 system-ui,sans-serif;
+  white-space: nowrap;
+}
+
+.collections button.achievement {
+  width: 100%;
+  text-align: left;
+  color: #203c33;
+  font-size: 16px;
+  box-shadow: none;
+}
+
+.collections button.achievement .achievement-new {
+  vertical-align: middle;
+}
+
+/* Safe areas and mobile support */
+:root {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+}
+
+#check-dialog,#total-dialog {
+  max-height: min(85dvh, calc(100dvh - 32px - var(--safe-top) - var(--safe-bottom)));
+}
+
+body.tracker-home .star-xp,body.tracker-home .star-level,body.tracker-home .star-summary span,body.tracker-home .star-reset,body.tracker-home .tracker-intro p,body.tracker-home .tracker-intro .next-reward,body.tracker-home .weekly-check-ins {
+  color: #203c33;
+}
+
+.collections progress {
+  appearance: none;
+  border: 0;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #d8e6ed;
+  accent-color: #087cd9;
+}
+
+.collections progress::-webkit-progress-bar {
+  background: #d8e6ed;
+  border-radius: 999px;
+}
+
+.collections progress::-webkit-progress-value {
+  background: #087cd9;
+  border-radius: 999px;
+}
+
+.collections progress::-moz-progress-bar {
+  background: #087cd9;
+  border-radius: 999px;
+}
+
+.collections .achievement>div {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+#dev-tools input,#dev-tools select {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  margin: 4px 0 10px;
+  padding: 8px;
+  font: inherit;
+}
+
+#dev-tools summary {
+  min-height: 44px;
+  padding: 12px 0;
+  cursor: pointer;
+}
+
+/* Welcome and practice screens */
+.fitquest-intro {
+  max-width: 440px;
+  margin: 16px auto;
+  text-align: center;
+  padding: 20px;
+}
+
+.fitquest-intro>img {
+  display: block;
+  margin: 0 auto 10px;
+  object-fit: contain;
+}
+
+.fitquest-intro h2 {
+  margin: 4px 0 8px;
+}
+
+.fitquest-intro p {
+  margin: 0 auto 12px;
+  line-height: 1.5;
+  max-width: 36ch;
+}
+
+.fitquest-intro .intro-counter {
+  display: block;
+  font-size: 12px;
+  opacity: .7;
+  margin-bottom: 10px;
+}
+
+.fitquest-intro .intro-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.fitquest-intro .intro-actions button {
+  min-height: 44px;
+}
+
+.intro-demo-skills {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin: 10px 0;
+}
+
+.intro-demo-skill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  width: 66px;
+  min-height: 64px;
+  padding: 5px;
+  border: 2px solid #e2ac2e;
+  border-radius: 10px;
+  background: #f1f9ff;
+  color: #184b70;
+  font-size: 10px;
+  box-shadow: 0 0 0 2px #ffedb3;
+}
+
+.intro-demo-skill .skill-symbol {
+  width: 30px;
+  height: 30px;
+}
+
+.intro-demo-skill .skill-symbol>span {
+  width: 20px;
+  height: 20px;
+}
+
+.intro-practice {
+  min-height: 55px;
+  font-size: 12px;
+}
+
+.intro-practice p {
+  font-size: 12px;
+  margin: 4px auto;
+}
+
+.intro-demo-ratings {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 5px;
+  margin: 7px 0;
+}
+
+.intro-demo-ratings button {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 4px;
+  flex: 0 1 44px;
+}
+
+.intro-demo-ratings button[aria-pressed="true"] {
+  background: #087bd9;
+  color: white;
+  outline: 2px solid #e2ac2e;
+}
+
+.intro-demo-highlight {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 10px;
+  margin: 10px auto;
+  border: 2px solid #e2ac2e;
+  border-radius: 12px;
+  background: #f1f9ff;
+  font-size: 13px;
+}
+
+.intro-demo-highlight strong {
+  font-size: 22px;
+}
+
+.collections .perfect-day-medal-count {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 2px 7px;
+  border: 1px solid #d6a435;
+  border-radius: 999px;
+  background: #fff2c6;
+  color: #62420a;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.collections .achievement-symbol .five-for-five-medal {
+  display: block;
+  width: 48px;
+  height: 54px;
+  max-width: 100%;
+  max-height: 100%;
+  overflow: visible;
+  flex-shrink: 0;
+}
+
+button.achievement-in-reach {
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+}
+
+/* Milestone, rank, and Journey dialogs */
+#nearby-dialog {
+  max-height: 85dvh;
+  overflow-y: auto;
+}
+
+.nearby-milestones {
+  display: grid;
+  gap: 10px;
+}
+
+.nearby-milestone {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border: 1px solid #d5e2df;
+  border-radius: 12px;
+}
+
+.nearby-milestone img {
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+.nearby-milestone small {
+  display: block;
+  margin-top: 4px;
+}
+
+#header-rank-button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  flex-shrink: 0;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#header-rank-button[hidden] {
+  display: none;
+}
+
+#ranks-dialog {
+  max-height: 85dvh;
+  overflow-y: auto;
+}
+
+.rank-progression-list {
+  display: grid;
+  gap: 8px;
+}
+
+.rank-progression-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border: 1px solid #d5e2df;
+  border-radius: 12px;
+}
+
+.rank-progression-item img {
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+.rank-progression-item div {
+  flex: 1;
+}
+
+.rank-progression-item small {
+  display: block;
+  margin-top: 3px;
+}
+
+.rank-progression-item.current-rank {
+  border-color: #087cd9;
+  background: #edf7ff;
+}
+
+.rank-status {
+  font-size: 12px;
+}
+
+#journey-open {
+  display: block;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  min-height: 44px;
+}
+
+#journey-dialog {
+  max-height: 85dvh;
+  overflow-y: auto;
+}
+
+.journey-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.journey-stat {
+  padding: 14px 10px;
+  border: 1px solid #d5e2df;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.journey-stat strong {
+  display: block;
+  font-size: 22px;
+  color: #087cd9;
+}
+
+.journey-stat span {
+  display: block;
+  margin-top: 6px;
+  font-size: 13px;
+}
+
+/* Daily quest */
+.daily-quest {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px 10px;
+  padding: 10px 12px;
+  margin-top: 8px;
+  background: #edf7ff;
+  border: 1px solid #b9d8e9;
+  border-radius: 12px;
+}
+
+.daily-quest>div {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  grid-column: 1 / -1;
+}
+
+.daily-quest small {
+  font-size: 12px;
+}
+
+.daily-quest label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.daily-quest input {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  accent-color: #087cd9;
+}
+
+.daily-quest button {
+  padding: 6px 10px;
+  font-size: 12px;
+  min-height: 44px;
+}
+
+.collections-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.collections-heading img {
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+header #overall-level {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+header #header-rank-button {
+  flex: 0 0 44px;
+  flex-basis: 52px;
+  width: 52px;
+}
+
+header #journey-open {
+  padding: 3px 6px;
+}
+
+header nav button[data-tab="settings"] .settings-icon {
+  width: 24px;
+  height: 24px;
+}
+
+@keyframes reward {
+  0% {
+    opacity: 0;
+    transform: translate(-50%,20px) scale(.8);
+  }
+
+  20% {
+    opacity: 1;
+    transform: translate(-50%,0) scale(1);
+  }
+
+  80% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-50%,-90px);
+  }
+}
+
+@keyframes toast {
+  from {
+    transform: translateY(-15px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes burst {
+  0% {
+    opacity: 0;
+    transform: translate(0,0) scale(0);
+  }
+
+  15% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx),var(--dy)) scale(.3);
+  }
+}
+
+/* Responsive: (max-width:600px) */
 @media (max-width:600px) {
   header {
     padding: 8px;
+    padding-top: calc(8px + var(--safe-top));
+    padding-right: calc(8px + var(--safe-right));
+    padding-left: calc(8px + var(--safe-left));
+    padding-bottom: 8px;
   }
 
   header>div {
-    gap: 5px;
+    gap: 6px;
   }
 
   header .stats>:is(span,button) {
@@ -1071,6 +1713,7 @@ header .stats #overall-title {
 
   header .stats #overall-title {
     font-size: 10px;
+    max-width: 106px;
   }
 
   header nav button {
@@ -1078,8 +1721,41 @@ header .stats #overall-title {
     height: 44px;
     min-height: 44px;
   }
+
+  header .stats {
+    gap: 3px;
+  }
+
+  #header-rank-badge {
+    width: 36px;
+    height: 36px;
+  }
+
+  header .stats #overall-title>span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  header .stats #overall-level {
+    padding: 6px;
+  }
+
+  header #dev-open {
+    justify-self: end;
+    min-height: 44px;
+  }
+
+  header #header-rank-button {
+    flex-basis: 44px;
+    width: 44px;
+  }
+
+  header #journey-open {
+    padding: 3px 4px;
+  }
 }
 
+/* Responsive: (max-width:480px) */
 @media (max-width:480px) {
   .card {
     padding: 16px;
@@ -1092,8 +1768,42 @@ header .stats #overall-title {
   .scores button {
     padding: 9px 0;
   }
+
+  .collections .category-toggle {
+    display: grid;
+    grid-template-columns: 10px minmax(0,1fr) auto;
+    gap: 3px 8px;
+  }
+
+  .collections .category-count {
+    grid-column: 2 / -1;
+    margin-left: 0;
+    font-size: 11px;
+  }
+
+  .collections .category-toggle .achievement-new {
+    justify-self: end;
+  }
+
+  .collections .achievement-category .achievement-list {
+    padding: 8px;
+  }
+
+  .collections .achievement {
+    gap: 8px;
+    padding: 8px;
+  }
+
+  #check-dialog,#total-dialog {
+    padding: 16px;
+  }
+
+  #check-dialog .guided-scores {
+    gap: 8px;
+  }
 }
 
+/* Responsive: (max-width:420px) */
 @media (max-width:420px) {
   nav {
     gap: 5px;
@@ -1111,11 +1821,32 @@ header .stats #overall-title {
   header>div:has(#dev-open:not([hidden])) h1 {
     font-size: 13px;
   }
+
+  header nav {
+    gap: 4px;
+  }
+
+  header nav button[data-tab="collections"] {
+    width: 44px;
+    height: 44px;
+    min-height: 44px;
+  }
+
+  header nav button[data-tab="collections"] .collections-icon {
+    font-size: 16px;
+    width: 27px;
+    height: 27px;
+  }
 }
 
+/* Responsive: (max-width:350px) */
 @media (max-width:350px) {
   header {
     padding: 7px 5px;
+    padding-top: calc(7px + var(--safe-top));
+    padding-right: calc(5px + var(--safe-right));
+    padding-left: calc(5px + var(--safe-left));
+    padding-bottom: 8px;
   }
 
   header>div {
@@ -1136,9 +1867,18 @@ header .stats #overall-title {
     height: 44px;
     min-height: 44px;
   }
+
+  header .app-logo {
+    width: 76px;
+  }
+
+  header #overall-level {
+    padding: 4px;
+  }
 }
 
-@media(max-height:650px) {
+/* Responsive: (max-height:650px) */
+@media (max-height:650px) {
   .star-skill .skill-symbol {
     width: 56px;
     height: 56px;
@@ -1171,11 +1911,24 @@ header .stats #overall-title {
     margin-top: 3px;
     font-size: 11px;
   }
+
+  .skill-star {
+    min-height: 360px;
+  }
 }
 
-@media(orientation:landscape) and (max-height:500px) {
+/* Responsive: (orientation:landscape) and (max-height:500px) */
+@media (orientation:landscape) and (max-height:500px) {
   .skill-star {
-    max-width: 650px;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-rows: auto 1fr;
+    gap: 6px 10px;
+    align-items: center;
+    max-width: 720px;
+    min-height: 160px;
+    max-height: none;
+    margin: auto;
   }
 
   .star-position-0 {
@@ -1187,11 +1940,222 @@ header .stats #overall-title {
   }
 
   .star-skill .skill-symbol {
+    width: 48px;
+    height: 48px;
+  }
+
+  body.tracker-home main {
+    padding-top: 8px;
+  }
+
+  .star-summary {
+    position: static;
+    transform: none;
+    grid-column: 1 / -1;
+    grid-row: 1;
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .star-summary strong {
+    font-size: 20px;
+  }
+
+  .star-summary span {
+    font-size: 11px;
+  }
+
+  .star-skill {
+    position: relative;
+    left: auto;
+    top: auto;
+    transform: none;
+    grid-row: 2;
+    width: 100%;
+    min-width: 0;
+    gap: 3px;
+    padding: 3px 0;
+  }
+
+  .star-skill .skill-symbol>span {
+    width: 28px;
+    height: 28px;
+  }
+
+  .star-skill strong {
+    font-size: 12px;
+    min-height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .star-level {
+    font-size: 12px;
+  }
+
+  .star-check {
+    top: 19px;
+  }
+
+  .star-skill .star-progress {
+    max-width: 100px;
+  }
+
+  .weekly-check-ins {
+    font-size: 11px;
+    margin-top: 4px;
+  }
+
+  .star-reset {
+    font-size: 10px;
+    margin-top: 3px;
+  }
+
+  body.tracker-home .tracker-intro h2 {
+    font-size: 14px;
+    line-height: 1.2;
+    margin: 0 0 3px;
+  }
+
+  body.tracker-home .tracker-intro p {
+    display: none;
+  }
+
+  .collections {
+    padding: 10px 12px;
+  }
+
+  .collections h2 {
+    font-size: 18px;
+    margin: 4px 0;
+  }
+
+  .collections>p {
+    margin: 4px 0;
+  }
+
+  .collections .achievement-category {
+    margin-top: 7px;
+  }
+
+  .collections .category-toggle {
+    min-height: 40px;
+    padding: 7px 10px;
+    font-size: 14px;
+  }
+
+  .collections .achievement-category .achievement-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+    padding: 7px;
+  }
+
+  .collections .achievement>div {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .collections .achievement-list[hidden] {
+    display: none;
+  }
+
+  .collections .achievement {
+    grid-template-columns: 34px minmax(0, 1fr);
+    gap: 7px;
+    padding: 6px;
+    min-height: 52px;
+  }
+
+  .collections .achievement-symbol,.collections .achievement-symbol img {
+    width: 34px;
+    height: 34px;
+  }
+
+  .collections button.achievement {
+    font-size: 12px;
+  }
+
+  .collections .achievement small {
+    font-size: 10px;
+    margin: 2px 0;
+  }
+
+  .collections .achievement progress {
+    height: 5px;
+  }
+
+  .achievement-in-reach {
+    padding: 7px 9px;
+    margin-top: 7px;
+  }
+
+  .fitquest-intro {
+    max-width: 580px;
+    margin: 4px auto;
+    padding: 10px 16px;
+  }
+
+  .fitquest-intro>img {
     width: 40px;
     height: 40px;
+    margin-bottom: 2px;
+  }
+
+  .fitquest-intro h2 {
+    font-size: 18px;
+    margin: 2px 0;
+  }
+
+  .fitquest-intro p {
+    font-size: 13px;
+    line-height: 1.3;
+    margin-bottom: 5px;
+    max-width: 65ch;
+  }
+
+  .fitquest-intro .intro-counter {
+    margin-bottom: 5px;
+  }
+
+  .intro-demo-skills {
+    margin: 5px 0;
+  }
+
+  .intro-demo-skill {
+    min-height: 44px;
+    width: 60px;
+  }
+
+  .intro-demo-skill .skill-symbol {
+    width: 24px;
+    height: 24px;
+  }
+
+  .intro-practice {
+    min-height: 0;
+  }
+
+  .intro-demo-highlight {
+    padding: 5px;
+    margin: 5px auto;
+  }
+
+  .collections .achievement-symbol .five-for-five-medal {
+    width: 30px;
+    height: 32px;
+  }
+
+  .intro-practice p {
+    font-size: 12px;
+    margin: 4px auto;
   }
 }
 
+/* Responsive: (prefers-reduced-motion:reduce) */
 @media (prefers-reduced-motion:reduce) {
   *,*:before,*:after {
     animation: none !important;
@@ -1207,433 +2171,9 @@ header .stats #overall-title {
   }
 }
 
-/* Collections share the existing compact header controls. */
-header nav button[data-tab="collections"] { position: relative; }
-header nav .collection-count {
-  position: absolute; top: -7px; right: -7px; min-width: 19px; height: 19px;
-  padding: 1px 4px; border-radius: 12px; background: #e84e48; color: #fff;
-  font: 700 11px/17px system-ui, sans-serif; box-shadow: 0 1px 3px #1238;
-}
-header nav .collection-count[hidden] { display: none; }
-.collections .achievement-list { display: grid; gap: 8px; margin: 12px 0 20px; }
-.collections .achievement { display: grid; grid-template-columns: 38px 1fr; gap: 10px; align-items: center; padding: 10px; border: 1px solid #b9d8e9; border-radius: 12px; background: #f4faff; }
-.collections .achievement.locked { opacity: .72; }
-.collections .achievement-symbol { font-size: 24px; }
-.collections .achievement small { display: block; font-size: 12px; margin: 3px 0; }
-.collections .achievement progress { width: 100%; height: 7px; }
-@media(max-width:420px) {
-  header nav { gap: 4px; }
-  header nav button[data-tab="collections"] { width: 44px; height: 44px; min-height: 44px; }
-  header nav button[data-tab="collections"] .collections-icon { font-size: 16px; }
-}
-
-/* Keep all collection assets centered in their circular controls. */
-header nav button[data-tab="collections"] { display: grid; place-items: center; }
-header nav .collections-icon { display: block; width: 30px; height: 30px; object-fit: contain; margin: auto; }
-.collections .achievement-symbol { display: grid; place-items: center; width: 40px; height: 40px; }
-.collections .achievement-symbol img { display: block; width: 40px; height: 40px; object-fit: contain; }
-@media(max-width:420px) { header nav button[data-tab="collections"] .collections-icon { width: 27px; height: 27px; } }
-
-
-/* Full-row buttons make category toggles consistent across touch browsers. */
-.collections .achievement-category {
-  margin-top: 12px;
-  border: 1px solid #b9d8e9;
-  border-radius: 12px;
-  background: #f4faff;
-  overflow: hidden;
-}
-.collections .category-toggle {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  min-height: 48px;
-  padding: 12px;
-  border-radius: 0;
-  background: transparent;
-  color: #203c33;
-  box-shadow: none;
-  text-align: left;
-  font-size: 16px;
-  font-weight: 700;
-  touch-action: manipulation;
-}
-.collections .category-arrow { color: #086bad; }
-.collections .category-count {
-  margin-left: auto;
-  color: #597067;
-  font-size: 12px;
-  font-weight: 500;
-}
-.collections .category-toggle:focus-visible {
-  outline: 3px solid #087bd9;
-  outline-offset: -3px;
-}
-.collections .category-toggle[aria-expanded="true"] { border-bottom: 1px solid #b9d8e9; }
-.collections .achievement-category .achievement-list { margin: 0; padding: 10px; }
-.collections .achievement-list[hidden] { display: none; }
-
-.collections .achievement.unlocked { background: #effaf3; border-color: #a8d7ba; }
-
-/* Earned badges have enough space to remain visible on phone screens. */
-.collections .achievement { grid-template-columns: 56px minmax(0, 1fr); }
-.collections .achievement-symbol,
-.collections .achievement-symbol img { width: 56px; height: 56px; }
-
-/* One nearby goal keeps Collections focused without another achievement list. */
-.achievement-in-reach {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px;
-  margin-top: 12px;
-  border: 1px solid #b9d8e9;
-  border-radius: 12px;
-  background: #edf7ff;
-}
-.achievement-in-reach > img { flex-shrink: 0; object-fit: contain; }
-.achievement-in-reach > div { flex: 1; min-width: 0; }
-.achievement-in-reach small { display: block; color: #597067; font-size: 12px; }
-.achievement-in-reach strong { font-size: 14px; }
-.achievement-in-reach span { float: right; margin-left: 8px; color: #597067; font-size: 12px; }
-.achievement-in-reach progress { display: block; height: 5px; margin: 6px 0 0; accent-color: #087cd9; }
-
-/* Current rank sits between the wordmark and Total Level without another grid column. */
-header .stats { flex-direction: row; align-items: center; gap: 6px; }
-#header-rank-badge { display: block; width: 52px; height: 52px; object-fit: contain; flex-shrink: 0; }
-#header-rank-badge[hidden] { display: none; }
-@media (max-width:600px) {
-  header .stats { gap: 3px; }
-}
-
-.achievement-new { display: inline-block; padding: 2px 6px; border-radius: 999px; background: #d93636; color: white; font: 700 11px/1.4 system-ui,sans-serif; white-space: nowrap; }
-.collections button.achievement { width: 100%; text-align: left; color: #203c33; font-size: 16px; box-shadow: none; }
-.collections button.achievement .achievement-new { vertical-align: middle; }
-@media (max-width:600px) { #header-rank-badge { width: 36px; height: 36px; } }
-
-/* Keep app controls clear of display cutouts and the home indicator. */
-:root {
-  --safe-top: env(safe-area-inset-top, 0px);
-  --safe-right: env(safe-area-inset-right, 0px);
-  --safe-bottom: env(safe-area-inset-bottom, 0px);
-  --safe-left: env(safe-area-inset-left, 0px);
-}
-header {
-  padding-top: calc(7px + var(--safe-top));
-  padding-right: calc(12px + var(--safe-right));
-  padding-bottom: 8px;
-  padding-left: calc(12px + var(--safe-left));
-}
-main {
-  padding-right: calc(16px + var(--safe-right));
-  padding-bottom: calc(24px + var(--safe-bottom));
-  padding-left: calc(16px + var(--safe-left));
-}
-body.tracker-home main {
-  padding-right: calc(12px + var(--safe-right));
-  padding-bottom: calc(12px + var(--safe-bottom));
-  padding-left: calc(12px + var(--safe-left));
-}
-#notice {
-  top: calc(14px + var(--safe-top));
-  left: calc(16px + var(--safe-left));
-  right: calc(16px + var(--safe-right));
-}
-#dev-tools {
-  top: calc(12px + var(--safe-top));
-  right: calc(12px + var(--safe-right));
-  width: calc(100% - 24px - var(--safe-left) - var(--safe-right));
-  max-height: calc(100dvh - 24px - var(--safe-top) - var(--safe-bottom));
-}
-dialog {
-  width: calc(100% - 32px - var(--safe-left) - var(--safe-right));
-  max-height: calc(100dvh - 32px - var(--safe-top) - var(--safe-bottom));
-  overflow: auto;
-}
-#check-dialog, #total-dialog {
-  max-height: min(85dvh, calc(100dvh - 32px - var(--safe-top) - var(--safe-bottom)));
-}
-@media (max-width:600px) {
-  header {
-    padding-top: calc(8px + var(--safe-top));
-    padding-right: calc(8px + var(--safe-right));
-    padding-left: calc(8px + var(--safe-left));
-  }
-}
-@media (max-width:350px) {
-  header {
-    padding-top: calc(7px + var(--safe-top));
-    padding-right: calc(5px + var(--safe-right));
-    padding-left: calc(5px + var(--safe-left));
-  }
-}
-
-/* Theme colours cover the full app screen, including short Collections pages. */
-body { min-height: 100vh; min-height: 100dvh; }
-
-body.tracker-home .star-xp,
-body.tracker-home .star-level,
-body.tracker-home .star-summary span,
-body.tracker-home .star-reset,
-body.tracker-home .tracker-intro p,
-body.tracker-home .tracker-intro .next-reward,
-body.tracker-home .weekly-check-ins { color: #203c33; }
-
-/* Mobile layout: touch controls, long labels, and small-height fallback. */
-button { touch-action: manipulation; }
-.collections progress {
-  appearance: none;
-  border: 0;
-  border-radius: 999px;
-  overflow: hidden;
-  background: #d8e6ed;
-  accent-color: #087cd9;
-}
-.collections progress::-webkit-progress-bar { background: #d8e6ed; border-radius: 999px; }
-.collections progress::-webkit-progress-value { background: #087cd9; border-radius: 999px; }
-.collections progress::-moz-progress-bar { background: #087cd9; border-radius: 999px; }
-.collections .achievement > div { min-width: 0; overflow-wrap: anywhere; }
-#dev-tools input, #dev-tools select {
-  display: block;
-  width: 100%;
-  min-height: 44px;
-  margin: 4px 0 10px;
-  padding: 8px;
-  font: inherit;
-}
-#dev-tools summary { min-height: 44px; padding: 12px 0; cursor: pointer; }
-@media (max-width:600px) {
-  header .stats #overall-title { max-width: 106px; }
-  header .stats #overall-title > span { overflow: hidden; text-overflow: ellipsis; }
-  header .stats #overall-level { padding: 6px; }
-  header>div:has(#dev-open:not([hidden])) { grid-template-columns: minmax(0,1fr) auto auto; }
-  header>div:has(#dev-open:not([hidden])) .stats { grid-column: 2; }
-  header>div:has(#dev-open:not([hidden])) nav { grid-column: 3; }
-  header #dev-open { grid-column: 1 / -1; grid-row: 2; justify-self: end; min-height: 44px; }
-}
-@media (max-width:480px) {
-  .collections .category-toggle { display: grid; grid-template-columns: 10px minmax(0,1fr) auto; gap: 3px 8px; }
-  .collections .category-count { grid-column: 2 / -1; margin-left: 0; font-size: 11px; }
-  .collections .category-toggle .achievement-new { justify-self: end; }
-  .collections .achievement-category .achievement-list { padding: 8px; }
-  .collections .achievement { gap: 8px; padding: 8px; }
-  #check-dialog, #total-dialog { padding: 16px; }
-  #check-dialog .guided-scores { gap: 8px; }
-}
-@media (max-height:650px) { .skill-star { min-height: 360px; } }
-@media (orientation:landscape) and (max-height:500px) { .skill-star { min-height: 260px; } }
-
-/* Short landscape screens use a row instead of compressing the skill star. */
-@media (orientation:landscape) and (max-height:500px) {
-  body.tracker-home main { padding-top: 8px; }
-  .skill-star {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    grid-template-rows: auto 1fr;
-    gap: 6px 10px;
-    align-items: center;
-    max-width: 720px;
-    min-height: 160px;
-    max-height: none;
-    margin: auto;
-  }
-  .star-summary {
-    position: static;
-    transform: none;
-    grid-column: 1 / -1;
-    grid-row: 1;
-    display: flex;
-    align-items: baseline;
-    justify-content: center;
-    gap: 6px;
-  }
-  .star-summary strong { font-size: 20px; }
-  .star-summary span { font-size: 11px; }
-  .star-skill {
-    position: relative;
-    left: auto;
-    top: auto;
-    transform: none;
-    grid-row: 2;
-    width: 100%;
-    min-width: 0;
-    gap: 3px;
-    padding: 3px 0;
-  }
-  .star-skill .skill-symbol { width: 48px; height: 48px; }
-  .star-skill .skill-symbol > span { width: 28px; height: 28px; }
-  .star-skill strong { font-size: 12px; min-height: 28px; display: flex; align-items: center; justify-content: center; }
-  .star-level { font-size: 12px; }
-  .star-check { top: 19px; }
-  .star-skill .star-progress { max-width: 100px; }
-  .weekly-check-ins { font-size: 11px; margin-top: 4px; }
-  .star-reset { font-size: 10px; margin-top: 3px; }
-}
-
-/* Keep the completion heading visible while reducing landscape dashboard height. */
-@media (orientation: landscape) and (max-height: 500px) {
-  body.tracker-home .tracker-intro h2 { font-size: 14px; line-height: 1.2; margin: 0 0 3px; }
-  body.tracker-home .tracker-intro p { display: none; }
-}
-
-/* Compact achievement browsing on short landscape phone screens. */
-@media (orientation: landscape) and (max-height: 500px) {
-  .collections { padding: 10px 12px; }
-  .collections h2 { font-size: 18px; margin: 4px 0; }
-  .collections > p { margin: 4px 0; }
-  .collections .achievement-category { margin-top: 7px; }
-  .collections .category-toggle { min-height: 40px; padding: 7px 10px; font-size: 14px; }
+/* Responsive: (orientation:landscape) and (max-height:500px) and (max-width:550px) */
+@media (orientation:landscape) and (max-height:500px) and (max-width:550px) {
   .collections .achievement-category .achievement-list {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 6px;
-    padding: 7px;
+    grid-template-columns: 1fr;
   }
-  .collections .achievement > div { min-width: 0; overflow-wrap: anywhere; }
-  .collections .achievement-list[hidden] { display: none; }
-  .collections .achievement {
-    grid-template-columns: 34px minmax(0, 1fr);
-    gap: 7px;
-    padding: 6px;
-    min-height: 52px;
-  }
-  .collections .achievement-symbol,
-  .collections .achievement-symbol img { width: 34px; height: 34px; }
-  .collections button.achievement { font-size: 12px; }
-  .collections .achievement small { font-size: 10px; margin: 2px 0; }
-  .collections .achievement progress { height: 5px; }
-  .achievement-in-reach { padding: 7px 9px; margin-top: 7px; }
 }
-@media (orientation: landscape) and (max-height: 500px) and (max-width: 550px) {
-  .collections .achievement-category .achievement-list { grid-template-columns: 1fr; }
-}
-
-/* First-launch tutorial: short, centered, and usable in portrait or landscape. */
-.fitquest-intro { max-width: 440px; margin: 16px auto; text-align: center; padding: 20px; }
-.fitquest-intro > img { display: block; margin: 0 auto 10px; object-fit: contain; }
-.fitquest-intro h2 { margin: 4px 0 8px; }
-.fitquest-intro p { margin: 0 auto 12px; line-height: 1.5; max-width: 36ch; }
-.fitquest-intro .intro-counter { display: block; font-size: 12px; opacity: .7; margin-bottom: 10px; }
-.fitquest-intro .intro-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; }
-.fitquest-intro .intro-actions button { min-height: 44px; }
-@media (orientation: landscape) and (max-height: 500px) {
-  .fitquest-intro { max-width: 580px; margin: 4px auto; padding: 10px 16px; }
-  .fitquest-intro > img { width: 40px; height: 40px; margin-bottom: 2px; }
-  .fitquest-intro h2 { font-size: 18px; margin: 2px 0; }
-  .fitquest-intro p { font-size: 13px; line-height: 1.3; margin-bottom: 5px; max-width: 65ch; }
-  .fitquest-intro .intro-counter { margin-bottom: 5px; }
-}
-
-/* Interactive tutorial uses real skill icons, without touching saved check-ins. */
-.intro-demo-skills { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 10px 0; }
-.intro-demo-skill { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; width: 66px; min-height: 64px; padding: 5px; border: 2px solid #e2ac2e; border-radius: 10px; background: #f1f9ff; color: #184b70; font-size: 10px; box-shadow: 0 0 0 2px #ffedb3; }
-.intro-demo-skill .skill-symbol { width: 30px; height: 30px; }
-.intro-demo-skill .skill-symbol > span { width: 20px; height: 20px; }
-.intro-practice { min-height: 55px; font-size: 12px; }
-.intro-practice p { font-size: 12px; margin: 4px auto; }
-.intro-demo-ratings { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; margin: 7px 0; }
-.intro-demo-ratings button { min-width: 44px; min-height: 44px; padding: 4px; flex: 0 1 44px; }
-.intro-demo-ratings button[aria-pressed="true"] { background: #087bd9; color: white; outline: 2px solid #e2ac2e; }
-.intro-demo-highlight { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 10px; margin: 10px auto; border: 2px solid #e2ac2e; border-radius: 12px; background: #f1f9ff; font-size: 13px; }
-.intro-demo-highlight strong { font-size: 22px; }
-@media (orientation: landscape) and (max-height: 500px) {
-  .intro-demo-skills { margin: 5px 0; }
-  .intro-demo-skill { min-height: 44px; width: 60px; }
-  .intro-demo-skill .skill-symbol { width: 24px; height: 24px; }
-  .intro-practice { min-height: 0; }
-  .intro-demo-highlight { padding: 5px; margin: 5px auto; }
-}
-
-/* Repeatable Five for Five medal tally beside the unlocked achievement title. */
-.collections .perfect-day-medal-count {
-  display: inline-block;
-  margin-left: 6px;
-  padding: 2px 7px;
-  border: 1px solid #d6a435;
-  border-radius: 999px;
-  background: #fff2c6;
-  color: #62420a;
-  font-size: 12px;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-
-/* Inline SVG: render the entire medal, not a clipped external image. */
-.collections .achievement-symbol .five-for-five-medal {
-  display: block;
-  width: 48px;
-  height: 54px;
-  max-width: 100%;
-  max-height: 100%;
-  overflow: visible;
-  flex-shrink: 0;
-}
-@media (orientation: landscape) and (max-height: 500px) {
-  .collections .achievement-symbol .five-for-five-medal { width: 30px; height: 32px; }
-}
-
-/* Nearby milestones share the collection badge styling. */
-button.achievement-in-reach { width: 100%; text-align: left; cursor: pointer; font: inherit; }
-#nearby-dialog { max-height: 85dvh; overflow-y: auto; }
-.nearby-milestones { display: grid; gap: 10px; }
-.nearby-milestone { display: flex; align-items: center; gap: 12px; padding: 10px; border: 1px solid #d5e2df; border-radius: 12px; }
-.nearby-milestone img { flex-shrink: 0; object-fit: contain; }
-.nearby-milestone small { display: block; margin-top: 4px; }
-
-#header-rank-button { padding: 0; border: 0; background: transparent; flex-shrink: 0; min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; }
-#header-rank-button[hidden] { display: none; }
-#ranks-dialog { max-height: 85dvh; overflow-y: auto; }
-.rank-progression-list { display: grid; gap: 8px; }
-.rank-progression-item { display: flex; align-items: center; gap: 10px; padding: 8px; border: 1px solid #d5e2df; border-radius: 12px; }
-.rank-progression-item img { flex-shrink: 0; object-fit: contain; }
-.rank-progression-item div { flex: 1; }
-.rank-progression-item small { display: block; margin-top: 3px; }
-.rank-progression-item.current-rank { border-color: #087cd9; background: #edf7ff; }
-.rank-status { font-size: 12px; }
-
-#journey-open { display: block; padding: 0; border: 0; background: transparent; min-height: 44px; }
-#journey-dialog { max-height: 85dvh; overflow-y: auto; }
-.journey-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-.journey-stat { padding: 14px 10px; border: 1px solid #d5e2df; border-radius: 12px; text-align: center; }
-.journey-stat strong { display: block; font-size: 22px; color: #087cd9; }
-.journey-stat span { display: block; margin-top: 6px; font-size: 13px; }
-
-.daily-quest { display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; padding: 10px 12px; margin-top: 8px; background: #edf7ff; border: 1px solid #b9d8e9; border-radius: 12px; }
-.daily-quest > div { display: flex; justify-content: space-between; gap: 10px; grid-column: 1 / -1; }
-.daily-quest small { font-size: 12px; }
-.daily-quest label { display: flex; align-items: center; gap: 8px; font-size: 13px; min-height: 44px; cursor: pointer; }
-.daily-quest input { width: 20px; height: 20px; flex-shrink: 0; accent-color: #087cd9; }
-.daily-quest button { padding: 6px 10px; font-size: 12px; min-height: 44px; }
-
-.collections-heading { display: flex; align-items: center; gap: 8px; }
-.collections-heading img { flex-shrink: 0; object-fit: contain; }
-
-/* Put every header control in one row with equal space between neighbours. */
-header > div { display: flex; align-items: center; justify-content: space-between; gap: 6px; flex-wrap: wrap; }
-header .stats, header nav { display: contents; }
-header h1 { flex: 0 1 auto; }
-header .app-logo { width: clamp(80px, 25vw, 170px); }
-header #overall-level { flex: 0 1 auto; min-width: 0; }
-header #header-rank-button { flex: 0 0 44px; }
-header #dev-open { flex-basis: 100%; margin-left: auto; }
-@media (max-width:350px) {
-  header > div { gap: 3px; }
-  header .app-logo { width: 80px; }
-  header #overall-level { padding: 4px; }
-}
-
-/* Give the wordmark breathing room and align gaps to control boundaries. */
-header #journey-open { padding: 3px 6px; }
-header h1 { flex: 0 0 auto; }
-header #header-rank-button { flex-basis: 52px; width: 52px; }
-@media (max-width:600px) {
-  header #header-rank-button { flex-basis: 44px; width: 44px; }
-  header #journey-open { padding: 3px 4px; }
-}
-@media (max-width:350px) {
-  header .app-logo { width: 76px; }
-}
-
-header nav button[data-tab="settings"] .settings-icon { width: 24px; height: 24px; }

@@ -30,7 +30,7 @@ Use http://localhost:8000/?dev for developer mode. It previews skill and Total L
 | `js/intro.js` | Welcome and practice screens |
 | `js/achievements.js` | Achievement tracking and collection screens |
 | `js/fitville.js` | Check-in coordination, save handling, UI rendering, celebrations, and browser events |
-| `css/fitville.css` | Layout and styling; responsive overrides are grouped at the end |
+| `css/fitville.css` | Component styles with consolidated selectors; one block per responsive condition at the end |
 | `assets/icons/` | Local SVG icons and their licensing information |
 | `tests/tracker.test.cjs` | Regression checks for the production tracker logic |
 | `.github/workflows/deploy-pages.yml` | Runs checks, then deploys GitHub Pages |
@@ -133,3 +133,7 @@ const totalLevel = progression.calculateTotalLevel([
 ```
 
 In the browser, use `FitQuestProgression.createProgression(FitQuestConfig)`. Each calculator uses the provided configuration. Changing progression formulas belongs in this module; editable values remain in `config.js`. Award XP using the skill level before the check-in.
+
+## CSS maintenance
+
+Edit the existing component rule instead of appending a second override. Base styles come first, followed by one block for each viewport condition (600px, 480px, 420px, and 350px widths; short screens; landscape; reduced motion; and narrow landscape). More specific landscape exceptions stay after the general landscape block. The header uses flex layout; its stats and navigation wrappers use `display: contents`. Keep safe-area padding, 44px touch targets, and intentional `vh`/`dvh` fallbacks when adjusting layouts.
