@@ -19,52 +19,6 @@
     const LEGACY_RATES = [1, 3, 6, 12, 20, 35];
     // Keep the original storage key and legacy fields so existing progress remains readable.
     const KEY = 'fitville-v1';
-    // Browser storage and developer session
-    const sessionFallback = new Map();
-    // Session storage is optional (for example, in restricted browser modes).
-    // Keep the in-memory fallback authoritative for writes in this tab.
-    function sessionOperation(action, key, value) {
-      if (action === 'read' && sessionFallback.has(key))
-        return sessionFallback.get(key);
-      if (action === 'write') sessionFallback.set(key, value);
-      if (action === 'remove') sessionFallback.set(key, null);
-      try {
-        if (action === 'read') return sessionStorage.getItem(key);
-        if (action === 'write') sessionStorage.setItem(key, value);
-        if (action === 'remove') sessionStorage.removeItem(key);
-      } catch (err) {
-        // Browser storage may be unavailable; the fallback remains usable.
-      }
-      return null;
-    }
-    function readSession(key) {
-      return sessionOperation('read', key);
-    }
-    function writeSession(key, value) {
-      sessionOperation('write', key, value);
-    }
-    function removeSession(key) {
-      sessionOperation('remove', key);
-    }
-    const DEV_PARAMS = new URLSearchParams(location.search),
-      DEV_REQUESTED = DEV_PARAMS.has('dev') || DEV_PARAMS.get('test') === '1',
-      DEV_BACKUP = 'fitville-dev-backup';
-    let DEV = DEV_REQUESTED || readSession('fitville-dev-active') === '1';
-    let devTotalLevel = null;
-    function setupDevUI() {
-      const panel = document.getElementById('dev-tools'),
-        open = document.getElementById('dev-open');
-      if (!panel || !open) return;
-      if (DEV) {
-        syncDevProfileInputs();
-        writeSession('fitville-dev-active', '1');
-        panel.hidden = false;
-        open.hidden = true;
-      } else {
-        panel.hidden = true;
-        open.hidden = true;
-      }
-    }
     // Pure progression rules are shared with direct Node tests.
     const {
       maxSkillLevel: MAX_LEVEL,
@@ -78,20 +32,6 @@
       rewardForTotalLevel: totalReward,
       nextRewardForTotalLevel,
     } = globalThis.FitQuestProgression.createProgression(CONFIG);
-    function setProfileLevels(levels) {
-      if (!DEV || !Array.isArray(levels) || levels.length !== SKILLS.length ||
-          levels.some(value => !Number.isInteger(value) || value < 1 || value > MAX_LEVEL))
-        return false;
-      levels.forEach((value, i) => { state.skills[i].xp = XP[value]; });
-      devTotalLevel = null;
-      return true;
-    }
-    function syncDevProfileInputs() {
-      SKILLS.forEach((skill, i) => {
-        const input = document.getElementById('dev-profile-' + i);
-        if (input) input.value = level(state.skills[i].xp);
-      });
-    }
     function fresh() {
       return {
         coins: 0,
@@ -122,8 +62,16 @@
     } catch (err) {
       storageOK = false;
     }
-    if (DEV && readSession(DEV_BACKUP) === null && storageLoaded)
-      writeSession(DEV_BACKUP, lastSavedRaw === null ? '__EMPTY__' : lastSavedRaw);
+    const developer = globalThis.FitQuestDeveloper.create({
+      SKILLS, MAX_LEVEL, MIN_TOTAL_LEVEL, MAX_TOTAL_LEVEL, XP, level,
+      getState: () => state,
+      setState: value => { state = value; },
+      fresh, readSave,
+      rejectSave: raw => { rejectedSave = raw; storageOK = false; },
+      showDashboard: () => { tab = 'dashboard'; },
+      render, notify, totalSkillLevel, totalReward, syncSharedSave,
+    });
+    developer.backupOriginal(storageLoaded, lastSavedRaw);
     // Daily reset and shared-save synchronization
     let tab = 'dashboard',
       timer,
@@ -221,7 +169,7 @@
       }
     }
     function syncSharedSave() {
-      if (DEV || rejectedSave !== null || !storageLoaded) return false;
+      if (developer.active || rejectedSave !== null || !storageLoaded) return false;
       try {
         const raw = localStorage.getItem(KEY);
         if (raw === lastSavedRaw) return false;
@@ -250,7 +198,7 @@
     }
     function save() {
       if (!startupReady) return false;
-      if (DEV || rejectedSave !== null || !storageLoaded) return false;
+      if (developer.active || rejectedSave !== null || !storageLoaded) return false;
       try {
         if (localStorage.getItem(KEY) !== lastSavedRaw) {
           syncSharedSave();
@@ -333,7 +281,7 @@
       unseenAchievements, updateCollectionBadge, expandedAchievementCategories,
       renderCollections, markAchievementViewed, renderNearbyMilestones } = globalThis.FitQuestAchievements.create({
         SKILLS, SKILL_SYMBOLS, level, checkedCount, day, currentTotalLevel, safeText, save,
-        getState: () => state, isDev: () => DEV,
+        getState: () => state, isDev: () => developer.active,
       });
 
     // Dashboard and level celebrations
@@ -635,8 +583,8 @@
       return calculateTotalLevel(state.skills);
     }
     function currentTotalLevel() {
-      return DEV && devTotalLevel !== null
-        ? devTotalLevel
+      return developer.active && developer.totalLevel !== null
+        ? developer.totalLevel
         : totalSkillLevel();
     }
     function rankForTotalLevel(totalLevel) {
@@ -686,7 +634,7 @@
         MAX_TOTAL_LEVEL + '</p><progress class="total-progress" max="' +
         (MAX_TOTAL_LEVEL - MIN_TOTAL_LEVEL) + '" value="' + (current - MIN_TOTAL_LEVEL) +
         '" aria-label="Progress from starting Total Level to maximum"></progress>' +
-        (DEV && devTotalLevel !== null ? '<p class="muted">Developer preview.</p>' : '') +
+        (developer.active && developer.totalLevel !== null ? '<p class="muted">Developer preview.</p>' : '') +
         '<section class="total-milestone' + (unlocked ? ' is-unlocked' : '') +
         (next && next.level === milestone.level ? ' is-next' : '') +
         '" aria-live="polite"><div class="row"><strong>Level ' + milestone.level +
@@ -840,7 +788,7 @@
       // Edits refresh levels and rewards without replaying check-in celebrations.
       notify(SKILLS[i].name + ' · corrected to ' + score + '/5 · ' +
         (result.delta > 0 ? '+' : '') + result.delta + ' XP' +
-        (DEV ? ' · preview only.' : persisted ? ' · saved.' : ' · temporary; export a backup.'));
+        (developer.active ? ' · preview only.' : persisted ? ' · saved.' : ' · temporary; export a backup.'));
     }
     // The first bonus-enabled session establishes a baseline for older saves.
     // A paid milestone is never paid twice, even if today's ratings are edited.
@@ -868,7 +816,7 @@
       return { medals };
     }
     function submitCheckIn(i, score) {
-      const earnedBefore = DEV ? [] : earnedAchievements();
+      const earnedBefore = developer.active ? [] : earnedAchievements();
       initializeFiveForFiveRewards();
       const result = recordCheckIn(i, score);
       if (result.status === 'invalid') return;
@@ -889,14 +837,14 @@
           ' · ' +
           score +
           '/5' +
-          (DEV
+          (developer.active
             ? ' · preview only.'
             : persisted
               ? ' · saved.'
               : ' · temporary; export a backup to keep this progress.'),
       );
       if (bonus) { reward('+5 XP to all five skills'); notify('🏅 Five for Five! ' + bonus.medals + ' medals · +5 XP to every skill!'); }
-      const newBadges = DEV ? [] : earnedAchievements().filter(id => !earnedBefore.includes(id));
+      const newBadges = developer.active ? [] : earnedAchievements().filter(id => !earnedBefore.includes(id));
       if (newBadges.length) notify('🏆 ' + newBadges.length + ' achievement' + (newBadges.length === 1 ? '' : 's') + ' unlocked! Check Collections at the top.');
     }
 
@@ -1026,115 +974,7 @@
         location.reload();
         return;
       }
-      if (DEV && b.id === 'dev-toggle') {
-        document.getElementById('dev-tools').hidden = true;
-        document.getElementById('dev-open').hidden = false;
-        return;
-      }
-      if (DEV && b.id === 'dev-open') {
-        syncDevProfileInputs();
-        document.getElementById('dev-tools').hidden = false;
-        document.getElementById('dev-open').hidden = true;
-        return;
-      }
-      if (DEV && b.dataset.devLevel !== undefined) {
-        const input = document.getElementById('dev-level');
-        if (input) input.value = b.dataset.devLevel;
-        return;
-      }
-      if (DEV && (b.id === 'dev-set-total' || b.dataset.devTotal !== undefined)) {
-        const input = document.getElementById('dev-total-level'),
-          value = b.dataset.devTotal !== undefined ? b.dataset.devTotal : input.value;
-        devTotalLevel = Math.max(MIN_TOTAL_LEVEL, Math.min(MAX_TOTAL_LEVEL, Math.floor(Number(value) || MIN_TOTAL_LEVEL)));
-        input.value = devTotalLevel;
-        render(false);
-        notify('Total Level ' + devTotalLevel + ' · ' + totalReward(devTotalLevel).title + ' · preview only.');
-        return;
-      }
-      if (DEV && b.id === 'dev-total-auto') {
-        devTotalLevel = null;
-        render(false);
-        notify('Total Level follows the sum of your skill levels again.');
-        return;
-      }
-      if (DEV && b.id === 'dev-apply-profile') {
-        const levels = SKILLS.map((skill, i) =>
-          Number(document.getElementById('dev-profile-' + i).value));
-        if (!setProfileLevels(levels)) {
-          notify('Enter a whole-number level from 1 to ' + MAX_LEVEL + ' for every skill.');
-          return;
-        }
-        document.getElementById('dev-total-level').value = totalSkillLevel();
-        render(false);
-        notify('Profile applied · Total Level ' + totalSkillLevel() + ' · preview only.');
-        return;
-      }
-      if (DEV && b.id === 'dev-set-level') {
-        const select = document.getElementById('dev-skill'),
-          input = document.getElementById('dev-level'),
-          target = Math.max(1, Math.min(MAX_LEVEL, Math.floor(Number(input && input.value) || 1))),
-          indices =
-            select && select.value === 'all' ? [0, 1, 2, 3, 4] : [Number(select && select.value)];
-        for (const i of indices) {
-          if (Number.isInteger(i) && i >= 0 && i < 5) state.skills[i].xp = XP[target];
-        }
-        render();
-        notify(
-          (indices.length === 5 ? 'All skills' : SKILLS[indices[0]].name) +
-            ' set to Level ' +
-            target +
-            ' for testing.',
-        );
-        return;
-      }
-      if (DEV && b.id === 'dev-restore') {
-        devTotalLevel = null;
-        const raw = readSession(DEV_BACKUP);
-        if (raw === null) {
-          notify('No original save backup is available in this session.');
-          return;
-        }
-        if (raw === '__EMPTY__') {
-          state = fresh();
-        } else {
-          try {
-            state = readSave(raw);
-          } catch (err) {
-            notify('Could not restore the original save.');
-            return;
-          }
-        }
-        tab = 'dashboard';
-        render();
-        notify('Original save restored in the preview.');
-        return;
-      }
-      if (DEV && b.id === 'dev-exit') {
-        const raw = readSession(DEV_BACKUP);
-        if (raw !== null) {
-          try {
-            state = raw === '__EMPTY__' ? fresh() : readSave(raw);
-          } catch (err) {
-            state = fresh();
-            rejectedSave = raw;
-            storageOK = false;
-          }
-        }
-        removeSession(DEV_BACKUP);
-        removeSession('fitville-dev-active');
-        DEV = false;
-        devTotalLevel = null;
-        const u = new URL(location.href);
-        u.searchParams.delete('dev');
-        u.searchParams.delete('test');
-        history.replaceState(null, '', u.pathname + u.search + u.hash);
-        setupDevUI();
-        tab = 'dashboard';
-        syncSharedSave();
-        render(false);
-        notify('Developer Mode closed. Original progress preserved.');
-        return;
-      }
+      if (developer.handleClick(b)) return;
 
       if (b.id === 'intro-replay') { introStep = 0; introPracticeSkill = null; introPracticeRating = null; render(false); return; }
       if (introStep >= 0 && b.dataset.introSkill !== undefined) { introPracticeSkill = Number(b.dataset.introSkill); introPracticeRating = null; render(false); return; }
@@ -1221,7 +1061,7 @@
         const persisted = save();
         render(false);
         notify(SKILLS[result.skill].name + (completed ? ' · +2 XP' : ' · quest reward removed') +
-          (DEV ? ' · preview only.' : persisted ? ' · saved.' : ' · temporary; export a backup.'));
+          (developer.active ? ' · preview only.' : persisted ? ' · saved.' : ' · temporary; export a backup.'));
         if (result.firstCompletion && celebrations.length) showLevel();
       };
       if (typeof navigator !== 'undefined' && navigator.locks)
@@ -1383,7 +1223,7 @@
     if (typeof globalThis.__fitQuestTestHook === 'function') {
       globalThis.__fitQuestTestHook({
         XP, MAX_LEVEL, MAX_TOTAL_LEVEL, fresh, level, readSave, recordCheckIn,
-        achievementStats, earnedAchievements, setProfileLevels, journeySummary, journeyPanel, dailyQuest, setQuestCompleted, swapDailyQuest,
+        achievementStats, earnedAchievements, setProfileLevels: developer.setProfileLevels, journeySummary, journeyPanel, dailyQuest, setQuestCompleted, swapDailyQuest,
         unseenAchievements, markAchievementViewed,
         editCheckIn, skillBonus, checkInXP, totalSkillLevel, totalReward,
         TOTAL_REWARDS, weeklyCheckInCount, day, nextReset, nextRewardText,
@@ -1391,7 +1231,7 @@
         dialogHTML: () => document.getElementById('check-content').innerHTML,
         state: () => state,
         setState: (value) => { state = value; },
-        preview: (value) => { DEV = value !== null; devTotalLevel = value; },
+        preview: developer.preview,
         queued: () => celebrations,
       });
       return;
@@ -1437,11 +1277,11 @@
       }
     });
     setupNoticeDismissal();
-    setupDevUI();
-    if (!DEV && rejectedSave === null) initializeFiveForFiveRewards();
+    developer.setupUI();
+    if (!developer.active && rejectedSave === null) initializeFiveForFiveRewards();
     try {
       // Do not interrupt returning players or developer/test sessions.
-      if (!DEV && rejectedSave === null && !lastSavedRaw && localStorage.getItem(INTRO_KEY) !== '1') introStep = 0;
+      if (!developer.active && rejectedSave === null && !lastSavedRaw && localStorage.getItem(INTRO_KEY) !== '1') introStep = 0;
     } catch (_) { /* Continue directly to the dashboard if storage is unavailable. */ }
     render(false);
     startupReady = true;

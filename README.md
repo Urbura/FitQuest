@@ -26,6 +26,9 @@ Use http://localhost:8000/?dev for developer mode. It previews skill and Total L
 | `js/config.js` | Editable skills, titles, colours, progression settings, rewards, backgrounds, and reset settings |
 | `js/progression.js` | Pure XP, level, bonus, Total Level, and reward-selection calculations |
 | `js/storage.js` | Reads and validates saved progress, including compatibility with older check-in history |
+| `js/developer.js` | Developer preview controls, session backups, and restoring original progress |
+| `js/intro.js` | Welcome and practice screens |
+| `js/achievements.js` | Achievement tracking and collection screens |
 | `js/fitville.js` | Check-in coordination, save handling, UI rendering, celebrations, and browser events |
 | `css/fitville.css` | Layout and styling; responsive overrides are grouped at the end |
 | `assets/icons/` | Local SVG icons and their licensing information |
@@ -38,7 +41,7 @@ To understand saves: start with `js/storage.js` for **reading and checking** sav
 
 ## Where to edit
 
-Start with **js/config.js** for names, titles, rewards, colours, or balancing. Scripts load in this order: `config.js`, `progression.js`, `storage.js`, then `fitville.js`.
+Start with **js/config.js** for names, titles, rewards, colours, or balancing. Scripts load in this order: `config.js`, `progression.js`, `storage.js`, `intro.js`, `achievements.js`, `developer.js`, then `fitville.js`.
 
 ### Change a reward title
 
@@ -92,7 +95,7 @@ node --check js/config.js
 node --check js/progression.js
 node --check js/storage.js
 node --check js/fitville.js
-node --test tests/tracker.test.cjs
+node --test tests/*.test.cjs
 ```
 
 Checks cover XP thresholds, Total Levels, rewards, duplicate check-ins, reset boundaries, weekly counts, bonus XP, completion messages, save validation, and configuration consistency.
@@ -107,13 +110,13 @@ Progress is stored in the current browser, not in a shared account. Use the back
 
 Preserve the `fitville-v1` storage key, developer-session keys, and the existing synchronization identifier. Legacy fields such as `coins`, `bank`, `last`, `tier`, and historical `rates` remain for compatibility. Do not delete them until a migration can safely read and upgrade older saves.
 
-Both normal loading and backup imports use `readSave()` in `js/fitville.js`. Update this shared validator when changing the save format, and add valid, legacy, and malformed-save tests.
+Both normal loading and backup imports use `readSave()` from `js/storage.js`. Update this shared validator when changing the save format, and add valid, legacy, and malformed-save tests.
 
 ## Before publishing a change
 
 Run the automated checks and preview the normal dashboard and developer mode. Test the check-in and celebration dialogs on a small screen. If you change an asset, update its version suffix in `index.html` so browsers request the new file.
 
-Future refactoring should separate storage, UI, and developer tools while retaining behaviour and save compatibility.
+Developer tools now live in their own module, with explicit callbacks for reading and restoring app state. They own preview state and session backups; the main coordinator blocks normal save writes during previews. Future refactoring should separate save coordination and UI rendering while retaining behaviour and save compatibility.
 
 ## Progression module
 

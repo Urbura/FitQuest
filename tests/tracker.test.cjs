@@ -7,6 +7,7 @@ const vm = require('node:vm');
 const { test } = require('node:test');
 const { createProgression } = require('../js/progression.js');
 
+const developerSource = readFileSync(join(__dirname, '../js/developer.js'), 'utf8');
 const source = readFileSync(join(__dirname, '../js/fitville.js'), 'utf8');
 const configSource = readFileSync(join(__dirname, '../js/config.js'), 'utf8');
 const progressionSource = readFileSync(join(__dirname, '../js/progression.js'), 'utf8');
@@ -48,6 +49,7 @@ function tracker(now = '2026-10-08T16:00:00Z') {
   vm.runInContext(progressionSource, context, { filename: 'js/progression.js' });
   vm.runInContext(storageSource, context, { filename: 'js/storage.js' });
   vm.runInContext(achievementsSource, context, { filename: 'js/achievements.js' });
+  vm.runInContext(developerSource, context, { filename: 'js/developer.js' });
   vm.runInContext(source, context, { filename: 'js/fitville.js', timeout: 1000 });
   assert.ok(context.tracker, 'Tracker logic must load without a startup error');
   return context.tracker;
