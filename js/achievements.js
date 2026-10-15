@@ -112,7 +112,7 @@ globalThis.FitQuestAchievements = {
     function achievementMedalTier(achievement) {
       const goal = achievement.goal;
       switch (achievement.kind) {
-        case 'days': return goal >= 30 ? 'gold' : goal >= 14 ? 'silver' : 'bronze';
+        case 'days': return goal >= 100 ? 'platinum' : goal >= 30 ? 'gold' : goal >= 14 ? 'silver' : 'bronze';
         case 'streak': return goal >= 14 ? 'gold' : goal >= 7 ? 'silver' : 'bronze';
         case 'total': return goal >= 150 ? 'gold' : goal >= 50 ? 'silver' : 'bronze';
         case 'skill': return goal >= 50 ? 'gold' : goal >= 25 ? 'silver' : 'bronze';

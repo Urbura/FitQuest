@@ -248,3 +248,15 @@ test('Legend requires consistency and a Five for Five medal, not just maxed leve
   f.state.days['2026-06-10'].scores=[4,5,5,5,5];
   assert.ok(!f.achievements.earnedAchievements().includes('fitquest-legend'));
 });
+
+test('100 Active Days uses platinum while 30 Active Days retains gold', () => {
+  const f=fixture();completeLegendProfile(f);
+  const html=f.achievements.renderCollections();
+  const rows=[...html.matchAll(/<button type="button" data-view-achievement="([^"]+)"[\s\S]*?<\/button>/g)];
+  const day100=rows.find(m=>m[1]==='days-100')[0];
+  const day30=rows.find(m=>m[1]==='days-30')[0];
+  assert.match(day100,/achievement-platinum.svg/);
+  assert.match(day100,/platinum medal/);
+  assert.match(day30,/achievement-gold.svg/);
+  assert.match(day30,/gold medal/);
+});
