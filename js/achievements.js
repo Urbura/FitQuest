@@ -124,6 +124,7 @@ globalThis.FitQuestAchievements = {
       }
     }
     function achievementBadge(achievement) {
+      if (achievement.id === 'first-check-in') return 'achievement-first-check-in';
       if (achievement.id === 'weekly-best') return 'achievement-weekly-best';
       if (achievement.id === 'weekly-improvement') return 'achievement-on-the-rise';
       if (achievement.kind === 'skill') return 'achievement-skill-' + achievement.goal;
@@ -133,7 +134,6 @@ globalThis.FitQuestAchievements = {
       if (achievement.kind === 'completionist') return 'achievement-legend';
       if (achievement.id === 'all-skills-50') return 'achievement-grandmaster';
       if (achievement.id === 'five-perfect-scores') return 'achievement-five-for-five';
-      if (achievement.id === 'first-check-in') return 'achievement-first-check-in';
       if (achievement.kind === 'specialist') return 'specialist-' + SKILL_SYMBOLS[achievement.skill];
       if (achievement.kind === 'mastery') return 'mastery-' + SKILL_SYMBOLS[achievement.skill];
       if (achievement.kind === 'all') return achievement.goal === 10

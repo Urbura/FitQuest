@@ -318,3 +318,14 @@ test('all Active Days milestones use the matching numbered series', () => {
     assert.ok(row.includes(n===100?'achievement-platinum.svg':'achievement-active-'+n+'.svg'));
   }
 });
+
+test('First Check-In retains its own badge and every rendered achievement asset exists', () => {
+  const f=fixture();completeLegendProfile(f);
+  const html=f.achievements.renderCollections();
+  const first=[...html.matchAll(/<button type="button" data-view-achievement="([^"]+)"[\s\S]*?<\/button>/g)].find(m=>m[1]==='first-check-in')[0];
+  assert.match(first,/achievement-first-check-in.svg/);
+  assert.doesNotMatch(first,/achievement-active-1.svg/);
+  for(const match of html.matchAll(/src="(assets\/[^"?]+)(?:\?[^" ]*)?"/g)){
+    assert.ok(fs.existsSync(path.join(__dirname,'..',match[1])),match[1]);
+  }
+});
