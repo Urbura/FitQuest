@@ -528,7 +528,6 @@
         }
       }
       document.getElementById('overall-level-value').textContent = 'Total Level ' + totalLevel;
-      document.getElementById('overall-title').innerHTML = '<span>' + safeText(rank || 'Unranked') + '</span>';
       if (document.getElementById('total-dialog').open)
         document.getElementById('total-content').innerHTML = totalRewardsPanel();
       updateCollectionBadge();

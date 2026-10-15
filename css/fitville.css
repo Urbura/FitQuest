@@ -758,19 +758,6 @@ header .stats>:is(span,button) {
   padding: 3px 6px;
 }
 
-header .stats #overall-title {
-  background: transparent;
-  border: 0;
-  padding: 0;
-  color: #fff;
-  font-weight: 700;
-  font-size: 12px;
-  line-height: 1.2;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
 nav {
   display: flex;
   position: static;
@@ -1785,11 +1772,6 @@ header nav button[data-tab="settings"] .settings-icon {
     padding: 2px 4px;
   }
 
-  header .stats #overall-title {
-    font-size: 10px;
-    max-width: 106px;
-  }
-
   header nav button {
     width: 44px;
     height: 44px;
@@ -1803,11 +1785,6 @@ header nav button[data-tab="settings"] .settings-icon {
   #header-rank-badge {
     width: 36px;
     height: 36px;
-  }
-
-  header .stats #overall-title>span {
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
 
   header .stats #overall-level {
@@ -1930,10 +1907,6 @@ header nav button[data-tab="settings"] .settings-icon {
   header .stats>:is(span,button) {
     font-size: 9px;
     padding: 2px 3px;
-  }
-
-  header .stats #overall-title {
-    font-size: 9px;
   }
 
   header nav button {
