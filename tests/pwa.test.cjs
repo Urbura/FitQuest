@@ -17,7 +17,7 @@ function worker() {
   const context = vm.createContext({ URL, Request, Response, Set,
     self: { registration: { scope }, clients: { async claim() { claimed = true; } },
       addEventListener: (name, handler) => { handlers[name] = handler; } },
-    caches: { async open() { return cache; }, async keys() { return ['unrelated-cache', 'fitquest-shell-old', 'fitquest-shell-20261015-v8']; },
+    caches: { async open() { return cache; }, async keys() { return ['unrelated-cache', 'fitquest-shell-old', 'fitquest-shell-20261015-v9']; },
       async delete(name) { deleted.push(name); } },
     fetch: async () => { if (!network) throw Error('offline'); return new Response('network'); },
   });
@@ -50,6 +50,11 @@ test('every precached file exists, including versioned scripts, CSS and all badg
     const file = decodeURIComponent(new URL(url).pathname.slice('/FitQuest/'.length)) || 'index.html';
     assert.ok(fs.existsSync(path.join(root, file)), file);
   }
+  const configContext = vm.createContext({});
+  vm.runInContext(fs.readFileSync(path.join(root, 'js/config.js'), 'utf8'), configContext);
+  for (const artwork of Object.values(configContext.FitQuestConfig.themeArtwork)) {
+    assert.ok(w.entries.has(new URL(artwork, 'https://example.com/FitQuest/').href), artwork);
+  }
   const index = fs.readFileSync(path.join(root,'index.html'),'utf8');
   const refs = [...index.matchAll(/(?:src|href)="([^"#]+)"/g)].map(m => m[1]);
   for (const ref of refs) {
@@ -65,7 +70,7 @@ test('cached navigation and versioned badges work with the network unavailable',
   const w = worker(); await w.lifecycle('install');
   assert.equal(await w.fetchFile('./?dev', { mode: 'navigate' }), 'cached:/FitQuest/index.html');
   assert.equal(await w.fetchFile('assets/icons/rank-gold.svg?v=badge'), 'cached:/FitQuest/assets/icons/rank-gold.svg');
-  assert.ok((await w.fetchFile('js/fitville.js?v=20261015-evolved-ranks')).includes('fitville.js'));
+  assert.ok((await w.fetchFile('js/fitville.js?v=20261015-rank-scenery')).includes('fitville.js'));
 });
 
 test('worker leaves other apps, unknown versions and non-GET requests alone', async () => {

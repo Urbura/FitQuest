@@ -563,7 +563,11 @@
         document.getElementById('total-content').innerHTML = totalRewardsPanel();
       updateCollectionBadge();
       document.body.dataset.theme = reward.theme;
-      document.body.style.setProperty('--tracker-background', CONFIG.themes[reward.theme]);
+      const artwork = CONFIG.themeArtwork[reward.theme];
+      const background = CONFIG.themes[reward.theme] + (artwork
+        ? ', url("' + new URL(artwork, document.baseURI).href + '") center / cover no-repeat'
+        : '');
+      document.body.style.setProperty('--tracker-background', background);
     }
 
     let totalRewardIndex = null;

@@ -205,67 +205,78 @@ globalThis.FitQuestConfig = {
       "title": "Bronze",
       "badge": "bottle",
       "theme": "pearl",
-      "themeName": "Pearl"
+      "themeName": "Bronze Dawn"
     },
     {
       "level": 25,
       "title": "Silver",
       "badge": "apple",
       "theme": "rose",
-      "themeName": "Rose"
+      "themeName": "Silver Horizon"
     },
     {
       "level": 50,
       "title": "Gold",
       "badge": "stretch",
       "theme": "ice",
-      "themeName": "Ice Blue"
+      "themeName": "Golden Arena"
     },
     {
       "level": 75,
       "title": "Platinum",
       "badge": "rope",
       "theme": "lagoon",
-      "themeName": "Lagoon"
+      "themeName": "Platinum Summit"
     },
     {
       "level": 100,
       "title": "Emerald",
       "badge": "dumbbell",
       "theme": "ocean",
-      "themeName": "Ocean"
+      "themeName": "Emerald Sanctuary"
     },
     {
       "level": 150,
       "title": "Diamond",
       "badge": "heart",
       "theme": "meadow",
-      "themeName": "Meadow"
+      "themeName": "Diamond Sky"
     },
     {
       "level": 200,
       "title": "Master",
       "badge": "kettlebell",
       "theme": "lavender",
-      "themeName": "Lavender"
+      "themeName": "Master Ascension"
     },
     {
       "level": 250,
       "title": "Grandmaster",
       "badge": "trophy",
       "theme": "sunrise",
-      "themeName": "Sunrise"
+      "themeName": "Grandmaster Radiance"
     }
   ],
+  "themeArtwork": {
+    "sky": "assets/backgrounds/sky.svg",
+    "pearl": "assets/backgrounds/pearl.svg",
+    "rose": "assets/backgrounds/rose.svg",
+    "ice": "assets/backgrounds/ice.svg",
+    "lagoon": "assets/backgrounds/lagoon.svg",
+    "ocean": "assets/backgrounds/ocean.svg",
+    "meadow": "assets/backgrounds/meadow.svg",
+    "lavender": "assets/backgrounds/lavender.svg",
+    "sunrise": "assets/backgrounds/sunrise.svg"
+  },
   "themes": {
-    "sky": "linear-gradient(145deg, #93d8fc, #c8eeff)",
-    "ocean": "linear-gradient(145deg, #65cbdc, #b9eef4)",
-    "meadow": "linear-gradient(145deg, #89d19b, #d0f1ad)",
-    "lavender": "linear-gradient(145deg, #b69be8, #e6cef9)",
-    "sunrise": "linear-gradient(145deg, #ffbd72, #ffe1a3)",
-    "ice": "linear-gradient(145deg, #91b8ed, #c9dcff)",
-    "pearl": "linear-gradient(145deg, #b7c1d1, #e3e9f4)",
-    "rose": "linear-gradient(145deg, #ee9fc1, #ffd3df)",
-    "lagoon": "linear-gradient(145deg, #74d4ba, #c0f1dd)"
+    "sky": "radial-gradient(ellipse at 50% 45%, #f3fcffde 0%, #e9f8ffb8 36%, #e9f8ff00 82%)",
+    "pearl": "radial-gradient(ellipse at 50% 45%, #fff9efde 0%, #fff9efb8 36%, #fff9ef00 82%)",
+    "rose": "radial-gradient(ellipse at 50% 45%, #f5faffde 0%, #f5faffb8 36%, #f5faff00 82%)",
+    "ice": "radial-gradient(ellipse at 50% 45%, #fffbe9de 0%, #fffbe9b8 36%, #fffbe900 82%)",
+    "lagoon": "radial-gradient(ellipse at 50% 45%, #f0ffffde 0%, #f0ffffb8 36%, #f0ffff00 82%)",
+    "ocean": "radial-gradient(ellipse at 50% 45%, #f0fff6de 0%, #f0fff6b8 36%, #f0fff600 82%)",
+    "meadow": "radial-gradient(ellipse at 50% 45%, #f2fbffde 0%, #f2fbffb8 36%, #f2fbff00 82%)",
+    "lavender": "radial-gradient(ellipse at 50% 45%, #fff6ffde 0%, #fff6ffb8 36%, #fff6ff00 82%)",
+    "sunrise": "radial-gradient(ellipse at 50% 45%, #fff9eade 0%, #fff9eab8 36%, #fff9ea00 82%)"
   }
 };

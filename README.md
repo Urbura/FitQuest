@@ -121,3 +121,7 @@ Progression tests import `createProgression(config)` from `js/progression.js` di
 ## Nearby achievements
 
 Collections shows a collapsed **Achievements in reach** disclosure with up to three locked level achievements. Candidates are within three levels of their target and sorted by remaining levels, then name. The list shows each requirement and distance; completed achievements are excluded. If none qualify, an empty-state message explains the three-level threshold.
+
+## Rank background scenery
+
+`themeArtwork` in `js/config.js` maps each existing theme key to a local SVG scene. `themes` supplies a translucent centre overlay for text contrast; `renderHUD()` combines the overlay and scene. Milestone IDs, levels, and theme keys remain compatible with previous saves. Scenery gains rays, laurels, crystals, stars, and gold architecture at higher ranks. The base sky theme stays simple. Regenerate the scenes with `python scripts/generate-backgrounds.py`; when adding scenes, add them to `APP_FILES` in `sw.js` and bump its cache version. Offline tests verify that all configured scenes are cached.

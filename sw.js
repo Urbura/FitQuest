@@ -2,13 +2,13 @@
 // Updates wait for existing windows to close; never mix releases in an open session.
 'use strict';
 const CACHE_PREFIX = 'fitquest-shell-';
-const CACHE_NAME = CACHE_PREFIX + '20261015-v8';
+const CACHE_NAME = CACHE_PREFIX + '20261015-v9';
 const APP_FILES = [
   "./",
   "index.html",
   "manifest.webmanifest",
   "css/fitville.css?v=20261015-evolved-ranks",
-  "js/config.js?v=20261014-diet",
+  "js/config.js?v=20261015-rank-scenery",
   "js/progression.js?v=20261008-progression",
   "js/storage.js?v=20261014-two-swaps",
   "js/intro.js?v=20261013-intro-module",
@@ -17,11 +17,20 @@ const APP_FILES = [
   "js/developer.js?v=20261015-module",
   "js/celebrations.js?v=20261015-evolved-ranks",
   "js/pwa.js?v=20261015-offline",
-  "js/fitville.js?v=20261015-evolved-ranks",
+  "js/fitville.js?v=20261015-rank-scenery",
   "assets/app/icon-fq-180.png",
   "assets/app/icon-fq-192.png",
   "assets/app/icon-fq-512.png",
   "assets/app/icon.svg",
+  "assets/backgrounds/ice.svg",
+  "assets/backgrounds/lagoon.svg",
+  "assets/backgrounds/lavender.svg",
+  "assets/backgrounds/meadow.svg",
+  "assets/backgrounds/ocean.svg",
+  "assets/backgrounds/pearl.svg",
+  "assets/backgrounds/rose.svg",
+  "assets/backgrounds/sky.svg",
+  "assets/backgrounds/sunrise.svg",
   "assets/fitquest-logo-v1.webp",
   "assets/icons/achievement-bronze.svg",
   "assets/icons/achievement-first-check-in.svg",
