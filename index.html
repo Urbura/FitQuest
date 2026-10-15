@@ -78,6 +78,27 @@
         </div>
         <button class="wide" id="dev-total-auto">Use Sum of Skill Levels</button>
         </details>
+        <details><summary>Preview consistency and medals</summary>
+          <p class="muted">Replace test history to preview badges. XP stays unchanged.</p>
+          <label for="dev-activeDays">Active days (0–365)</label><input id="dev-activeDays" type="number" min="0" max="365" step="1" value="120" inputmode="numeric" />
+          <label for="dev-streakDays">Longest streak (0–active days)</label><input id="dev-streakDays" type="number" min="0" max="365" step="1" value="30" inputmode="numeric" />
+          <label for="dev-perfectDays">Five for Five medals (0–active days)</label><input id="dev-perfectDays" type="number" min="0" max="365" step="1" value="5" inputmode="numeric" />
+          <button class="wide" id="dev-set-history">Apply Test History</button>
+          <p class="muted">Weekly bests are calculated from the generated history.</p>
+        </details>
+        <details><summary>Play reward celebrations</summary>
+          <label for="dev-rank-preview">Rank</label>
+          <select id="dev-rank-preview">
+            <option value="10">Bronze</option><option value="25">Silver</option>
+            <option value="50">Gold</option><option value="75">Platinum</option>
+            <option value="100">Emerald</option><option value="150">Diamond</option>
+            <option value="200">Master</option><option value="250">Grandmaster</option>
+          </select>
+          <button class="wide" id="dev-play-rank">Play Rank-up Celebration</button>
+          <button class="wide" id="dev-play-legend">Play FitQuest Legend Celebration</button>
+          <p class="muted">Animations can be replayed without marking real rewards as celebrated.</p>
+        </details>
+        <button class="wide" id="dev-unlock-all">Unlock All Achievements (Preview)</button>
         <button class="wide" id="dev-restore">Restore Original Save</button
         ><button class="wide" id="dev-exit">Exit Developer Mode</button>
       </div>
@@ -120,9 +141,9 @@
     <script src="js/intro.js?v=20261013-intro-module"></script>
     <script src="js/achievements.js?v=20261015-legend"></script>
     <script src="js/save-manager.js?v=20261015-module"></script>
-    <script src="js/developer.js?v=20261015-module"></script>
+    <script src="js/developer.js?v=20261015-preview-controls"></script>
     <script src="js/celebrations.js?v=20261015-legend"></script>
     <script src="js/pwa.js?v=20261015-offline"></script>
-    <script src="js/fitville.js?v=20261015-legend"></script>
+    <script src="js/fitville.js?v=20261015-preview-controls"></script>
   </body>
 </html>

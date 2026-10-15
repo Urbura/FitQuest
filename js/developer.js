@@ -4,7 +4,7 @@
   function create(context) {
     const { SKILLS, MAX_LEVEL, MIN_TOTAL_LEVEL, MAX_TOTAL_LEVEL, XP, level,
       getState, setState, fresh, readSave, rejectSave, showDashboard,
-      render, notify, totalSkillLevel, totalReward, syncSharedSave } = context;
+      render, notify, totalSkillLevel, totalReward, syncSharedSave, day, showCollections, previewCelebration } = context;
     // Browser storage and developer session
     const sessionFallback = new Map();
     // Session storage is optional (for example, in restricted browser modes).
@@ -66,14 +66,79 @@
       });
     }
 
+    // Build real check-in history so previews use the production achievement rules.
+    // Older active days are separated by gaps; the newest run has the chosen streak.
+    function setHistory({ activeDays, streakDays, perfectDays }) {
+      if (!DEV || ![activeDays, streakDays, perfectDays].every(Number.isInteger) ||
+          activeDays < 0 || activeDays > 365 || streakDays < 0 || streakDays > activeDays ||
+          perfectDays < 0 || perfectDays > activeDays || (activeDays > 0 && streakDays < 1)) return false;
+      const dates = [];
+      const today = new Date(day() + 'T00:00:00Z');
+      function dateBefore(offset) {
+        const date = new Date(today);
+        date.setUTCDate(date.getUTCDate() - offset);
+        return date.toISOString().slice(0, 10);
+      }
+      for (let i = 0; i < streakDays; i++) dates.push(dateBefore(i));
+      for (let i = 0; i < activeDays - streakDays; i++) dates.push(dateBefore(streakDays + 1 + i * 2));
+      const profile = getState();
+      profile.days = Object.fromEntries(dates.map((date, i) => [date, {
+        scores: Array(SKILLS.length).fill(i < perfectDays ? 5 : 1),
+        rates: Array(SKILLS.length).fill(1),
+      }]));
+      profile.dailyResetVersion = 2;
+      // Previewing medal counts does not award XP to the normal or preview profile.
+      profile.fiveForFivePaidMilestones = Math.floor(perfectDays / 5);
+      profile.achievementsSeen = [];
+      return true;
+    }
+    function unlockAllAchievements() {
+      if (!DEV) return false;
+      setProfileLevels(Array(SKILLS.length).fill(MAX_LEVEL));
+      setHistory({ activeDays: 120, streakDays: 30, perfectDays: 5 });
+      syncDevProfileInputs();
+      return true;
+    }
+    function hideTools() {
+      document.getElementById('dev-tools').hidden = true;
+      document.getElementById('dev-open').hidden = false;
+    }
     function backupOriginal(storageLoaded, raw) {
       if (DEV && readSession(DEV_BACKUP) === null && storageLoaded)
         writeSession(DEV_BACKUP, raw === null ? '__EMPTY__' : raw);
     }
     function handleClick(b) {
+      if (DEV && b.id === 'dev-set-history') {
+        const values = Object.fromEntries(['activeDays', 'streakDays', 'perfectDays'].map(key =>
+          [key, Number(document.getElementById('dev-' + key).value)]));
+        if (!setHistory(values)) {
+          notify('Use whole numbers from 0–365. Streak and medal days cannot exceed active days; an active profile needs a streak of at least 1.');
+          return true;
+        }
+        showCollections(); render(false); hideTools();
+        notify('Test history applied. XP and your normal save are unchanged.');
+        return true;
+      }
+      if (DEV && b.id === 'dev-unlock-all') {
+        unlockAllAchievements();
+        showCollections(); render(false); hideTools();
+        notify('All achievements unlocked in this preview, including FitQuest Legend.');
+        return true;
+      }
+      if (DEV && b.id === 'dev-play-rank') {
+        const rank = Number(document.getElementById('dev-rank-preview').value);
+        devTotalLevel = rank;
+        render(false); hideTools();
+        previewCelebration({ rank });
+        return true;
+      }
+      if (DEV && b.id === 'dev-play-legend') {
+        hideTools();
+        previewCelebration({ legend: true });
+        return true;
+      }
       if (DEV && b.id === 'dev-toggle') {
-        document.getElementById('dev-tools').hidden = true;
-        document.getElementById('dev-open').hidden = false;
+        hideTools();
         return true;
       }
       if (DEV && b.id === 'dev-open') {
@@ -185,7 +250,7 @@
     return {
       get active() { return DEV; },
       get totalLevel() { return devTotalLevel; },
-      setupUI: setupDevUI, backupOriginal, handleClick, setProfileLevels,
+      setupUI: setupDevUI, backupOriginal, handleClick, setProfileLevels, setHistory, unlockAllAchievements,
       // Used by the isolated tracker test harness; normal UI uses validated controls.
       preview(value) { DEV = value !== null; devTotalLevel = value; },
     };

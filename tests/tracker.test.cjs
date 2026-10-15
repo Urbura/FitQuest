@@ -31,7 +31,7 @@ function tracker(now = '2026-10-08T16:00:00Z') {
   };
   const nodes = new Map();
   const node = (id) => {
-    if (!nodes.has(id)) nodes.set(id, { open: true, addEventListener() {}, showModal() { this.open = true; }, close() { this.open = false; } });
+    if (!nodes.has(id)) nodes.set(id, { open: true, addEventListener() {}, focus() {}, showModal() { this.open = true; }, close() { this.open = false; } });
     return nodes.get(id);
   };
   const clock = Date.parse(now);
@@ -40,7 +40,7 @@ function tracker(now = '2026-10-08T16:00:00Z') {
     static now() { return clock; }
   }
   const context = vm.createContext({
-    Date: Clock, URLSearchParams, Map, localStorage: storage(), sessionStorage: storage(),
+    Date: Clock, URLSearchParams, Map, matchMedia: () => ({ matches: true }), localStorage: storage(), sessionStorage: storage(),
     location: { search: '' },
     document: { addEventListener() {}, getElementById: node },
     console: { error: (...args) => { throw new Error(args.map(String).join(' ')); } },
@@ -577,4 +577,43 @@ test('Legend celebration queues once and its marker survives save reloads', () =
   restored.queueLegendCelebration();
   assert.equal(restored.state().legendCelebrated,undefined);
   assert.equal(restored.queued().length,0);
+});
+
+test('developer history sets exact counters using actual achievement rules without awarding XP', () => {
+  const t=tracker();
+  assert.equal(t.setPreviewHistory({activeDays:120,streakDays:30,perfectDays:5}),false);
+  t.preview(5);
+  const xp=t.state().skills.map(s=>s.xp).join(',');
+  assert.equal(t.setPreviewHistory({activeDays:120,streakDays:30,perfectDays:5}),true);
+  const stats=t.achievementStats();
+  assert.equal(stats.activeDays,120);assert.equal(stats.longest,30);assert.equal(stats.perfectDayMedals,5);
+  assert.equal(stats.weeklyBest,true);assert.equal(stats.improved,true);
+  assert.equal(t.state().skills.map(s=>s.xp).join(','),xp);
+  assert.doesNotThrow(()=>t.readSave(JSON.stringify(t.state())));
+  const before=JSON.stringify(t.state());
+  assert.equal(t.setPreviewHistory({activeDays:2,streakDays:3,perfectDays:0}),false);
+  assert.equal(JSON.stringify(t.state()),before);
+});
+
+test('all-achievement preset reveals Legend while keeping the earned-reveal marker unchanged', () => {
+  const t=tracker();t.preview(5);
+  assert.equal(t.unlockPreviewAchievements(),true);
+  assert.ok(t.earnedAchievements().includes('all-skills-50'));
+  assert.ok(t.earnedAchievements().includes('fitquest-legend'));
+  assert.equal(t.state().legendCelebrated,undefined);
+  assert.equal(t.totalSkillLevel(),250);
+});
+
+test('reward animation controls are preview-only and can replay without persisting a reveal', () => {
+  const t=tracker();
+  assert.equal(t.previewCelebration({legend:true}),false);
+  t.preview(5);
+  for(const rank of [10,25,50,75,100,150,200,250]) {
+    assert.equal(t.previewCelebration({rank}),true);
+    assert.equal(t.queued().length,1);assert.equal(t.queued()[0].l,rank);
+  }
+  assert.equal(t.previewCelebration({legend:true}),true);
+  assert.equal(t.previewCelebration({legend:true}),true);
+  assert.equal(t.queued().length,1);assert.equal(t.queued()[0].legend,true);
+  assert.equal(t.state().legendCelebrated,undefined);
 });

@@ -6,7 +6,7 @@ const { join } = require('node:path');
 const vm = require('node:vm');
 
 function fixture({ search = '?dev', blocked = false } = {}) {
-  const session = new Map(), nodes = new Map();
+  const session = new Map(), nodes = new Map(), previews = [];
   let state = { skills: Array.from({ length: 5 }, () => ({ xp: 7 })) };
   let rejected = null, replacedURL = null;
   const context = vm.createContext({
@@ -31,10 +31,11 @@ function fixture({ search = '?dev', blocked = false } = {}) {
     getState: () => state, setState: value => { state = value; },
     fresh: () => ({ skills: Array.from({ length: 5 }, () => ({ xp: 0 })) }),
     readSave: JSON.parse, rejectSave: raw => { rejected = raw; },
-    showDashboard() {}, render() {}, notify() {}, syncSharedSave() {},
+    showDashboard() {}, showCollections() {}, render() {}, notify() {}, syncSharedSave() {},
+    day: () => '2026-10-15', previewCelebration: item => previews.push(item),
     totalSkillLevel: () => 5, totalReward: () => ({ title: 'Rank' }),
   });
-  return { developer, session, state: () => state, rejected: () => rejected,
+  return { developer, session, previews, setInput: (id, value) => { nodes.set(id, { value }); }, state: () => state, rejected: () => rejected,
     replacedURL: () => replacedURL, click: id => developer.handleClick({ id, dataset: {} }) };
 }
 
@@ -80,4 +81,19 @@ test('an unreadable original backup is passed to save protection on exit', () =>
   f.click('dev-exit');
   assert.equal(f.rejected(), 'broken-save');
   assert.equal(f.developer.active, false);
+});
+
+test('new preview controls restore the complete original profile on exit', () => {
+  const f=fixture();const original=JSON.stringify(f.state());
+  f.developer.backupOriginal(true,original);
+  f.click('dev-unlock-all');
+  assert.equal(Object.keys(f.state().days).length,120);
+  assert.ok(f.state().skills.every(s=>s.xp===500));
+  f.setInput('dev-rank-preview','250');
+  f.click('dev-play-rank');f.click('dev-play-legend');
+  assert.equal(f.previews.length,2);
+  assert.equal(f.previews[0].rank,250);assert.equal(f.previews[1].legend,true);
+  f.click('dev-exit');
+  assert.equal(JSON.stringify(f.state()),original);
+  assert.equal(f.developer.active,false);
 });

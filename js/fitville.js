@@ -63,6 +63,8 @@
       fresh, readSave,
       rejectSave: saves.reject,
       showDashboard: () => { tab = 'dashboard'; },
+      showCollections: () => { tab = 'collections'; },
+      day, previewCelebration,
       render, notify, totalSkillLevel, totalReward, syncSharedSave,
     });
     developer.backupOriginal(saves.loaded, saves.lastRaw);
@@ -449,6 +451,16 @@
         celebrationFocus = document.activeElement;
         showLevel();
       }
+    }
+    function previewCelebration({ rank, legend = false }) {
+      if (!developer.active) return false;
+      const milestone = TOTAL_REWARDS.find(reward => reward.level === rank && TOTAL_LEVEL_RANKS[rank]);
+      if (!legend && !milestone) return false;
+      // Explicit previews can replay freely without touching the earned-reveal marker.
+      celebrations = [legend ? { legend: true } : { total: true, l: rank, milestone }];
+      celebrationFocus = document.activeElement;
+      showLevel();
+      return true;
     }
     function queueLegendCelebration() {
       if (developer.active || saves.rejectedRaw !== null || state.legendCelebrated ||
@@ -1198,7 +1210,8 @@
         unseenAchievements, markAchievementViewed,
         editCheckIn, skillBonus, checkInXP, totalSkillLevel, totalReward,
         TOTAL_REWARDS, weeklyCheckInCount, day, nextReset, nextRewardText,
-        queueLevels, queueLegendCelebration, dashboard, openSkillCheck, totalRewardsPanel, rewardBadge,
+        queueLevels, queueLegendCelebration, previewCelebration,
+        setPreviewHistory: developer.setHistory, unlockPreviewAchievements: developer.unlockAllAchievements, dashboard, openSkillCheck, totalRewardsPanel, rewardBadge,
         dialogHTML: () => document.getElementById('check-content').innerHTML,
         state: () => state,
         setState: (value) => { state = value; },

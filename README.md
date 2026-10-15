@@ -129,3 +129,9 @@ Collections shows a collapsed **Achievements in reach** disclosure with up to th
 ## FitQuest Legend
 
 The hidden `fitquest-legend` achievement requires every other registered achievement, including the hidden all-skills mastery medal. Completionist entries are excluded from their own requirement to avoid circular evaluation. Five for Five requires its first medal, rather than an unlimited repeat count. Legend enters Collections only when earned, uses `assets/icons/achievement-legend.png`, and triggers a dedicated gold-and-blue badge reveal with extended fireworks. The saved `legendCelebrated` flag prevents repeat celebrations after reopening or restoring the same save. Developer previews never set that flag. Existing qualifying profiles receive the reveal on their next normal render.
+
+## Developer reward previews
+
+Developer Mode can replace preview history with up to 365 active days, a chosen longest streak, and a chosen Five for Five medal count. Counts must be whole numbers; streak/medal counts cannot exceed active days, and a non-empty history needs a streak of at least one day. Active history is generated from the current reset day, with separated older dates; weekly-best achievements use this generated history. Applying history does not award XP.
+
+**Unlock All Achievements (Preview)** applies all Level 50 skills, 120 active days, a 30-day streak, and five perfect days, revealing the secret rewards in Collections. **Play reward celebrations** can replay any rank-up or FitQuest Legend on demand without changing the normal `legendCelebrated` marker. The test panel minimizes so the preview can be seen; reopen it from Test Mode. Restore Original Save or Exit Developer Mode returns the backed-up profile. Normal browser saves remain paused throughout previews.
