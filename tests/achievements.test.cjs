@@ -302,3 +302,10 @@ test('all streak milestones use the coherent numbered flame-medal series', () =>
     assert.ok(row.includes('achievement-streak-'+n+'.svg'));
   }
 });
+
+test('Personal Bests medals match their individual achievements', () => {
+  const f=fixture();completeLegendProfile(f);
+  const rows=[...f.achievements.renderCollections().matchAll(/<button type="button" data-view-achievement="([^"]+)"[\s\S]*?<\/button>/g)];
+  assert.match(rows.find(m=>m[1]==='weekly-best')[0],/achievement-weekly-best.svg/);
+  assert.match(rows.find(m=>m[1]==='weekly-improvement')[0],/achievement-on-the-rise.svg/);
+});

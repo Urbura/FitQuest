@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 150">
+  <title>New Weekly Best trophy medal</title>
+  <defs>
+    <linearGradient id="gold" x2=".8" y2="1"><stop stop-color="#fff4b3"/><stop offset=".35" stop-color="#e4b64a"/><stop offset=".55" stop-color="#fff3b1"/><stop offset="1" stop-color="#be8626"/></linearGradient>
+    <radialGradient id="blue" cx=".35" cy=".3"><stop stop-color="#77cef7"/><stop offset="1" stop-color="#264f85"/></radialGradient>
+  </defs>
+  <path d="M40 6H61L70 47 54 56 40 34ZM79 6H100V34L86 56 70 47Z" fill="#3a6ea8" stroke="#264b75" stroke-width="2.5"/>
+  <path d="M47 7H53L61 40 56 44ZM87 7H93L84 44 79 40Z" fill="#c7efff"/>
+  <path d="M38 5H102V13H38Z" fill="url(#gold)" stroke="#916722" stroke-width="2"/>
+  <g fill="url(#gold)" stroke="#916722" stroke-width="1.3">
+    <path d="M35 119Q12 102 20 72Q37 75 29 91Q11 84 22 102Q39 97 35 111Q25 105 35 119Z"/>
+    <path d="M105 119Q128 102 120 72Q103 75 111 91Q129 84 118 102Q101 97 105 111Q115 105 105 119Z"/>
+  </g>
+  <circle cx="70" cy="89" r="40" fill="url(#gold)" stroke="#916722" stroke-width="2.8"/>
+  <circle cx="70" cy="89" r="33" fill="url(#blue)" stroke="#fff0af" stroke-width="2"/>
+  <path d="M53 66H87V83Q85 99 70 100Q55 99 53 83Z" fill="url(#gold)" stroke="#88591b" stroke-width="2"/>
+  <path d="M53 70H45V79Q45 91 58 92M87 70H95V79Q95 91 82 92" fill="none" stroke="#f8cf61" stroke-width="4"/>
+  <path d="M70 73L73 79 80 80 75 85 76 91 70 88 64 91 65 85 60 80 67 79Z" fill="#fff8d5" stroke="#ba8527" stroke-width="1"/>
+  <path d="M66 100H74V108H83V114H57V108H66Z" fill="url(#gold)" stroke="#916722" stroke-width="1.5"/>
+  <rect x="53" y="121" width="34" height="21" rx="4" fill="#fff5d1" stroke="#bd902c" stroke-width="2"/>
+  <path d="M53 127H87M61 117V124M79 117V124" stroke="#956b29" stroke-width="2"/>
+  <path d="M61 133H65M68 133H72M75 133H79M61 137H65M68 137H72M75 137H79" stroke="#3977ae" stroke-width="2"/>
+  <path d="M111 49L113 55 119 57 113 59 111 65 109 59 103 57 109 55Z" fill="#fff7ce" stroke="#d0a347" stroke-width="1"/>
+</svg>

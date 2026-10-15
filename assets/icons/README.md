@@ -16,3 +16,5 @@ All-skills Levels 20, 30, 40 and 50 have progressively ornamented original SVG m
 Generic Skill Level 10, 25, and 50 achievements use original numbered bronze, silver, and crowned gold crests. Regenerate with `python scripts/generate-skill-medals.py`.
 
 The 3/7/14/30-day streak medals share a red ribbon, flame emblem, and numbered face, escalating from bronze through silver and gold to crowned platinum. Regenerate with `python scripts/generate-streak-medals.py`.
+
+Personal Bests use original achievement-specific artwork: New Weekly Best has a gold trophy and calendar, while On the Rise has a silver-and-green crest with ascending steps and an upward arrow.
