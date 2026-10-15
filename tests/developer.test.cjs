@@ -35,7 +35,7 @@ function fixture({ search = '?dev', blocked = false } = {}) {
     day: () => '2026-10-15', previewCelebration: item => previews.push(item),
     totalSkillLevel: () => 5, totalReward: () => ({ title: 'Rank' }),
   });
-  return { developer, session, previews, setInput: (id, value) => { nodes.set(id, { value }); }, state: () => state, rejected: () => rejected,
+  return { developer, session, previews, node: id => nodes.get(id), setInput: (id, value) => { nodes.set(id, { value }); }, state: () => state, rejected: () => rejected,
     replacedURL: () => replacedURL, click: id => developer.handleClick({ id, dataset: {} }) };
 }
 
@@ -96,4 +96,20 @@ test('new preview controls restore the complete original profile on exit', () =>
   f.click('dev-exit');
   assert.equal(JSON.stringify(f.state()),original);
   assert.equal(f.developer.active,false);
+});
+
+
+test('Developer Mode always exposes its launcher and Settings can open the panel', () => {
+  const f=fixture();f.developer.setupUI();
+  assert.equal(f.node('dev-tools').hidden,true);
+  assert.equal(f.node('dev-open').hidden,false);
+  assert.equal(f.click('dev-open-settings'),true);
+  assert.equal(f.node('dev-tools').hidden,false);
+  assert.equal(f.node('dev-open').hidden,false);
+  f.click('dev-toggle');
+  assert.equal(f.node('dev-tools').hidden,true);
+  assert.equal(f.node('dev-open').hidden,false);
+  const normal=fixture({search:''});normal.developer.setupUI();
+  assert.equal(normal.node('dev-open').hidden,true);
+  assert.equal(normal.click('dev-open-settings'),false);
 });

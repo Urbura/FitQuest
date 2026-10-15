@@ -585,7 +585,7 @@
     function renderScreen() {
       if (introStep >= 0) return introScreen();
       if (tab === 'collections') return renderCollections();
-      if (tab === 'settings') return globalThis.FitQuestScreens.renderSettings();
+      if (tab === 'settings') return globalThis.FitQuestScreens.renderSettings({ developerMode: developer.active });
       return dashboard();
     }
 

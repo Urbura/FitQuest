@@ -94,7 +94,7 @@
       (!next ? '<p class="muted">All Total Level rewards unlocked!</p>' : '');
   }
 
-  function renderSettings() {
+  function renderSettings({ developerMode = false } = {}) {
     return `<button class="back-button" data-tab="dashboard">← Back to Dashboard</button>
 <section class="card tools">
 <h2>⚙ Settings</h2>
@@ -109,6 +109,7 @@
 </section>
 <section class="card">
 <h3>Help</h3>
+${developerMode ? '<button id="dev-open-settings" class="wide">Open test tools</button>' : ''}
 <button id="intro-replay" class="wide">Replay tutorial</button>
 <p class="muted">Practise using FitQuest without changing your progress.</p>
 </section>

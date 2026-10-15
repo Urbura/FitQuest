@@ -44,8 +44,8 @@
       if (DEV) {
         syncDevProfileInputs();
         writeSession('fitville-dev-active', '1');
-        panel.hidden = false;
-        open.hidden = true;
+        panel.hidden = true;
+        open.hidden = false;
       } else {
         panel.hidden = true;
         open.hidden = true;
@@ -141,10 +141,10 @@
         hideTools();
         return true;
       }
-      if (DEV && b.id === 'dev-open') {
+      if (DEV && (b.id === 'dev-open' || b.id === 'dev-open-settings')) {
         syncDevProfileInputs();
         document.getElementById('dev-tools').hidden = false;
-        document.getElementById('dev-open').hidden = true;
+        document.getElementById('dev-open').hidden = false;
         return true;
       }
       if (DEV && b.dataset.devLevel !== undefined) {

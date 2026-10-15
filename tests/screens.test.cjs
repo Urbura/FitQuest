@@ -17,3 +17,9 @@ test('Journey renderer escapes dynamic values and explains an unstarted profile'
   assert.match(html, /Your journey begins with your first check-in/);
   assert.match(html, /No check-ins/);
 });
+
+
+test('Settings exposes test tools only in Developer Mode', () => {
+  assert.doesNotMatch(screens.renderSettings(), /dev-open-settings/);
+  assert.match(screens.renderSettings({developerMode:true}), /id="dev-open-settings"/);
+});
