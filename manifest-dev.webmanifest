@@ -1,0 +1,26 @@
+{
+  "id": "./?dev",
+  "name": "FitQuest Dev",
+  "short_name": "FitQuest Dev",
+  "description": "Protected FitQuest development and reward previews.",
+  "lang": "en",
+  "start_url": "./?dev",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#26214e",
+  "theme_color": "#6639ac",
+  "icons": [
+    {
+      "src": "assets/app/icon-dev-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/app/icon-dev-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

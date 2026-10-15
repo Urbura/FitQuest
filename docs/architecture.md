@@ -8,6 +8,8 @@
 | `js/config.js` | Editable skills, titles, colours, progression settings, rewards, backgrounds, and reset settings |
 | `js/progression.js` | Pure XP, level, bonus, Total Level, and reward-selection calculations |
 | `js/storage.js` | Reads and validates saved progress, including compatibility with older check-in history |
+| `manifest-dev.webmanifest` | Separate installation identity and launch URL for Developer Mode |
+| `js/app-metadata.js` | Selects developer installation metadata for explicit test URLs |
 | `manifest.webmanifest` | Installation name, scope, display mode, and app icons |
 | `sw.js` | Versioned offline app cache and update lifecycle |
 | `js/celebrations.js` | Rank and Total Level celebration markup |

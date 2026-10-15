@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <title>FitQuest Developer Mode</title>
+  <defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#6639ac"/><stop offset="1" stop-color="#26214e"/></linearGradient></defs>
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <text x="102" y="292" font-family="DejaVu Sans, sans-serif" font-weight="800" font-size="174" letter-spacing="-12" fill="#e1f5ff">FQ</text>
+  <path d="M345 286V184H319L365 129 411 184H385V286Z" fill="#76e85c" stroke="#29214f" stroke-width="7" stroke-linejoin="round"/>
+  <rect x="123" y="332" width="266" height="69" rx="15" fill="#ffd36b"/>
+  <text x="256" y="380" text-anchor="middle" font-family="DejaVu Sans, sans-serif" font-weight="800" font-size="45" letter-spacing="7" fill="#29214f">DEV</text>
+</svg>

@@ -17,7 +17,7 @@ function worker() {
   const context = vm.createContext({ URL, Request, Response, Set,
     self: { registration: { scope }, clients: { async claim() { claimed = true; } },
       addEventListener: (name, handler) => { handlers[name] = handler; } },
-    caches: { async open() { return cache; }, async keys() { return ['unrelated-cache', 'fitquest-shell-old', 'fitquest-shell-20261015-v13']; },
+    caches: { async open() { return cache; }, async keys() { return ['unrelated-cache', 'fitquest-shell-old', 'fitquest-shell-20261015-v14']; },
       async delete(name) { deleted.push(name); } },
     fetch: async () => { if (!network) throw Error('offline'); return new Response('network'); },
   });
@@ -85,4 +85,36 @@ test('activation removes only old FitQuest caches', async () => {
   const w = worker(); await w.lifecycle('activate');
   assert.deepEqual(w.deleted, ['fitquest-shell-old']);
   assert.equal(w.claimed(), true);
+});
+
+test('developer installation has its own identity and launches into Developer Mode', () => {
+  const normal=JSON.parse(fs.readFileSync(path.join(root,'manifest.webmanifest')));
+  const dev=JSON.parse(fs.readFileSync(path.join(root,'manifest-dev.webmanifest')));
+  assert.notEqual(dev.id,normal.id);
+  assert.equal(new URL(dev.start_url,'https://example.com/FitQuest/').search,'?dev');
+  assert.equal(dev.short_name,'FitQuest Dev');
+  for(const icon of dev.icons){
+    const png=fs.readFileSync(path.join(root,icon.src));
+    const [w,h]=icon.sizes.split('x').map(Number);
+    assert.equal(png.readUInt32BE(16),w);assert.equal(png.readUInt32BE(20),h);
+    assert.ok(!normal.icons.some(other=>other.src===icon.src));
+  }
+});
+
+test('only explicit developer URLs select developer installation metadata', () => {
+  const source=fs.readFileSync(path.join(root,'js/app-metadata.js'),'utf8');
+  for(const search of ['', '?dev', '?test=1', '?test=0']){
+    const nodes=new Map();
+    const context=vm.createContext({URLSearchParams,location:{search},document:{title:'FitQuest',querySelector(selector){
+      if(!nodes.has(selector))nodes.set(selector,{href:'normal',content:'normal'});
+      return nodes.get(selector);
+    }}});
+    vm.runInContext(source,context);
+    const dev=search==='?dev'||search==='?test=1';
+    assert.equal(context.document.title,dev?'FitQuest Dev':'FitQuest');
+    if(dev){
+      assert.equal(nodes.get('link[rel="manifest"]').href,'manifest-dev.webmanifest');
+      assert.equal(nodes.get('link[rel="apple-touch-icon"]').href,'assets/app/icon-dev-180.png');
+    }else assert.equal(nodes.size,0);
+  }
 });
