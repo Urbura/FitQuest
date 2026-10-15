@@ -1134,13 +1134,13 @@ header nav .collections-icon {
   height: 56px;
 }
 
-/* Ribbon medals need extra room within the Consistency category. */
-.collections .consistency-achievements .achievement {
+/* Ribbon medals in Consistency and Personal Bests share the larger icon size. */
+.collections .large-medal-achievements .achievement {
   grid-template-columns: 72px minmax(0, 1fr);
 }
 
-.collections .consistency-achievements .achievement-symbol,
-.collections .consistency-achievements .achievement-symbol img {
+.collections .large-medal-achievements .achievement-symbol,
+.collections .large-medal-achievements .achievement-symbol img {
   width: 72px;
   height: 72px;
 }
@@ -2133,12 +2133,12 @@ header nav button[data-tab="settings"] .settings-icon {
     height: 34px;
   }
 
-  .collections .consistency-achievements .achievement {
+  .collections .large-medal-achievements .achievement {
     grid-template-columns: 44px minmax(0, 1fr);
   }
 
-  .collections .consistency-achievements .achievement-symbol,
-  .collections .consistency-achievements .achievement-symbol img {
+  .collections .large-medal-achievements .achievement-symbol,
+  .collections .large-medal-achievements .achievement-symbol img {
     width: 44px;
     height: 44px;
   }

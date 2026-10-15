@@ -221,7 +221,7 @@ globalThis.FitQuestAchievements = {
           const unlockedCount = achievements.filter(a => achievementProgress(a, stats) >= a.goal).length;
           const newCount = achievements.filter(a => unseen.has(a.id)).length;
           const expanded = expandedAchievementCategories.has(category);
-          return '<section class="achievement-category' + (category === 'Consistency' ? ' consistency-achievements' : '') + '"><h3><button class="category-toggle" data-achievement-category="' +
+          return '<section class="achievement-category' + (['Consistency', 'Personal Bests'].includes(category) ? ' large-medal-achievements' : '') + '"><h3><button class="category-toggle" data-achievement-category="' +
             category + '" aria-expanded="' + expanded + '" aria-controls="achievement-category-' + index +
             '"><span class="category-arrow" aria-hidden="true">' + (expanded ? '▾' : '▸') +
             '</span><span>' + category + '</span>' + (newCount ? '<span class="achievement-new">' + newCount + ' new</span>' : '') + '<span class="category-count">' + unlockedCount +
