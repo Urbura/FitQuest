@@ -1643,6 +1643,51 @@ header nav button[data-tab="settings"] .settings-icon {
   height: 24px;
 }
 
+/* Rank badges arrive with a brief glow and settle into place. */
+.rank-reveal {
+  position: relative;
+  display: grid;
+  place-items: center;
+  isolation: isolate;
+  margin: 16px auto;
+  width: 156px;
+  height: 156px;
+}
+
+.rank-reveal::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffe699 0%, #ffe69966 45%, transparent 72%);
+  animation: rank-glow 1.2s ease-out both;
+}
+
+.rank-reveal .reward-badge-large {
+  width: 124px;
+  height: 124px;
+  margin: 0;
+  filter: drop-shadow(0 6px 8px #98671b40);
+  animation: rank-arrive .85s cubic-bezier(.2,.8,.3,1.15) both;
+}
+
+.rank-reveal-title {
+  color: #086bad;
+}
+
+@keyframes rank-arrive {
+  from { opacity: 0; transform: translateY(20px) scale(.45) rotate(-12deg); }
+  65% { opacity: 1; transform: translateY(-4px) scale(1.08) rotate(3deg); }
+  to { opacity: 1; transform: translateY(0) scale(1) rotate(0); }
+}
+
+@keyframes rank-glow {
+  from { opacity: 0; transform: scale(.6); }
+  50% { opacity: 1; transform: scale(1.12); }
+  to { opacity: .75; transform: scale(1); }
+}
+
 @keyframes reward {
   0% {
     opacity: 0;

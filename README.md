@@ -28,6 +28,7 @@ Use http://localhost:8000/?dev for developer mode. It previews skill and Total L
 | `js/storage.js` | Reads and validates saved progress, including compatibility with older check-in history |
 | `manifest.webmanifest` | Installation name, scope, display mode, and app icons |
 | `sw.js` | Versioned offline app cache and update lifecycle |
+| `js/celebrations.js` | Rank and Total Level celebration markup |
 | `js/pwa.js` | Installation prompt, offline readiness, and Settings help |
 | `js/save-manager.js` | Browser save loading/writing, recovery protection, and synchronization between tabs |
 | `js/developer.js` | Developer preview controls, session backups, and restoring original progress |
@@ -38,6 +39,7 @@ Use http://localhost:8000/?dev for developer mode. It previews skill and Total L
 | `assets/icons/` | Local SVG icons and their licensing information |
 | `tests/tracker.test.cjs` | Progression, check-ins, corrections, quests, and save validation |
 | `tests/achievements.test.cjs` | Achievement unlocks, notifications, and collection rendering |
+| `tests/celebrations.test.cjs` | Rank badge reveals and first Total Level celebration |
 | `tests/pwa.test.cjs` | Manifest, icon dimensions, cache coverage, offline requests, and cache cleanup |
 | `tests/save-manager.test.cjs` | Save writes, recovery, conflicts between tabs, and blocked device storage |
 | `tests/developer.test.cjs` | Developer session backups, restore/exit, and blocked session storage |
@@ -49,7 +51,7 @@ To understand saves: start with `js/storage.js` for **reading and checking** sav
 
 ## Where to edit
 
-Start with **js/config.js** for names, titles, rewards, colours, or balancing. Scripts load in this order: `config.js`, `progression.js`, `storage.js`, `intro.js`, `achievements.js`, `save-manager.js`, `developer.js`, `pwa.js`, then `fitville.js`.
+Start with **js/config.js** for names, titles, rewards, colours, or balancing. Scripts load in this order: `config.js`, `progression.js`, `storage.js`, `intro.js`, `achievements.js`, `save-manager.js`, `developer.js`, `celebrations.js`, `pwa.js`, then `fitville.js`.
 
 ### Change a reward title
 
@@ -107,6 +109,7 @@ node --check js/achievements.js
 node --check js/save-manager.js
 node --check js/developer.js
 node --check js/fitville.js
+node --check js/celebrations.js
 node --check js/pwa.js
 node --check sw.js
 node --test tests/*.test.cjs
@@ -161,3 +164,7 @@ The manifest and worker use relative paths so GitHub Pages project paths work. `
 For each release that changes a cached file, update `CACHE_NAME` in `sw.js` and update `APP_FILES` for renamed/new files or changed script/CSS version queries. The cache-coverage tests check references in `index.html`. An incomplete precache fails installation rather than activating a partial release. Updates wait until all existing app windows close; reopen online to fetch an update, then close all FitQuest windows and reopen to use it. The worker never forces a reload and cleans up only caches with the FitQuest cache prefix. It does not modify localStorage.
 
 Before release, test an online visit, Settings offline-ready status, installation, offline reopening and check-in, and export/import on actual iPhone and Android devices. Also verify an update with an existing saved profile. Automated worker tests simulate the cache API and do not replace browser/device checks.
+
+## Rank celebrations
+
+Crossing a configured rank milestone through a check-in or quest uses the existing celebration queue. `js/celebrations.js` renders the rank name and new badge; CSS provides the brief badge reveal and glow. Existing reduced-motion rules disable the animation and fireworks. Corrections retain their existing behaviour: levels and badges refresh without replaying celebrations.

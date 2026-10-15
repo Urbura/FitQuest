@@ -432,6 +432,9 @@
         '</text></svg>'
       );
     }
+    const celebrationMarkup = globalThis.FitQuestCelebrations.create({
+      ranks: TOTAL_LEVEL_RANKS, rewardBadge, safeText,
+    });
     let celebrations = [],
       celebrationFocus;
     function queueLevels(i, before, after, totalBefore, totalAfter) {
@@ -452,17 +455,7 @@
       if (!item) return;
       const { i, l, total, milestone } = item;
       if (total) {
-        document.getElementById('level-content').innerHTML =
-          '<span class="anime-tag">TOTAL LEVEL UP</span>' +
-          '<h2 id="level-heading"><span class="congratulations">Congratulations!</span>' +
-          'You reached Total Level ' + l + '!</h2>' +
-          (milestone
-            ? rewardBadge(milestone, true) +
-              '<h3>' + safeText(milestone.title) + ' unlocked</h3>' +
-              '<p>Your new rank is displayed beside your Total Level.</p>'
-            : '<h3>Your first total level-up!</h3>' +
-              '<p>You’re building a healthy habit. Small, consistent steps add up—keep checking in toward your own goals.</p>' +
-              '<p class="muted">Your Total Level adds up all five skill levels. Each skill level-up increases your Total Level.</p>');
+        document.getElementById('level-content').innerHTML = celebrationMarkup.totalLevel(item);
       } else {
         const unlock =
           l === MAX_LEVEL
