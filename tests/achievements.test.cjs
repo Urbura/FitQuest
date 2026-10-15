@@ -260,3 +260,14 @@ test('100 Active Days uses platinum while 30 Active Days retains gold', () => {
   assert.match(day30,/achievement-gold.svg/);
   assert.match(day30,/gold medal/);
 });
+
+test('adjacent active-day and streak milestones have distinct medal artwork', () => {
+  const f=fixture();completeLegendProfile(f);
+  const rows=[...f.achievements.renderCollections().matchAll(/<button type="button" data-view-achievement="([^"]+)"[\s\S]*?<\/button>/g)];
+  const row=id=>rows.find(m=>m[1]===id)[0];
+  assert.match(row('days-3'),/achievement-bronze.svg/);
+  assert.match(row('days-7'),/achievement-active-7.svg/);
+  assert.match(row('streak-14'),/achievement-gold.svg/);
+  assert.match(row('streak-30'),/achievement-streak-30.svg/);
+  assert.match(row('streak-30'),/platinum medal/);
+});

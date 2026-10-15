@@ -113,7 +113,7 @@ globalThis.FitQuestAchievements = {
       const goal = achievement.goal;
       switch (achievement.kind) {
         case 'days': return goal >= 100 ? 'platinum' : goal >= 30 ? 'gold' : goal >= 14 ? 'silver' : 'bronze';
-        case 'streak': return goal >= 14 ? 'gold' : goal >= 7 ? 'silver' : 'bronze';
+        case 'streak': return goal >= 30 ? 'platinum' : goal >= 14 ? 'gold' : goal >= 7 ? 'silver' : 'bronze';
         case 'total': return goal >= 150 ? 'gold' : goal >= 50 ? 'silver' : 'bronze';
         case 'skill': return goal >= 50 ? 'gold' : goal >= 25 ? 'silver' : 'bronze';
         case 'specialist': return 'silver';
@@ -124,6 +124,8 @@ globalThis.FitQuestAchievements = {
       }
     }
     function achievementBadge(achievement) {
+      if (achievement.id === 'days-7') return 'achievement-active-7';
+      if (achievement.id === 'streak-30') return 'achievement-streak-30';
       if (achievement.kind === 'completionist') return 'achievement-legend';
       if (achievement.id === 'all-skills-50') return 'achievement-grandmaster';
       if (achievement.id === 'five-perfect-scores') return 'achievement-five-for-five';
