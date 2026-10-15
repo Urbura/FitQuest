@@ -257,7 +257,7 @@ test('100 Active Days uses platinum while 30 Active Days retains gold', () => {
   const day30=rows.find(m=>m[1]==='days-30')[0];
   assert.match(day100,/achievement-platinum.svg/);
   assert.match(day100,/platinum medal/);
-  assert.match(day30,/achievement-gold.svg/);
+  assert.match(day30,/achievement-active-30.svg/);
   assert.match(day30,/gold medal/);
 });
 
@@ -265,7 +265,7 @@ test('adjacent active-day and streak milestones have distinct medal artwork', ()
   const f=fixture();completeLegendProfile(f);
   const rows=[...f.achievements.renderCollections().matchAll(/<button type="button" data-view-achievement="([^"]+)"[\s\S]*?<\/button>/g)];
   const row=id=>rows.find(m=>m[1]===id)[0];
-  assert.match(row('days-3'),/achievement-bronze.svg/);
+  assert.match(row('days-3'),/achievement-active-3.svg/);
   assert.match(row('days-7'),/achievement-active-7.svg/);
   assert.match(row('streak-14'),/achievement-streak-14.svg/);
   assert.match(row('streak-30'),/achievement-streak-30.svg/);
@@ -308,4 +308,13 @@ test('Personal Bests medals match their individual achievements', () => {
   const rows=[...f.achievements.renderCollections().matchAll(/<button type="button" data-view-achievement="([^"]+)"[\s\S]*?<\/button>/g)];
   assert.match(rows.find(m=>m[1]==='weekly-best')[0],/achievement-weekly-best.svg/);
   assert.match(rows.find(m=>m[1]==='weekly-improvement')[0],/achievement-on-the-rise.svg/);
+});
+
+test('all Active Days milestones use the matching numbered series', () => {
+  const f=fixture();completeLegendProfile(f);
+  const rows=[...f.achievements.renderCollections().matchAll(/<button type="button" data-view-achievement="([^"]+)"[\s\S]*?<\/button>/g)];
+  for(const n of [3,7,14,30,100]){
+    const row=rows.find(m=>m[1]==='days-'+n)[0];
+    assert.ok(row.includes(n===100?'achievement-platinum.svg':'achievement-active-'+n+'.svg'));
+  }
 });

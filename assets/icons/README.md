@@ -18,3 +18,5 @@ Generic Skill Level 10, 25, and 50 achievements use original numbered bronze, si
 The 3/7/14/30-day streak medals share a red ribbon, flame emblem, and numbered face, escalating from bronze through silver and gold to crowned platinum. Regenerate with `python scripts/generate-streak-medals.py`.
 
 Personal Bests use original achievement-specific artwork: New Weekly Best has a gold trophy and calendar, while On the Rise has a silver-and-green crest with ascending steps and an upward arrow.
+
+Active Days medals share a green ribbon, calendar/check emblem, and numbered face, progressing from bronze to crowned platinum at 100 days. Their deterministic source is `scripts/generate-active-day-medals.py`; the final tier retains the filename `achievement-platinum.svg`.

@@ -127,7 +127,8 @@ globalThis.FitQuestAchievements = {
       if (achievement.id === 'weekly-best') return 'achievement-weekly-best';
       if (achievement.id === 'weekly-improvement') return 'achievement-on-the-rise';
       if (achievement.kind === 'skill') return 'achievement-skill-' + achievement.goal;
-      if (achievement.id === 'days-7') return 'achievement-active-7';
+      if (achievement.kind === 'days') return achievement.goal === 100
+        ? 'achievement-platinum' : 'achievement-active-' + achievement.goal;
       if (achievement.kind === 'streak') return 'achievement-streak-' + achievement.goal;
       if (achievement.kind === 'completionist') return 'achievement-legend';
       if (achievement.id === 'all-skills-50') return 'achievement-grandmaster';
