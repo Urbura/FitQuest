@@ -2,7 +2,7 @@
 // Updates wait for existing windows to close; never mix releases in an open session.
 'use strict';
 const CACHE_PREFIX = 'fitquest-shell-';
-const CACHE_NAME = CACHE_PREFIX + '20261015-v7';
+const CACHE_NAME = CACHE_PREFIX + '20261015-v8';
 const APP_FILES = [
   "./",
   "index.html",
@@ -12,7 +12,7 @@ const APP_FILES = [
   "js/progression.js?v=20261008-progression",
   "js/storage.js?v=20261014-two-swaps",
   "js/intro.js?v=20261013-intro-module",
-  "js/achievements.js?v=20261015-evolved-ranks",
+  "js/achievements.js?v=20261015-secret-mastery",
   "js/save-manager.js?v=20261015-module",
   "js/developer.js?v=20261015-module",
   "js/celebrations.js?v=20261015-evolved-ranks",

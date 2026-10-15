@@ -196,3 +196,22 @@ test('Achievements in reach is a collapsed disclosure with at most three nearby 
   for (let i=0; i<5; i++) f.setLevel(i,50);
   assert.match(f.achievements.renderCollections(), /No level milestones within three levels/);
 });
+
+test('all-skills mastery stays secret until every skill reaches level 50', () => {
+  const f = fixture();
+  for (let i=0; i<5; i++) f.setLevel(i,49);
+  let html = f.achievements.renderCollections();
+  assert.doesNotMatch(html, /All Skills Level 50|achievement-grandmaster|data-view-achievement="all-skills-50"/);
+  assert.ok(!f.achievements.nearbyLevelAchievements().some(x => x.achievement.id === 'all-skills-50'));
+  assert.doesNotMatch(f.achievements.renderNearbyMilestones(), /All Skills Level 50|achievement-grandmaster/);
+  const beforeTotal = Number(html.match(/progress max="(\d+)" value="\d+" aria-label="Collection completion"/)[1]);
+  for (let i=0; i<4; i++) f.setLevel(i,50);
+  assert.doesNotMatch(f.achievements.renderCollections(), /All Skills Level 50/);
+  f.setLevel(4,50);
+  html = f.achievements.renderCollections();
+  assert.match(html, /data-view-achievement="all-skills-50"/);
+  assert.match(html, /achievement-grandmaster/);
+  assert.ok(f.achievements.unseenAchievements().includes('all-skills-50'));
+  const afterTotal = Number(html.match(/progress max="(\d+)" value="\d+" aria-label="Collection completion"/)[1]);
+  assert.equal(afterTotal, beforeTotal + 1);
+});

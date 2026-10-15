@@ -18,7 +18,7 @@ globalThis.FitQuestAchievements = {
       ...SKILLS.map((skill, i) => ({ id: 'mastery-' + i, category: 'Skills', name: skill.name + ' Mastery', description: 'Reach Level 50 in ' + skill.name, goal: 50, kind: 'mastery', skill: i })),
       { id: 'five-perfect-scores', category: 'Skills', name: 'Five for Five', description: 'Earn a 5/5 rating in all five skills on the same day', goal: 5, kind: 'perfect-day' },
       { id: 'all-skills-10', category: 'Skills', name: 'Well Rounded', description: 'Reach Level 10 in all five skills', goal: 10, kind: 'all' },
-      ...[20, 30, 40, 50].map(n => ({ id: 'all-skills-' + n, category: 'Skills', name: 'All Skills Level ' + n, description: 'Reach Level ' + n + ' in all five skills', goal: n, kind: 'all' })),
+      ...[20, 30, 40, 50].map(n => ({ id: 'all-skills-' + n, category: 'Skills', hiddenUntilEarned: n === 50, name: 'All Skills Level ' + n, description: 'Reach Level ' + n + ' in all five skills', goal: n, kind: 'all' })),
       { id: 'weekly-best', category: 'Personal Bests', name: 'New Weekly Best', description: 'Exceed your previous best number of active days in a completed week', goal: 1, kind: 'weekly' },
       { id: 'weekly-improvement', category: 'Personal Bests', name: 'On the Rise', description: 'Check in on more days than the previous completed week', goal: 1, kind: 'improved' },
     ];
@@ -80,6 +80,10 @@ globalThis.FitQuestAchievements = {
         default: return 0;
       }
     }
+    // Secret rewards enter the visible collection only after their requirement is met.
+    function visibleAchievements(stats) {
+      return ACHIEVEMENTS.filter(a => !a.hiddenUntilEarned || achievementProgress(a, stats) >= a.goal);
+    }
     function earnedAchievements() {
       const stats = achievementStats();
       return ACHIEVEMENTS.filter(a => achievementProgress(a, stats) >= a.goal).map(a => a.id);
@@ -132,7 +136,7 @@ globalThis.FitQuestAchievements = {
     }
     const expandedAchievementCategories = new Set();
     function nearbyLevelAchievements(stats = achievementStats()) {
-      return ACHIEVEMENTS.filter(a => ['total', 'skill', 'specialist', 'mastery', 'all'].includes(a.kind))
+      return visibleAchievements(stats).filter(a => ['total', 'skill', 'specialist', 'mastery', 'all'].includes(a.kind))
         .map(achievement => {
           const progress = achievementProgress(achievement, stats);
           return { achievement, progress, remaining: achievement.goal - progress };
@@ -188,14 +192,15 @@ globalThis.FitQuestAchievements = {
     }
     function renderCollections() {
       const stats = achievementStats(), earned = earnedAchievements(), unseen = new Set(unseenAchievements());
+      const visible = visibleAchievements(stats);
       return '<section class="card collections"><button class="back-button" data-tab="dashboard">← Back</button>' +
-        '<div class="collections-toolbar"><h2 class="collections-heading"><img src="assets/icons/collection-trophy.svg?v=20261014-lowered" alt="" width="36" height="36">Collections</h2>' + renderMedalCounter(stats, unseen) + '</div><p><strong>' + earned.length + ' / ' + ACHIEVEMENTS.length +
-        '</strong> achievements unlocked</p><progress max="' + ACHIEVEMENTS.length + '" value="' + earned.length +
+        '<div class="collections-toolbar"><h2 class="collections-heading"><img src="assets/icons/collection-trophy.svg?v=20261014-lowered" alt="" width="36" height="36">Collections</h2>' + renderMedalCounter(stats, unseen) + '</div><p><strong>' + earned.length + ' / ' + visible.length +
+        '</strong> achievements unlocked</p><progress max="' + visible.length + '" value="' + earned.length +
         '" aria-label="Collection completion"></progress>' +
         (isDev() ? '<p class="muted">Developer preview. Click badges to test notifications; your normal save is unchanged.</p>' : '') +
         achievementInReach(stats) +
         ['Consistency', 'Levels', 'Personal Bests', 'Skills'].map((category, index) => {
-          const achievements = ACHIEVEMENTS.filter(a => a.category === category && a.id !== 'five-perfect-scores');
+          const achievements = visible.filter(a => a.category === category && a.id !== 'five-perfect-scores');
           const unlockedCount = achievements.filter(a => achievementProgress(a, stats) >= a.goal).length;
           const newCount = achievements.filter(a => unseen.has(a.id)).length;
           const expanded = expandedAchievementCategories.has(category);
@@ -211,7 +216,7 @@ globalThis.FitQuestAchievements = {
             const tag = unlocked ? 'button' : 'div';
             return '<' + tag + (unlocked ? ' type="button" data-view-achievement="' + a.id + '"' : '') + ' class="achievement ' + (unlocked ? 'unlocked' : 'locked') + '">' +
               '<span class="achievement-symbol" aria-hidden="true">' +
-              '<img src="assets/icons/' + (unlocked || a.id === 'all-skills-50' ? achievementBadge(a) : 'collection-locked') +
+              '<img src="assets/icons/' + (unlocked ? achievementBadge(a) : 'collection-locked') +
                 '.svg?v=20261015-evolved-ranks" alt="" width="56" height="56"></span>' +
               '<div><strong>' + safeText(a.name) + '</strong>' +
                (isNew ? ' <span class="achievement-new">New</span>' : '') + '<small>' + safeText(a.description) +
