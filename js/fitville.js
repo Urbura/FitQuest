@@ -234,7 +234,7 @@
     // Achievement UI and tracking are isolated from the main app coordinator.
     const { TOTAL_LEVEL_RANKS, ACHIEVEMENTS, achievementStats, earnedAchievements,
       unseenAchievements, updateCollectionBadge, expandedAchievementCategories,
-      renderCollections, renderBonusesPanel, markAchievementViewed, renderNearbyMilestones } = globalThis.FitQuestAchievements.create({
+      renderCollections, renderBonusesPanel, markAchievementViewed } = globalThis.FitQuestAchievements.create({
         SKILLS, SKILL_SYMBOLS, level, checkedCount, day, currentTotalLevel, safeText, save, bonusForLevel: skillBonus,
         getState: () => state, isDev: () => developer.active,
       });
@@ -873,17 +873,6 @@
         refreshDayIfNeeded();
         document.getElementById('ranks-content').innerHTML = rankProgressionPanel();
         document.getElementById('ranks-dialog').showModal();
-        return;
-      }
-      if (b.id === 'nearby-close') {
-        document.getElementById('nearby-dialog').close();
-        return;
-      }
-      if (b.dataset.nearbyMilestones !== undefined) {
-        if (syncSharedSave()) render(false);
-        refreshDayIfNeeded();
-        document.getElementById('nearby-content').innerHTML = renderNearbyMilestones();
-        document.getElementById('nearby-dialog').showModal();
         return;
       }
       if (b.dataset.achievementCategory !== undefined) {

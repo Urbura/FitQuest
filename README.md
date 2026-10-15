@@ -117,58 +117,7 @@ node --test tests/*.test.cjs
 
 Checks cover XP thresholds, Total Levels, rewards, duplicate check-ins, reset boundaries, weekly counts, bonus XP, completion messages, save validation, configuration consistency, achievement notifications, and developer backup/restore protection.
 
-Progression tests import `createProgression(config)` from `js/progression.js` directly. Its functions do not depend on a browser, storage, or mutable tracker state. Integration tests load the production configuration, progression, storage, achievements, save manager, developer tools, and tracker code in an isolated environment. The tests are grouped by topic and each `test('description', ...)` states the behavior it expects. `assert.equal` checks an exact value; `assert.throws` checks that invalid data is rejected. The tracker exposes a small test-only hook (`__fitQuestTestHook`) when the isolated test environment provides it. This avoids rewriting application source code. In normal browser use, the hook is absent and startup proceeds normally. As the application is split into modules, prefer direct module tests over adding more test hooks.
+Progression tests import `createProgression(config)` from `js/progression.js` directly. Its functions do not depend on a browser, storage, or mutable tracker state. Inte
+## Nearby achievements
 
-The single workflow in `.github/workflows/deploy-pages.yml` checks JavaScript syntax and runs all test files on every branch push, pull requests targeting `main`, and manual runs. Deployment requires passing checks and a run on `main`; feature branches and pull requests do not deploy. These logic checks do not replace phone-screen visual testing.
-
-## Save compatibility
-
-Progress is stored in the current browser, not in a shared account. Use the backup controls in Settings to move it between browsers or devices.
-
-Preserve the `fitville-v1` storage key, developer-session keys, and the existing synchronization identifier. Legacy fields such as `coins`, `bank`, `last`, `tier`, and historical `rates` remain for compatibility. Do not delete them until a migration can safely read and upgrade older saves.
-
-Both normal loading and backup imports use `readSave()` from `js/storage.js`. Update this shared validator when changing the save format, and add valid, legacy, and malformed-save tests.
-
-## Before publishing a change
-
-Run the automated checks and preview the normal dashboard and developer mode. Test the check-in and celebration dialogs on a small screen. If you change a CSS file, script, or asset, update its version suffix in `index.html` (or its referencing module) so browsers request the new file.
-
-Developer tools now live in their own module, with explicit callbacks for reading and restoring app state. They own preview state and session backups; the main coordinator blocks normal save writes during previews. Save coordination now lives in `js/save-manager.js`, which receives storage access and explicit functions for reading or replacing app state. It returns outcomes such as `saved`, `paused`, or `conflict-loaded`; UI rendering stays in the main coordinator. Future refactoring should separate screen rendering while retaining behaviour and save compatibility.
-
-## Progression module
-
-Create a calculator from the configuration and pass data into its functions:
-
-```js
-const { createProgression } = require('./js/progression.js');
-const progression = createProgression(config);
-const skillLevel = progression.levelForXP(81); // 10
-const earnedXP = progression.experienceForCheckIn(5, skillLevel); // 6
-const totalLevel = progression.calculateTotalLevel([
-  { xp: 81 }, { xp: 0 }, { xp: 0 }, { xp: 0 }, { xp: 0 },
-]); // 14
-```
-
-In the browser, use `FitQuestProgression.createProgression(FitQuestConfig)`. Each calculator uses the provided configuration. Changing progression formulas belongs in this module; editable values remain in `config.js`. Award XP using the skill level before the check-in.
-
-## CSS maintenance
-
-Edit the existing component rule instead of appending a second override. Base styles come first, followed by one block for each viewport condition (600px, 480px, 420px, and 350px widths; short screens; landscape; reduced motion; and narrow landscape). More specific landscape exceptions stay after the general landscape block. The header uses flex layout; its stats and navigation wrappers use `display: contents`. Keep safe-area padding, 44px touch targets, and intentional `vh`/`dvh` fallbacks when adjusting layouts.
-
-## Installation and offline access
-
-Open FitQuest online and wait until Settings says **Available offline on this device**. Where supported, use the Settings install button or the browser's Install app option. On iPhone, use Safari → Share → Add to Home Screen. Browser installation menus and availability vary; verify on target devices. Installation does not create an account or cloud synchronization. If an installed app starts with separate storage, use file export/import to transfer progress.
-
-The manifest and worker use relative paths so GitHub Pages project paths work. `sw.js` precaches the app HTML, versioned scripts/CSS, manifest, and all local visual assets. Once installation succeeds, those files can load without a network connection; check-ins still use local browser storage. Clearing site data or browser eviction can remove cached files and progress, so downloaded backups remain useful.
-
-For each release that changes a cached file, update `CACHE_NAME` in `sw.js` and update `APP_FILES` for renamed/new files or changed script/CSS version queries. The cache-coverage tests check references in `index.html`. An incomplete precache fails installation rather than activating a partial release. Updates wait until all existing app windows close; reopen online to fetch an update, then close all FitQuest windows and reopen to use it. The worker never forces a reload and cleans up only caches with the FitQuest cache prefix. It does not modify localStorage.
-
-Before release, test an online visit, Settings offline-ready status, installation, offline reopening and check-in, and export/import on actual iPhone and Android devices. Also verify an update with an existing saved profile. Automated worker tests simulate the cache API and do not replace browser/device checks.
-
-## Rank celebrations
-
-Crossing a configured rank milestone through a check-in or quest uses the existing celebration queue. `js/celebrations.js` renders the rank name and new badge; CSS provides the brief badge reveal and glow. Existing reduced-motion rules disable the animation and fireworks. Corrections retain their existing behaviour: levels and badges refresh without replaying celebrations.
-
-## Collections medal counter
-
-Five for Five keeps its existing achievement ID and XP rules, but displays as a counter in the Collections toolbar rather than a Skills row. Opening it clears its new-achievement notification and shows active skill check-in bonuses, medal totals, and progress to the next automatic +5 XP reward for each skill. Paid medal milestones remain authoritative when ratings are corrected.
+Collections shows a collapsed **Achievements in reach** disclosure with up to three locked level achievements. Candidates are within three levels of their target and sorted by remaining levels, then name. The list shows each requirement and distance; completed achievements are excluded. If none qualify, an empty-state message explains the three-level threshold.

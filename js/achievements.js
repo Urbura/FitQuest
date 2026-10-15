@@ -140,8 +140,8 @@ globalThis.FitQuestAchievements = {
         .filter(item => item.remaining > 0 && item.remaining <= 3)
         .sort((a, b) => a.remaining - b.remaining || a.achievement.name.localeCompare(b.achievement.name));
     }
-    function renderNearbyMilestones() {
-      const nearby = nearbyLevelAchievements();
+    function renderNearbyMilestones(stats = achievementStats()) {
+      const nearby = nearbyLevelAchievements(stats).slice(0, 3);
       if (!nearby.length) return '<p>No level milestones within three levels yet. Keep checking in to bring the next milestone closer.</p>';
       return '<div class="nearby-milestones">' + nearby.map(({ achievement: a, remaining }) => {
         const requirement = a.kind === 'total' ? 'Reach Total Level ' + a.goal :
@@ -157,20 +157,10 @@ globalThis.FitQuestAchievements = {
       }).join('') + '</div>';
     }
     function achievementInReach(stats) {
-      const upcoming = ACHIEVEMENTS.filter(a => a.id !== 'five-perfect-scores').map(achievement => ({
-        achievement, progress: achievementProgress(achievement, stats),
-      })).filter(({ achievement, progress }) => progress < achievement.goal);
-      upcoming.sort((a, b) =>
-        b.progress / b.achievement.goal - a.progress / a.achievement.goal);
-      if (!upcoming.length) return '';
-      const { achievement, progress } = upcoming[0];
-      return '<button type="button" class="achievement-in-reach" data-nearby-milestones aria-haspopup="dialog" aria-controls="nearby-dialog" aria-label="Achievement in reach: view nearby level milestones">' +
-        '<img src="assets/icons/' + achievementBadge(achievement) +
-        '.svg?v=20261014-star-position" alt="" width="40" height="40">' +
-        '<div><small>Achievement in reach</small><strong>' + safeText(achievement.name) +
-        '</strong><span>' + progress + ' / ' + achievement.goal + '</span>' +
-        '<progress max="' + achievement.goal + '" value="' + progress +
-        '" aria-label="' + safeText(achievement.name) + ' progress"></progress><small>View nearby milestones ›</small></div></button>';
+      const count = Math.min(3, nearbyLevelAchievements(stats).length);
+      return '<details class="achievement-in-reach"><summary>Achievements in reach' +
+        (count ? ' <span class="nearby-count">' + count + '</span>' : '') +
+        '</summary>' + renderNearbyMilestones(stats) + '</details>';
     }
     function renderMedalCounter(stats, unseen) {
       return '<button type="button" class="medal-counter" id="bonuses-open" aria-haspopup="dialog" aria-controls="bonuses-dialog" aria-label="' +

@@ -149,7 +149,7 @@ test('nearby milestones include only locked level goals within three levels, nea
   assert.match(f.achievements.renderNearbyMilestones(), /No level milestones within three levels/);
   f.setLevel(0, 7);
   assert.match(f.achievements.renderNearbyMilestones(), /3 levels away/);
-  assert.match(f.achievements.renderCollections(), /data-nearby-milestones/);
+  assert.match(f.achievements.renderCollections(), /<details class="achievement-in-reach">/);
 });
 
 test('Five for Five lives in the Collections toolbar rather than the Skills rows', () => {
@@ -182,4 +182,17 @@ test('bonus details distinguish active skill XP from repeatable medal payouts', 
   // Editing away a previous medal must not promise a duplicate paid reward.
   f.state.fiveForFivePaidMilestones = 1;
   assert.match(f.achievements.renderBonusesPanel(), /9 more medals/);
+});
+
+
+test('Achievements in reach is a collapsed disclosure with at most three nearby goals', () => {
+  const f = fixture();
+  for (let i=0; i<5; i++) f.setLevel(i,24);
+  const html = f.achievements.renderCollections();
+  const disclosure = html.match(/<details class="achievement-in-reach">([\s\S]*?)<\/details>/)[1];
+  assert.match(disclosure, /<summary>Achievements in reach/);
+  assert.equal((disclosure.match(/class="nearby-milestone"/g) || []).length, 3);
+  assert.doesNotMatch(html, /data-nearby-milestones/);
+  for (let i=0; i<5; i++) f.setLevel(i,50);
+  assert.match(f.achievements.renderCollections(), /No level milestones within three levels/);
 });

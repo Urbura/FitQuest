@@ -1147,52 +1147,6 @@ header nav .collections-icon {
   height: 56px;
 }
 
-.achievement-in-reach {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px;
-  margin-top: 12px;
-  border: 1px solid #b9d8e9;
-  border-radius: 12px;
-  background: #edf7ff;
-}
-
-.achievement-in-reach>img {
-  flex-shrink: 0;
-  object-fit: contain;
-}
-
-.achievement-in-reach>div {
-  flex: 1;
-  min-width: 0;
-}
-
-.achievement-in-reach small {
-  display: block;
-  color: #597067;
-  font-size: 12px;
-}
-
-.achievement-in-reach strong {
-  color: #203c33;
-  font-size: 14px;
-}
-
-.achievement-in-reach span {
-  float: right;
-  margin-left: 8px;
-  color: #597067;
-  font-size: 12px;
-}
-
-.achievement-in-reach progress {
-  display: block;
-  height: 5px;
-  margin: 6px 0 0;
-  accent-color: #087cd9;
-}
-
 #header-rank-badge {
   display: block;
   width: 52px;
@@ -1412,18 +1366,35 @@ body.tracker-home .star-xp,body.tracker-home .star-level,body.tracker-home .star
   font-size: 22px;
 }
 
-button.achievement-in-reach {
-  width: 100%;
-  text-align: left;
-  cursor: pointer;
-  font: inherit;
+/* Milestone, rank, and Journey dialogs */
+/* A native disclosure keeps nearby goals compact and keyboard accessible. */
+.achievement-in-reach {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid #b9d8e9;
+  border-radius: 12px;
+  background: #edf7ff;
+  color: #203c33;
 }
 
-/* Milestone, rank, and Journey dialogs */
-#nearby-dialog {
-  max-height: 85dvh;
-  overflow-y: auto;
+.achievement-in-reach summary {
+  min-height: 44px;
+  padding: 10px 0;
+  cursor: pointer;
+  font-weight: 700;
 }
+
+.achievement-in-reach summary:focus-visible {
+  outline: 3px solid #087bd9;
+  outline-offset: 3px;
+}
+
+.nearby-count {
+  margin-left: 6px;
+  color: #086bad;
+}
+
+.achievement-in-reach .nearby-milestones { margin-top: 8px; }
 
 .nearby-milestones {
   display: grid;
@@ -2168,11 +2139,6 @@ header nav button[data-tab="settings"] .settings-icon {
 
   .collections .achievement progress {
     height: 5px;
-  }
-
-  .achievement-in-reach {
-    padding: 7px 9px;
-    margin-top: 7px;
   }
 
   .fitquest-intro {
