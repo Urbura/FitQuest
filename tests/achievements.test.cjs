@@ -271,3 +271,15 @@ test('adjacent active-day and streak milestones have distinct medal artwork', ()
   assert.match(row('streak-30'),/achievement-streak-30.svg/);
   assert.match(row('streak-30'),/platinum medal/);
 });
+
+test('all-skills tiers have distinct artwork and the final medal remains secret', () => {
+  const f=fixture();completeLegendProfile(f);
+  const rows=[...f.achievements.renderCollections().matchAll(/<button type="button" data-view-achievement="([^"]+)"[\s\S]*?<\/button>/g)];
+  for(const n of [10,20,30,40,50]){
+    const row=rows.find(m=>m[1]==='all-skills-'+n)[0];
+    const asset=n===10?'achievement-well-rounded':n===50?'achievement-grandmaster':'achievement-all-skills-'+n;
+    assert.ok(row.includes(asset+'.svg'));
+  }
+  f.setLevel(0,49);
+  assert.doesNotMatch(f.achievements.renderCollections(),/achievement-grandmaster|All Skills Level 50/);
+});

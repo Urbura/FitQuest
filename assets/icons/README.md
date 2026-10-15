@@ -10,3 +10,5 @@ Distributed under the MIT License. See LICENSE.txt.
 `achievement-platinum.svg` is original FitQuest vector artwork for 100 Active Days, with a faceted platinum finish and sparkle accents.
 
 `achievement-active-7.svg` and `achievement-streak-30.svg` are original FitQuest medal variants with numbered faces, distinct ribbon colours, and laurel/flame details.
+
+All-skills Levels 20, 30, 40 and 50 have progressively ornamented original SVG medals. Regenerate with `python scripts/generate-all-skills-badges.py`; Level 50 keeps the existing `achievement-grandmaster.svg` filename and remains hidden until earned.

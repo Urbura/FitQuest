@@ -132,7 +132,8 @@ globalThis.FitQuestAchievements = {
       if (achievement.id === 'first-check-in') return 'achievement-first-check-in';
       if (achievement.kind === 'specialist') return 'specialist-' + SKILL_SYMBOLS[achievement.skill];
       if (achievement.kind === 'mastery') return 'mastery-' + SKILL_SYMBOLS[achievement.skill];
-      if (achievement.kind === 'all') return 'achievement-well-rounded';
+      if (achievement.kind === 'all') return achievement.goal === 10
+        ? 'achievement-well-rounded' : 'achievement-all-skills-' + achievement.goal;
       if (achievement.kind === 'total') return 'rank-' + TOTAL_LEVEL_RANKS[achievement.goal].toLowerCase();
       return 'achievement-' + achievementMedalTier(achievement);
     }
@@ -167,7 +168,7 @@ globalThis.FitQuestAchievements = {
           a.kind === 'all' ? 'Every skill within ' + remaining + ' level' + (remaining === 1 ? '' : 's') :
           remaining + ' level' + (remaining === 1 ? '' : 's') + ' away';
         return '<article class="nearby-milestone"><img src="assets/icons/' + achievementImage(a) +
-          '?v=20261015-evolved-ranks" alt="" width="48" height="48"><div><strong>' + safeText(a.name) +
+          '?v=20261015-all-skills-tiers" alt="" width="48" height="48"><div><strong>' + safeText(a.name) +
           '</strong><small>' + safeText(requirement) + '</small><small>' + distance + '</small></div></article>';
       }).join('') + '</div>';
     }
@@ -229,7 +230,7 @@ globalThis.FitQuestAchievements = {
             return '<' + tag + (unlocked ? ' type="button" data-view-achievement="' + a.id + '"' : '') + ' class="achievement ' + (unlocked ? 'unlocked' : 'locked') + '">' +
               '<span class="achievement-symbol" aria-hidden="true">' +
               '<img src="assets/icons/' + (unlocked ? achievementImage(a) : 'collection-locked.svg') +
-                '?v=20261015-evolved-ranks" alt="" width="56" height="56"></span>' +
+                '?v=20261015-all-skills-tiers" alt="" width="56" height="56"></span>' +
               '<div><strong>' + safeText(a.name) + '</strong>' +
                (isNew ? ' <span class="achievement-new">New</span>' : '') + '<small>' + safeText(a.description) +
               '</small><progress max="' + a.goal + '" value="' + Math.min(a.goal, progress) +
