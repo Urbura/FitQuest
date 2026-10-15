@@ -557,3 +557,24 @@ test('quest swaps are limited to two per reset day and remain limited after relo
   delete legacy.days[t.day()].quest.swaps;
   assert.equal(t.readSave(JSON.stringify(legacy)).days[t.day()].quest.swaps, 0);
 });
+
+test('Legend celebration queues once and its marker survives save reloads', () => {
+  const t=tracker();
+  t.state().skills.forEach(s=>{s.xp=t.XP[50];});
+  for(let i=0;i<120;i++) {
+    const d=new Date('2026-04-01T00:00:00Z');d.setUTCDate(d.getUTCDate()+i);
+    t.state().days[d.toISOString().slice(0,10)]={scores:[5,5,5,5,5]};
+  }
+  assert.ok(t.earnedAchievements().includes('fitquest-legend'));
+  t.queueLegendCelebration();t.queueLegendCelebration();
+  assert.equal(t.queued().filter(item=>item.legend).length,1);
+  assert.equal(t.state().legendCelebrated,true);
+  const restored=tracker();restored.setState(restored.readSave(JSON.stringify(t.state())));
+  restored.queueLegendCelebration();
+  assert.equal(restored.queued().length,0);
+  delete restored.state().legendCelebrated;
+  restored.preview(250);
+  restored.queueLegendCelebration();
+  assert.equal(restored.state().legendCelebrated,undefined);
+  assert.equal(restored.queued().length,0);
+});

@@ -23,7 +23,14 @@
             '<p>You’re building a healthy habit. Small, consistent steps add up—keep checking in toward your own goals.</p>' +
             '<p class="muted">Your Total Level adds up all five skill levels. Each skill level-up increases your Total Level.</p>');
     }
-    return { totalLevel };
+    function legend() {
+      return '<span class="anime-tag">ALL ACHIEVEMENTS COMPLETE</span>' +
+        '<h2 id="level-heading"><span class="congratulations">Congratulations!</span>You are a FitQuest Legend!</h2>' +
+        '<div class="rank-reveal rank-reveal-legend"><img class="reward-badge-large" src="assets/icons/achievement-legend.png" alt="FitQuest Legend: crowned gold and blue crest with all five skill symbols" width="240" height="240"></div>' +
+        '<h3 class="rank-reveal-title">FitQuest Legend unlocked</h3>' +
+        '<p>Every achievement earned. Your dedication deserves a legendary celebration!</p>';
+    }
+    return { totalLevel, legend };
   }
   root.FitQuestCelebrations = { create };
   if (typeof module !== 'undefined' && module.exports) module.exports = { create };

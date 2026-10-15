@@ -215,3 +215,36 @@ test('all-skills mastery stays secret until every skill reaches level 50', () =>
   const afterTotal = Number(html.match(/progress max="(\d+)" value="\d+" aria-label="Collection completion"/)[1]);
   assert.equal(afterTotal, beforeTotal + 1);
 });
+
+function completeLegendProfile(f) {
+  for (let i=0;i<5;i++) f.setLevel(i,50);
+  for(let i=0;i<120;i++) {
+    const d=new Date('2026-06-10T00:00:00Z'); d.setUTCDate(d.getUTCDate()+i);
+    f.addDay(d.toISOString().slice(0,10), i===0 ? [5,5,5,5,5] : [1,1,1,1,1]);
+  }
+}
+
+test('Legend is hidden until every other achievement including secret mastery is earned', () => {
+  const f=fixture();
+  assert.doesNotMatch(f.achievements.renderCollections(), /FitQuest Legend|achievement-legend/);
+  completeLegendProfile(f);
+  let earned=f.achievements.earnedAchievements();
+  assert.equal(earned.length,f.achievements.ACHIEVEMENTS.length);
+  assert.ok(earned.includes('fitquest-legend'));
+  assert.match(f.achievements.renderCollections(), /data-view-achievement="fitquest-legend"/);
+  assert.match(f.achievements.renderCollections(), /achievement-legend.png/);
+  assert.ok(f.achievements.unseenAchievements().includes('fitquest-legend'));
+  f.setLevel(0,49);
+  assert.ok(!f.achievements.earnedAchievements().includes('fitquest-legend'));
+  assert.doesNotMatch(f.achievements.renderCollections(), /FitQuest Legend/);
+});
+
+test('Legend requires consistency and a Five for Five medal, not just maxed levels', () => {
+  const f=fixture();
+  for(let i=0;i<5;i++)f.setLevel(i,50);
+  assert.ok(!f.achievements.earnedAchievements().includes('fitquest-legend'));
+  completeLegendProfile(f);
+  assert.equal(f.achievements.achievementStats().perfectDayMedals,1);
+  f.state.days['2026-06-10'].scores=[4,5,5,5,5];
+  assert.ok(!f.achievements.earnedAchievements().includes('fitquest-legend'));
+});

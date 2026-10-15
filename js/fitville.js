@@ -450,11 +450,26 @@
         showLevel();
       }
     }
+    function queueLegendCelebration() {
+      if (developer.active || saves.rejectedRaw !== null || state.legendCelebrated ||
+          !earnedAchievements().includes('fitquest-legend')) return;
+      const profile = state;
+      state.legendCelebrated = true;
+      save();
+      if (state !== profile) return;
+      celebrations.push({ legend: true });
+      if (!document.getElementById('level-dialog').open) {
+        celebrationFocus = document.activeElement;
+        showLevel();
+      }
+    }
     function showLevel() {
       const item = celebrations[0];
       if (!item) return;
       const { i, l, total, milestone } = item;
-      if (total) {
+      if (item.legend) {
+        document.getElementById('level-content').innerHTML = celebrationMarkup.legend();
+      } else if (total) {
         document.getElementById('level-content').innerHTML = celebrationMarkup.totalLevel(item);
       } else {
         const unlock =
@@ -479,18 +494,18 @@
       }
       document.getElementById('level-next').textContent =
         celebrations.length > 1
-          ? 'Next level celebration (' + (celebrations.length - 1) + ' remaining)'
+          ? 'Next celebration (' + (celebrations.length - 1) + ' remaining)'
           : 'Continue adventure';
       const dialog = document.getElementById('level-dialog');
       if (!dialog.open) dialog.showModal();
       document.getElementById('level-next').focus();
-      fireworks();
+      fireworks(item.legend ? 7 : 4);
     }
-    function fireworks() {
+    function fireworks(burstCount = 4) {
       const field = document.getElementById('fireworks');
       field.innerHTML = '';
       if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-      for (let burst = 0; burst < 4; burst++) {
+      for (let burst = 0; burst < burstCount; burst++) {
         const x = 15 + Math.random() * 70,
           y = 15 + Math.random() * 40;
         for (let j = 0; j < 16; j++) {
@@ -503,7 +518,7 @@
             '%;top:' +
             y +
             '%;background:' +
-            ['#ffd35d', '#69d9ff', '#ff8aca', '#96f06c'][burst] +
+            ['#ffd35d', '#69d9ff', '#ff8aca', '#96f06c'][burst % 4] +
             ';--dx:' +
             Math.cos(angle) * 110 +
             'px;--dy:' +
@@ -663,6 +678,7 @@
       renderedDay = day();
       scheduleDailyReset();
       if (persist) save();
+      queueLegendCelebration();
     }
 
     // Rating XP plus the current skill bonus; zero ratings earn zero XP.
@@ -1182,7 +1198,7 @@
         unseenAchievements, markAchievementViewed,
         editCheckIn, skillBonus, checkInXP, totalSkillLevel, totalReward,
         TOTAL_REWARDS, weeklyCheckInCount, day, nextReset, nextRewardText,
-        queueLevels, dashboard, openSkillCheck, totalRewardsPanel, rewardBadge,
+        queueLevels, queueLegendCelebration, dashboard, openSkillCheck, totalRewardsPanel, rewardBadge,
         dialogHTML: () => document.getElementById('check-content').innerHTML,
         state: () => state,
         setState: (value) => { state = value; },

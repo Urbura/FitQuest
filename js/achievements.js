@@ -21,6 +21,7 @@ globalThis.FitQuestAchievements = {
       ...[20, 30, 40, 50].map(n => ({ id: 'all-skills-' + n, category: 'Skills', hiddenUntilEarned: n === 50, name: 'All Skills Level ' + n, description: 'Reach Level ' + n + ' in all five skills', goal: n, kind: 'all' })),
       { id: 'weekly-best', category: 'Personal Bests', name: 'New Weekly Best', description: 'Exceed your previous best number of active days in a completed week', goal: 1, kind: 'weekly' },
       { id: 'weekly-improvement', category: 'Personal Bests', name: 'On the Rise', description: 'Check in on more days than the previous completed week', goal: 1, kind: 'improved' },
+      { id: 'fitquest-legend', category: 'Legend', hiddenUntilEarned: true, name: 'FitQuest Legend', description: 'Earn every other achievement', goal: 1, kind: 'completionist' },
     ];
     function achievementStats() {
       const active = Object.keys(state.days).filter(k => /^\d{4}-\d{2}-\d{2}$/.test(k) && checkedCount(state.days[k]) > 0).sort();
@@ -77,6 +78,10 @@ globalThis.FitQuestAchievements = {
         case 'all': return Math.min(...s.levels);
         case 'weekly': return s.weeklyBest ? 1 : 0;
         case 'improved': return s.improved ? 1 : 0;
+        case 'completionist':
+          // Exclude completionist rewards to avoid circular unlock requirements.
+          return ACHIEVEMENTS.filter(other => other.kind !== 'completionist')
+            .every(other => achievementProgress(other, s) >= other.goal) ? 1 : 0;
         default: return 0;
       }
     }
@@ -119,6 +124,7 @@ globalThis.FitQuestAchievements = {
       }
     }
     function achievementBadge(achievement) {
+      if (achievement.kind === 'completionist') return 'achievement-legend';
       if (achievement.id === 'all-skills-50') return 'achievement-grandmaster';
       if (achievement.id === 'five-perfect-scores') return 'achievement-five-for-five';
       if (achievement.id === 'first-check-in') return 'achievement-first-check-in';
@@ -128,9 +134,12 @@ globalThis.FitQuestAchievements = {
       if (achievement.kind === 'total') return 'rank-' + TOTAL_LEVEL_RANKS[achievement.goal].toLowerCase();
       return 'achievement-' + achievementMedalTier(achievement);
     }
+    function achievementImage(achievement) {
+      return achievementBadge(achievement) + (achievement.kind === 'completionist' ? '.png' : '.svg');
+    }
     function achievementRewardLabel(achievement) {
       if (achievement.kind === 'total') return TOTAL_LEVEL_RANKS[achievement.goal] + ' rank';
-      if (achievement.kind === 'specialist' || achievement.kind === 'mastery' || achievement.kind === 'all' || achievement.id === 'first-check-in')
+      if (achievement.kind === 'completionist' || achievement.kind === 'specialist' || achievement.kind === 'mastery' || achievement.kind === 'all' || achievement.id === 'first-check-in')
         return 'Badge earned';
       return achievementMedalTier(achievement) + ' medal';
     }
@@ -155,8 +164,8 @@ globalThis.FitQuestAchievements = {
         const distance = a.kind === 'total' ? remaining + ' Total Level' + (remaining === 1 ? '' : 's') + ' away' :
           a.kind === 'all' ? 'Every skill within ' + remaining + ' level' + (remaining === 1 ? '' : 's') :
           remaining + ' level' + (remaining === 1 ? '' : 's') + ' away';
-        return '<article class="nearby-milestone"><img src="assets/icons/' + achievementBadge(a) +
-          '.svg?v=20261015-evolved-ranks" alt="" width="48" height="48"><div><strong>' + safeText(a.name) +
+        return '<article class="nearby-milestone"><img src="assets/icons/' + achievementImage(a) +
+          '?v=20261015-evolved-ranks" alt="" width="48" height="48"><div><strong>' + safeText(a.name) +
           '</strong><small>' + safeText(requirement) + '</small><small>' + distance + '</small></div></article>';
       }).join('') + '</div>';
     }
@@ -199,8 +208,9 @@ globalThis.FitQuestAchievements = {
         '" aria-label="Collection completion"></progress>' +
         (isDev() ? '<p class="muted">Developer preview. Click badges to test notifications; your normal save is unchanged.</p>' : '') +
         achievementInReach(stats) +
-        ['Consistency', 'Levels', 'Personal Bests', 'Skills'].map((category, index) => {
+        ['Consistency', 'Levels', 'Personal Bests', 'Skills', 'Legend'].map((category, index) => {
           const achievements = visible.filter(a => a.category === category && a.id !== 'five-perfect-scores');
+          if (!achievements.length) return '';
           const unlockedCount = achievements.filter(a => achievementProgress(a, stats) >= a.goal).length;
           const newCount = achievements.filter(a => unseen.has(a.id)).length;
           const expanded = expandedAchievementCategories.has(category);
@@ -216,8 +226,8 @@ globalThis.FitQuestAchievements = {
             const tag = unlocked ? 'button' : 'div';
             return '<' + tag + (unlocked ? ' type="button" data-view-achievement="' + a.id + '"' : '') + ' class="achievement ' + (unlocked ? 'unlocked' : 'locked') + '">' +
               '<span class="achievement-symbol" aria-hidden="true">' +
-              '<img src="assets/icons/' + (unlocked ? achievementBadge(a) : 'collection-locked') +
-                '.svg?v=20261015-evolved-ranks" alt="" width="56" height="56"></span>' +
+              '<img src="assets/icons/' + (unlocked ? achievementImage(a) : 'collection-locked.svg') +
+                '?v=20261015-evolved-ranks" alt="" width="56" height="56"></span>' +
               '<div><strong>' + safeText(a.name) + '</strong>' +
                (isNew ? ' <span class="achievement-new">New</span>' : '') + '<small>' + safeText(a.description) +
               '</small><progress max="' + a.goal + '" value="' + Math.min(a.goal, progress) +

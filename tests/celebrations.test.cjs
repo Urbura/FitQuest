@@ -23,3 +23,11 @@ test('the first Total Level celebration does not falsely announce a rank', () =>
   assert.ok(!html.includes('RANK UP'));
   assert.ok(!html.includes('rank-reveal'));
 });
+
+test('Legend reveals the dedicated five-skill crest with congratulations', () => {
+  const html=markup.legend();
+  assert.ok(html.includes('Congratulations!'));
+  assert.ok(html.includes('You are a FitQuest Legend!'));
+  assert.ok(html.includes('achievement-legend.png'));
+  assert.ok(html.includes('rank-reveal-legend'));
+});

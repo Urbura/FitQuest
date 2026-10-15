@@ -2,22 +2,22 @@
 // Updates wait for existing windows to close; never mix releases in an open session.
 'use strict';
 const CACHE_PREFIX = 'fitquest-shell-';
-const CACHE_NAME = CACHE_PREFIX + '20261015-v9';
+const CACHE_NAME = CACHE_PREFIX + '20261015-v10';
 const APP_FILES = [
   "./",
   "index.html",
   "manifest.webmanifest",
-  "css/fitville.css?v=20261015-evolved-ranks",
+  "css/fitville.css?v=20261015-legend",
   "js/config.js?v=20261015-rank-scenery",
   "js/progression.js?v=20261008-progression",
   "js/storage.js?v=20261014-two-swaps",
   "js/intro.js?v=20261013-intro-module",
-  "js/achievements.js?v=20261015-secret-mastery",
+  "js/achievements.js?v=20261015-legend",
   "js/save-manager.js?v=20261015-module",
   "js/developer.js?v=20261015-module",
-  "js/celebrations.js?v=20261015-evolved-ranks",
+  "js/celebrations.js?v=20261015-legend",
   "js/pwa.js?v=20261015-offline",
-  "js/fitville.js?v=20261015-rank-scenery",
+  "js/fitville.js?v=20261015-legend",
   "assets/app/icon-fq-180.png",
   "assets/app/icon-fq-192.png",
   "assets/app/icon-fq-512.png",
@@ -36,6 +36,7 @@ const APP_FILES = [
   "assets/icons/achievement-first-check-in.svg",
   "assets/icons/achievement-five-for-five.svg",
   "assets/icons/achievement-gold.svg",
+  "assets/icons/achievement-legend.png",
   "assets/icons/achievement-grandmaster.svg",
   "assets/icons/achievement-silver.svg",
   "assets/icons/achievement-well-rounded.svg",

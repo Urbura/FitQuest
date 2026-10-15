@@ -1689,6 +1689,18 @@ header nav button[data-tab="settings"] .settings-icon {
 .rank-reveal-master { --badge-size: 152px; }
 .rank-reveal-grandmaster { --badge-size: 160px; }
 
+.rank-reveal-legend {
+  --badge-size: 240px;
+  width: 260px;
+  height: 260px;
+  max-width: 100%;
+}
+
+.rank-reveal-legend .reward-badge-large {
+  max-width: 100%;
+  object-fit: contain;
+}
+
 .rank-reveal-title {
   color: #086bad;
 }
