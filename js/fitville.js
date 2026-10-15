@@ -234,8 +234,8 @@
     // Achievement UI and tracking are isolated from the main app coordinator.
     const { TOTAL_LEVEL_RANKS, ACHIEVEMENTS, achievementStats, earnedAchievements,
       unseenAchievements, updateCollectionBadge, expandedAchievementCategories,
-      renderCollections, markAchievementViewed, renderNearbyMilestones } = globalThis.FitQuestAchievements.create({
-        SKILLS, SKILL_SYMBOLS, level, checkedCount, day, currentTotalLevel, safeText, save,
+      renderCollections, renderBonusesPanel, markAchievementViewed, renderNearbyMilestones } = globalThis.FitQuestAchievements.create({
+        SKILLS, SKILL_SYMBOLS, level, checkedCount, day, currentTotalLevel, safeText, save, bonusForLevel: skillBonus,
         getState: () => state, isDev: () => developer.active,
       });
 
@@ -840,6 +840,19 @@
     function handleTrackerClick(e) {
       const b = e.target.closest('button');
       if (!b) return;
+      if (b.id === 'bonuses-close') {
+        document.getElementById('bonuses-dialog').close();
+        return;
+      }
+      if (b.id === 'bonuses-open') {
+        syncSharedSave();
+        refreshDayIfNeeded();
+        markAchievementViewed('five-perfect-scores');
+        render(false);
+        document.getElementById('bonuses-content').innerHTML = renderBonusesPanel();
+        document.getElementById('bonuses-dialog').showModal();
+        return;
+      }
       if (b.id === 'journey-close') {
         document.getElementById('journey-dialog').close();
         return;

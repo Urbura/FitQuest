@@ -1,6 +1,6 @@
 globalThis.FitQuestAchievements = {
   create(context) {
-    const { SKILLS, SKILL_SYMBOLS, level, checkedCount, day, currentTotalLevel, safeText, save, getState, isDev } = context;
+    const { SKILLS, SKILL_SYMBOLS, level, checkedCount, day, currentTotalLevel, safeText, save, getState, isDev, bonusForLevel } = context;
     const state = new Proxy({}, { get: (_, key) => getState()[key], set: (_, key, value) => { getState()[key] = value; return true; } });
     // Collections: achievements are derived from existing levels and check-in history.
     // Only the list of viewed badge IDs is saved; earned achievements cannot be lost.
@@ -157,7 +157,7 @@ globalThis.FitQuestAchievements = {
       }).join('') + '</div>';
     }
     function achievementInReach(stats) {
-      const upcoming = ACHIEVEMENTS.map(achievement => ({
+      const upcoming = ACHIEVEMENTS.filter(a => a.id !== 'five-perfect-scores').map(achievement => ({
         achievement, progress: achievementProgress(achievement, stats),
       })).filter(({ achievement, progress }) => progress < achievement.goal);
       upcoming.sort((a, b) =>
@@ -172,16 +172,40 @@ globalThis.FitQuestAchievements = {
         '<progress max="' + achievement.goal + '" value="' + progress +
         '" aria-label="' + safeText(achievement.name) + ' progress"></progress><small>View nearby milestones ›</small></div></button>';
     }
+    function renderMedalCounter(stats, unseen) {
+      return '<button type="button" class="medal-counter" id="bonuses-open" aria-haspopup="dialog" aria-controls="bonuses-dialog" aria-label="' +
+        stats.perfectDayMedals + ' Five for Five medals. View active bonuses">' +
+        '<img src="assets/icons/achievement-five-for-five.svg" alt="" width="32" height="38">' +
+        '<span>×' + stats.perfectDayMedals + '</span>' +
+        (unseen.has('five-perfect-scores') ? '<span class="medal-new" aria-label="New medal"></span>' : '') + '</button>';
+    }
+    function renderBonusesPanel() {
+      const stats = achievementStats();
+      const paid = Number.isInteger(state.fiveForFivePaidMilestones) && state.fiveForFivePaidMilestones >= 0
+        ? state.fiveForFivePaidMilestones : Math.floor(stats.perfectDayMedals / 5);
+      const remaining = Math.max(0, (paid + 1) * 5 - stats.perfectDayMedals);
+      const active = SKILLS.map((skill, i) => ({ name: skill.name, xp: bonusForLevel(stats.levels[i]) }))
+        .filter(skill => skill.xp > 0);
+      return '<h3>Active skill bonuses</h3>' +
+        (active.length ? '<ul class="active-bonuses">' + active.map(skill =>
+          '<li><strong>' + safeText(skill.name) + '</strong><span>+' + skill.xp + ' XP</span></li>').join('') +
+          '</ul><p class="muted">Added to check-ins rated 1–5. A 0 rating earns 0 XP.</p>' :
+          '<p>No skill bonuses unlocked yet. Reach Level 10 in a skill to earn +1 XP on its check-ins rated 1–5.</p>') +
+        '<h3>Five for Five</h3><p><strong>' + stats.perfectDayMedals + ' medals earned</strong></p>' +
+        '<p>Earn a medal by rating all five skills 5/5 on the same day.</p>' +
+        '<p>Every 5 medals awards <strong>+5 XP to each skill</strong>, automatically. This is a one-time reward for each set of 5 medals.</p>' +
+        '<p class="muted">' + remaining + ' more medal' + (remaining === 1 ? '' : 's') + ' to the next reward.</p>';
+    }
     function renderCollections() {
       const stats = achievementStats(), earned = earnedAchievements(), unseen = new Set(unseenAchievements());
       return '<section class="card collections"><button class="back-button" data-tab="dashboard">← Back</button>' +
-        '<h2 class="collections-heading"><img src="assets/icons/collection-trophy.svg?v=20261014-lowered" alt="" width="36" height="36">Collections</h2><p><strong>' + earned.length + ' / ' + ACHIEVEMENTS.length +
+        '<div class="collections-toolbar"><h2 class="collections-heading"><img src="assets/icons/collection-trophy.svg?v=20261014-lowered" alt="" width="36" height="36">Collections</h2>' + renderMedalCounter(stats, unseen) + '</div><p><strong>' + earned.length + ' / ' + ACHIEVEMENTS.length +
         '</strong> achievements unlocked</p><progress max="' + ACHIEVEMENTS.length + '" value="' + earned.length +
         '" aria-label="Collection completion"></progress>' +
         (isDev() ? '<p class="muted">Developer preview. Click badges to test notifications; your normal save is unchanged.</p>' : '') +
         achievementInReach(stats) +
         ['Consistency', 'Levels', 'Personal Bests', 'Skills'].map((category, index) => {
-          const achievements = ACHIEVEMENTS.filter(a => a.category === category);
+          const achievements = ACHIEVEMENTS.filter(a => a.category === category && a.id !== 'five-perfect-scores');
           const unlockedCount = achievements.filter(a => achievementProgress(a, stats) >= a.goal).length;
           const newCount = achievements.filter(a => unseen.has(a.id)).length;
           const expanded = expandedAchievementCategories.has(category);
@@ -197,11 +221,9 @@ globalThis.FitQuestAchievements = {
             const tag = unlocked ? 'button' : 'div';
             return '<' + tag + (unlocked ? ' type="button" data-view-achievement="' + a.id + '"' : '') + ' class="achievement ' + (unlocked ? 'unlocked' : 'locked') + '">' +
               '<span class="achievement-symbol" aria-hidden="true">' +
-              (a.id === 'five-perfect-scores' ? "<svg class=\"five-for-five-medal\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 120\" role=\"img\" aria-label=\"Five for Five medal\"><path d=\"M23 7H47L53 44 39 52Z\" fill=\"#2576c7\" stroke=\"#163b77\" stroke-width=\"4\" stroke-linejoin=\"round\"/>\n  <path d=\"M53 7H77L62 52 47 44Z\" fill=\"#66c4f5\" stroke=\"#163b77\" stroke-width=\"4\" stroke-linejoin=\"round\"/>\n  <path d=\"M47 8H53L55 43 49 48Z\" fill=\"#c5eaff\"/>\n  <circle cx=\"50\" cy=\"76\" r=\"38\" fill=\"#a55b13\" stroke=\"#38280f\" stroke-width=\"5\"/>\n  <circle cx=\"50\" cy=\"74\" r=\"33\" fill=\"#f5bb37\" stroke=\"#ffe28a\" stroke-width=\"4\"/>\n  <path d=\"M50 42 59 61 80 64 65 80 69 101 50 91 31 101 35 80 20 64 41 61Z\" fill=\"#e89418\" stroke=\"#59340f\" stroke-width=\"4\" stroke-linejoin=\"round\"/>\n  <path d=\"M50 47 57 65 75 66 61 79 65 95 50 86 35 95 39 79 25 66 43 65Z\" fill=\"#ffe070\" stroke=\"#f9bd38\" stroke-width=\"2\" stroke-linejoin=\"round\"/>\n  <path d=\"M50 62 60 72 50 84 40 72Z\" fill=\"#c93639\" stroke=\"#7d1c27\" stroke-width=\"3\" stroke-linejoin=\"round\"/>\n  <path d=\"M50 64 56 72 50 77 45 71Z\" fill=\"#ff8b84\"/>\n  <path d=\"M30 13H40L44 34 38 30Z\" fill=\"#8ad6ff\" opacity=\".85\"/>\n  <path d=\"M62 12H70L60 35 56 31Z\" fill=\"#d9f6ff\" opacity=\".8\"/>\n  <path d=\"M28 71Q29 56 42 50\" fill=\"none\" stroke=\"#fff5bf\" stroke-width=\"3\" stroke-linecap=\"round\" opacity=\".85\"/>\n  <path d=\"M62 54Q72 58 76 68\" fill=\"none\" stroke=\"#ffe49a\" stroke-width=\"2\" stroke-linecap=\"round\" opacity=\".8\"/>\n  <path d=\"M35 66L43 64 47 53\" fill=\"none\" stroke=\"#fff8c9\" stroke-width=\"2.5\" stroke-linecap=\"round\"/>\n  <path d=\"M57 82L62 77 64 85\" fill=\"none\" stroke=\"#fff1aa\" stroke-width=\"2\" stroke-linecap=\"round\"/>\n  <path d=\"M47 68L50 65 52 69\" fill=\"none\" stroke=\"#ffe6de\" stroke-width=\"2\" stroke-linecap=\"round\"/>\n  <path d=\"M29 61 39 55M67 55 73 62\" stroke=\"#fff2b0\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n</svg>" :
-                '<img src="assets/icons/' + (unlocked || a.id === 'all-skills-50' ? achievementBadge(a) : 'collection-locked') +
-                '.svg?v=20261014-star-position" alt="" width="56" height="56">') + '</span>' +
+              '<img src="assets/icons/' + (unlocked || a.id === 'all-skills-50' ? achievementBadge(a) : 'collection-locked') +
+                '.svg?v=20261014-star-position" alt="" width="56" height="56"></span>' +
               '<div><strong>' + safeText(a.name) + '</strong>' +
-               (a.id === 'five-perfect-scores' && unlocked ? ' <span class="perfect-day-medal-count" aria-label="' + stats.perfectDayMedals + ' Five for Five medals earned">×' + stats.perfectDayMedals + ' medals</span>' : '') +
                (isNew ? ' <span class="achievement-new">New</span>' : '') + '<small>' + safeText(a.description) +
               '</small><progress max="' + a.goal + '" value="' + Math.min(a.goal, progress) +
               '" aria-label="' + safeText(a.name) + ' progress"></progress><small>' +
@@ -218,6 +240,6 @@ globalThis.FitQuestAchievements = {
     }
 
 
-    return { TOTAL_LEVEL_RANKS, ACHIEVEMENTS, achievementStats, earnedAchievements, unseenAchievements, updateCollectionBadge, expandedAchievementCategories, renderCollections, markAchievementViewed, nearbyLevelAchievements, renderNearbyMilestones };
+    return { TOTAL_LEVEL_RANKS, ACHIEVEMENTS, achievementStats, earnedAchievements, unseenAchievements, updateCollectionBadge, expandedAchievementCategories, renderCollections, renderBonusesPanel, markAchievementViewed, nearbyLevelAchievements, renderNearbyMilestones };
   }
 };

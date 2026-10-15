@@ -33,6 +33,7 @@ function fixture() {
   let today = '2026-10-14';
   const achievements = context.globalThis.FitQuestAchievements.create({
     SKILLS: config.skills,
+    bonusForLevel: xp.bonusForLevel,
     SKILL_SYMBOLS: ['moon', 'salad', 'stretching', 'run', 'barbell'],
     level: xp.levelForXP,
     checkedCount: entry => entry.scores.filter(s => s !== null).length,
@@ -101,7 +102,7 @@ test('perfect day requires five scores of exactly 5 and medals count each perfec
   f.addDay('2026-10-14', [5, 5, 5, 5, 5]);
   assert.ok(f.achievements.earnedAchievements().includes('five-perfect-scores'));
   assert.equal(f.achievements.achievementStats().perfectDayMedals, 1);
-  assert.match(f.achievements.renderCollections(), /×1 medals/);
+  assert.match(f.achievements.renderCollections(), /×1<\/span>/);
 });
 
 test('notification caps at 9+ and viewing is idempotent', () => {
@@ -149,4 +150,36 @@ test('nearby milestones include only locked level goals within three levels, nea
   f.setLevel(0, 7);
   assert.match(f.achievements.renderNearbyMilestones(), /3 levels away/);
   assert.match(f.achievements.renderCollections(), /data-nearby-milestones/);
+});
+
+test('Five for Five lives in the Collections toolbar rather than the Skills rows', () => {
+  const f = fixture();
+  let html = f.achievements.renderCollections();
+  assert.match(html, /collections-toolbar/);
+  assert.match(html, /id="bonuses-open"/);
+  assert.match(html, /×0<\/span>/);
+  assert.doesNotMatch(html, /data-view-achievement="five-perfect-scores"/);
+  f.addDay('2026-10-14', [5,5,5,5,5]);
+  html = f.achievements.renderCollections();
+  assert.match(html, /×1<\/span>/);
+  assert.match(html, /class="medal-new"/);
+  assert.ok(f.achievements.earnedAchievements().includes('five-perfect-scores'));
+  f.achievements.markAchievementViewed('five-perfect-scores');
+  assert.doesNotMatch(f.achievements.renderCollections(), /class="medal-new"/);
+});
+
+test('bonus details distinguish active skill XP from repeatable medal payouts', () => {
+  const f = fixture();
+  assert.match(f.achievements.renderBonusesPanel(), /No skill bonuses unlocked/);
+  f.setLevel(0,10);
+  f.setLevel(4,40);
+  let html = f.achievements.renderBonusesPanel();
+  assert.match(html, /Sleep<\/strong><span>\+1 XP/);
+  assert.match(html, /Strength<\/strong><span>\+4 XP/);
+  assert.match(html, /one-time reward for each set of 5 medals/);
+  f.addDay('2026-10-14', [5,5,5,5,5]);
+  assert.match(f.achievements.renderBonusesPanel(), /4 more medals/);
+  // Editing away a previous medal must not promise a duplicate paid reward.
+  f.state.fiveForFivePaidMilestones = 1;
+  assert.match(f.achievements.renderBonusesPanel(), /9 more medals/);
 });

@@ -11,7 +11,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="FitQuest" />
-    <link rel="stylesheet" href="css/fitville.css?v=20261015-rank-up" />
+    <link rel="stylesheet" href="css/fitville.css?v=20261015-medal-counter" />
   </head>
   <body>
     <header>
@@ -110,6 +110,10 @@
       <div class="row"><h2 id="journey-heading">Your Journey</h2><button id="journey-close" class="popup-close" aria-label="Close your journey">×</button></div>
       <div id="journey-content"></div>
     </dialog>
+    <dialog id="bonuses-dialog" aria-labelledby="bonuses-heading">
+      <div class="row"><h2 id="bonuses-heading">Active bonuses</h2><button id="bonuses-close" class="popup-close" aria-label="Close active bonuses">×</button></div>
+      <div id="bonuses-content"></div>
+    </dialog>
     <div id="notice" role="status"></div>
     <nav aria-label="Main navigation">
       <button data-tab="collections" title="Collections"><img class="collections-icon" src="assets/icons/collection-trophy.svg?v=20261014-lowered" alt="" width="30" height="30" /><span class="collection-count" hidden></span>Collections</button>
@@ -119,11 +123,11 @@
     <script src="js/progression.js?v=20261008-progression"></script>
     <script src="js/storage.js?v=20261014-two-swaps"></script>
     <script src="js/intro.js?v=20261013-intro-module"></script>
-    <script src="js/achievements.js?v=20261014-lowered-trophy"></script>
+    <script src="js/achievements.js?v=20261015-medal-counter"></script>
     <script src="js/save-manager.js?v=20261015-module"></script>
     <script src="js/developer.js?v=20261015-module"></script>
     <script src="js/celebrations.js?v=20261015-rank-up"></script>
     <script src="js/pwa.js?v=20261015-offline"></script>
-    <script src="js/fitville.js?v=20261015-rank-up"></script>
+    <script src="js/fitville.js?v=20261015-medal-counter"></script>
   </body>
 </html>

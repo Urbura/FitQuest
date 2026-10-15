@@ -1175,6 +1175,7 @@ header nav .collections-icon {
 }
 
 .achievement-in-reach strong {
+  color: #203c33;
   font-size: 14px;
 }
 
@@ -1411,29 +1412,6 @@ body.tracker-home .star-xp,body.tracker-home .star-level,body.tracker-home .star
   font-size: 22px;
 }
 
-.collections .perfect-day-medal-count {
-  display: inline-block;
-  margin-left: 6px;
-  padding: 2px 7px;
-  border: 1px solid #d6a435;
-  border-radius: 999px;
-  background: #fff2c6;
-  color: #62420a;
-  font-size: 12px;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.collections .achievement-symbol .five-for-five-medal {
-  display: block;
-  width: 48px;
-  height: 54px;
-  max-width: 100%;
-  max-height: 100%;
-  overflow: visible;
-  flex-shrink: 0;
-}
-
 button.achievement-in-reach {
   width: 100%;
   text-align: left;
@@ -1612,7 +1590,66 @@ button.achievement-in-reach {
   min-height: 44px;
 }
 
+/* Collections summary and the repeatable Five for Five medal counter. */
+.collections-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.medal-counter {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  min-height: 48px;
+  padding: 5px 9px;
+  border: 1px solid #d6a435;
+  background: #fff2c6;
+  color: #62420a;
+  font-weight: 700;
+}
+
+.medal-counter img {
+  display: block;
+  object-fit: contain;
+}
+
+.medal-new {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #d93636;
+}
+
+#bonuses-dialog {
+  text-align: left;
+  border-color: #80cfff;
+  padding: 20px;
+}
+
+#bonuses-dialog h3 { margin-top: 16px; }
+
+.active-bonuses {
+  list-style: none;
+  padding: 0;
+}
+
+.active-bonuses li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #c9e5ff;
+}
+
 .collections-heading {
+  margin: 0;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -2187,11 +2224,6 @@ header nav button[data-tab="settings"] .settings-icon {
   .intro-demo-highlight {
     padding: 5px;
     margin: 5px auto;
-  }
-
-  .collections .achievement-symbol .five-for-five-medal {
-    width: 30px;
-    height: 32px;
   }
 
   .intro-practice p {

@@ -168,3 +168,7 @@ Before release, test an online visit, Settings offline-ready status, installatio
 ## Rank celebrations
 
 Crossing a configured rank milestone through a check-in or quest uses the existing celebration queue. `js/celebrations.js` renders the rank name and new badge; CSS provides the brief badge reveal and glow. Existing reduced-motion rules disable the animation and fireworks. Corrections retain their existing behaviour: levels and badges refresh without replaying celebrations.
+
+## Collections medal counter
+
+Five for Five keeps its existing achievement ID and XP rules, but displays as a counter in the Collections toolbar rather than a Skills row. Opening it clears its new-achievement notification and shows active skill check-in bonuses, medal totals, and progress to the next automatic +5 XP reward for each skill. Paid medal milestones remain authoritative when ratings are corrected.
