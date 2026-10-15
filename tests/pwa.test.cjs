@@ -17,7 +17,7 @@ function worker() {
   const context = vm.createContext({ URL, Request, Response, Set,
     self: { registration: { scope }, clients: { async claim() { claimed = true; } },
       addEventListener: (name, handler) => { handlers[name] = handler; } },
-    caches: { async open() { return cache; }, async keys() { return ['unrelated-cache', 'fitquest-shell-old', 'fitquest-shell-20261015-v4']; },
+    caches: { async open() { return cache; }, async keys() { return ['unrelated-cache', 'fitquest-shell-old', 'fitquest-shell-20261015-v5']; },
       async delete(name) { deleted.push(name); } },
     fetch: async () => { if (!network) throw Error('offline'); return new Response('network'); },
   });
@@ -65,7 +65,7 @@ test('cached navigation and versioned badges work with the network unavailable',
   const w = worker(); await w.lifecycle('install');
   assert.equal(await w.fetchFile('./?dev', { mode: 'navigate' }), 'cached:/FitQuest/index.html');
   assert.equal(await w.fetchFile('assets/icons/rank-gold.svg?v=badge'), 'cached:/FitQuest/assets/icons/rank-gold.svg');
-  assert.ok((await w.fetchFile('js/fitville.js?v=20261015-medal-counter')).includes('fitville.js'));
+  assert.ok((await w.fetchFile('js/fitville.js?v=20261015-tutorial-replay')).includes('fitville.js'));
 });
 
 test('worker leaves other apps, unknown versions and non-GET requests alone', async () => {
