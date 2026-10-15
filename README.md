@@ -26,6 +26,9 @@ Use http://localhost:8000/?dev for developer mode. It previews skill and Total L
 | `js/config.js` | Editable skills, titles, colours, progression settings, rewards, backgrounds, and reset settings |
 | `js/progression.js` | Pure XP, level, bonus, Total Level, and reward-selection calculations |
 | `js/storage.js` | Reads and validates saved progress, including compatibility with older check-in history |
+| `manifest.webmanifest` | Installation name, scope, display mode, and app icons |
+| `sw.js` | Versioned offline app cache and update lifecycle |
+| `js/pwa.js` | Installation prompt, offline readiness, and Settings help |
 | `js/save-manager.js` | Browser save loading/writing, recovery protection, and synchronization between tabs |
 | `js/developer.js` | Developer preview controls, session backups, and restoring original progress |
 | `js/intro.js` | Welcome and practice screens |
@@ -35,6 +38,7 @@ Use http://localhost:8000/?dev for developer mode. It previews skill and Total L
 | `assets/icons/` | Local SVG icons and their licensing information |
 | `tests/tracker.test.cjs` | Progression, check-ins, corrections, quests, and save validation |
 | `tests/achievements.test.cjs` | Achievement unlocks, notifications, and collection rendering |
+| `tests/pwa.test.cjs` | Manifest, icon dimensions, cache coverage, offline requests, and cache cleanup |
 | `tests/save-manager.test.cjs` | Save writes, recovery, conflicts between tabs, and blocked device storage |
 | `tests/developer.test.cjs` | Developer session backups, restore/exit, and blocked session storage |
 | `.github/workflows/deploy-pages.yml` | Runs checks, then deploys GitHub Pages |
@@ -45,7 +49,7 @@ To understand saves: start with `js/storage.js` for **reading and checking** sav
 
 ## Where to edit
 
-Start with **js/config.js** for names, titles, rewards, colours, or balancing. Scripts load in this order: `config.js`, `progression.js`, `storage.js`, `intro.js`, `achievements.js`, `save-manager.js`, `developer.js`, then `fitville.js`.
+Start with **js/config.js** for names, titles, rewards, colours, or balancing. Scripts load in this order: `config.js`, `progression.js`, `storage.js`, `intro.js`, `achievements.js`, `save-manager.js`, `developer.js`, `pwa.js`, then `fitville.js`.
 
 ### Change a reward title
 
@@ -103,6 +107,8 @@ node --check js/achievements.js
 node --check js/save-manager.js
 node --check js/developer.js
 node --check js/fitville.js
+node --check js/pwa.js
+node --check sw.js
 node --test tests/*.test.cjs
 ```
 
@@ -145,3 +151,13 @@ In the browser, use `FitQuestProgression.createProgression(FitQuestConfig)`. Eac
 ## CSS maintenance
 
 Edit the existing component rule instead of appending a second override. Base styles come first, followed by one block for each viewport condition (600px, 480px, 420px, and 350px widths; short screens; landscape; reduced motion; and narrow landscape). More specific landscape exceptions stay after the general landscape block. The header uses flex layout; its stats and navigation wrappers use `display: contents`. Keep safe-area padding, 44px touch targets, and intentional `vh`/`dvh` fallbacks when adjusting layouts.
+
+## Installation and offline access
+
+Open FitQuest online and wait until Settings says **Available offline on this device**. Where supported, use the Settings install button or the browser's Install app option. On iPhone, use Safari → Share → Add to Home Screen. Browser installation menus and availability vary; verify on target devices. Installation does not create an account or cloud synchronization. If an installed app starts with separate storage, use file export/import to transfer progress.
+
+The manifest and worker use relative paths so GitHub Pages project paths work. `sw.js` precaches the app HTML, versioned scripts/CSS, manifest, and all local visual assets. Once installation succeeds, those files can load without a network connection; check-ins still use local browser storage. Clearing site data or browser eviction can remove cached files and progress, so downloaded backups remain useful.
+
+For each release that changes a cached file, update `CACHE_NAME` in `sw.js` and update `APP_FILES` for renamed/new files or changed script/CSS version queries. The cache-coverage tests check references in `index.html`. An incomplete precache fails installation rather than activating a partial release. Updates wait until all existing app windows close; reopen online to fetch an update, then close all FitQuest windows and reopen to use it. The worker never forces a reload and cleans up only caches with the FitQuest cache prefix. It does not modify localStorage.
+
+Before release, test an online visit, Settings offline-ready status, installation, offline reopening and check-in, and export/import on actual iPhone and Android devices. Also verify an update with an existing saved profile. Automated worker tests simulate the cache API and do not replace browser/device checks.

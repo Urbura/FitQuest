@@ -636,7 +636,7 @@
       render(false);
     }
     function renderSettings() {
-      return '<button class="back-button" data-tab="dashboard">← Back to Dashboard</button><section class="card tools"><h2>⚙ Settings</h2><p class="muted">Progress stays in this browser. Export before switching devices or clearing browser data.</p><button id="export">Export FitQuest backup</button><p><label>Import FitQuest backup<br><input id="import" type="file" accept=".json,application/json" style="max-width:100%;margin-top:10px" aria-label="Import FitQuest backup"></label></p><button id="restart" class="restart wide">Reset tracker progress</button></section>';
+      return '<button class="back-button" data-tab="dashboard">← Back to Dashboard</button><section class="card tools"><h2>⚙ Settings</h2><p class="muted">Progress stays in this browser. Export before switching devices or clearing browser data.</p><button id="export">Export FitQuest backup</button><p><label>Import FitQuest backup<br><input id="import" type="file" accept=".json,application/json" style="max-width:100%;margin-top:10px" aria-label="Import FitQuest backup"></label></p><button id="restart" class="restart wide">Reset tracker progress</button></section><section class="card"><h3>Install and offline access</h3><p id="offline-status" role="status">Preparing offline access.</p><button id="install-app" hidden>Install FitQuest</button><p id="install-help" class="muted"></p><p class="muted">Progress stays on this device. Keep a backup before clearing browser data or switching devices.</p></section>';
     }
     function renderScreen() {
       if (introStep >= 0) return introScreen();
@@ -662,6 +662,7 @@
             : '<p class="card">Device saving is unavailable. Use Settings to export a backup before closing this page.</p>';
       html += renderScreen();
       document.getElementById('view').innerHTML = html;
+      globalThis.FitQuestPWA?.refresh();
       renderedDay = day();
       scheduleDailyReset();
       if (persist) save();
