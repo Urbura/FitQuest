@@ -454,7 +454,7 @@
       const dialog = document.getElementById('level-dialog');
       if (!dialog.open) dialog.showModal();
       document.getElementById('level-next').focus();
-      fireworks(item.legend ? 7 : 4);
+      fireworks(item.legend ? 1 : 4);
     }
     function fireworks(burstCount = 4) {
       const field = document.getElementById('fireworks');

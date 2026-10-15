@@ -1697,6 +1697,21 @@ header nav button[data-tab="settings"] .settings-icon {
 .rank-reveal-legend .reward-badge-large {
   max-width: 100%;
   object-fit: contain;
+  animation: legend-arrive .6s ease-out both;
+}
+
+.rank-reveal-legend::before {
+  animation: legend-glow .8s ease-out both;
+}
+
+@keyframes legend-arrive {
+  from { opacity: 0; transform: translateY(8px) scale(.92); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes legend-glow {
+  from { opacity: 0; transform: scale(.9); }
+  to { opacity: .45; transform: scale(1); }
 }
 
 .rank-reveal-title {

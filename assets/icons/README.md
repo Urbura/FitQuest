@@ -20,3 +20,5 @@ The 3/7/14/30-day streak medals share a red ribbon, flame emblem, and numbered f
 Personal Bests use original achievement-specific artwork: New Weekly Best has a gold trophy and calendar, while On the Rise has a silver-and-green crest with ascending steps and an upward arrow.
 
 Active Days medals share a green ribbon, calendar/check emblem, and numbered face, progressing from bronze to crowned platinum at 100 days. Their deterministic source is `scripts/generate-active-day-medals.py`; the final tier retains the filename `achievement-platinum.svg`.
+
+The refined Legend badge keeps the crown, central star, one wing layer, and all five skill medallions. Its reveal uses a soft glow, a gentle scale-up, and one fireworks burst. Reduced-motion preferences disable these effects.

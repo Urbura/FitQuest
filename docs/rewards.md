@@ -10,7 +10,7 @@ Collections shows a collapsed **Achievements in reach** disclosure with up to th
 
 ## FitQuest Legend
 
-The hidden `fitquest-legend` achievement requires every other registered achievement, including the hidden all-skills mastery medal. Completionist entries are excluded from their own requirement to avoid circular evaluation. Five for Five requires its first medal, rather than an unlimited repeat count. Legend enters Collections only when earned, uses `assets/icons/achievement-legend.png`, and triggers a dedicated gold-and-blue badge reveal with extended fireworks. The saved `legendCelebrated` flag prevents repeat celebrations after reopening or restoring the same save. Developer previews never set that flag. Existing qualifying profiles receive the reveal on their next normal render.
+The hidden `fitquest-legend` achievement requires every other registered achievement, including the hidden all-skills mastery medal. Completionist entries are excluded from their own requirement to avoid circular evaluation. Five for Five requires its first medal, rather than an unlimited repeat count. Legend enters Collections only when earned, uses `assets/icons/achievement-legend.png`, and triggers a dedicated gold-and-blue badge reveal with a brief, single fireworks burst. The saved `legendCelebrated` flag prevents repeat celebrations after reopening or restoring the same save. Developer previews never set that flag. Existing qualifying profiles receive the reveal on their next normal render.
 
 ## Five for Five
 
@@ -19,3 +19,5 @@ The medal appears as a Collections toolbar counter. Opening it shows active skil
 ## Secret rewards
 
 All Skills Level 50 and FitQuest Legend are excluded from locked rows, nearby previews, and visible achievement totals until earned. Keep their existing IDs when changing artwork or presentation.
+
+The refined Legend badge keeps the crown, central star, one wing layer, and all five skill medallions. Its reveal uses a soft glow, a gentle scale-up, and one fireworks burst. Reduced-motion preferences disable these effects.
