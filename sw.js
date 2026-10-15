@@ -2,7 +2,7 @@
 // Updates wait for existing windows to close; never mix releases in an open session.
 'use strict';
 const CACHE_PREFIX = 'fitquest-shell-';
-const CACHE_NAME = CACHE_PREFIX + '20261015-v23';
+const CACHE_NAME = CACHE_PREFIX + '20261015-v24';
 const APP_FILES = [
   "./",
   "index.html",
@@ -12,12 +12,12 @@ const APP_FILES = [
   "assets/app/icon-dev-180.png",
   "assets/app/icon-dev-192.png",
   "assets/app/icon-dev-512.png",
-  "css/fitville.css?v=20261015-header-level-only",
+  "css/fitville.css?v=20261015-larger-consistency",
   "js/config.js?v=20261015-rank-scenery",
   "js/progression.js?v=20261008-progression",
   "js/storage.js?v=20261014-two-swaps",
   "js/intro.js?v=20261013-intro-module",
-  "js/achievements.js?v=20261015-first-check-fix",
+  "js/achievements.js?v=20261015-larger-consistency",
   "js/save-manager.js?v=20261015-module",
   "js/developer.js?v=20261015-visible-test-tools",
   "js/celebrations.js?v=20261015-legend",
