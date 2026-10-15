@@ -26,6 +26,7 @@ Use http://localhost:8000/?dev for developer mode. It previews skill and Total L
 | `js/config.js` | Editable skills, titles, colours, progression settings, rewards, backgrounds, and reset settings |
 | `js/progression.js` | Pure XP, level, bonus, Total Level, and reward-selection calculations |
 | `js/storage.js` | Reads and validates saved progress, including compatibility with older check-in history |
+| `js/save-manager.js` | Browser save loading/writing, recovery protection, and synchronization between tabs |
 | `js/developer.js` | Developer preview controls, session backups, and restoring original progress |
 | `js/intro.js` | Welcome and practice screens |
 | `js/achievements.js` | Achievement tracking and collection screens |
@@ -34,16 +35,17 @@ Use http://localhost:8000/?dev for developer mode. It previews skill and Total L
 | `assets/icons/` | Local SVG icons and their licensing information |
 | `tests/tracker.test.cjs` | Progression, check-ins, corrections, quests, and save validation |
 | `tests/achievements.test.cjs` | Achievement unlocks, notifications, and collection rendering |
+| `tests/save-manager.test.cjs` | Save writes, recovery, conflicts between tabs, and blocked device storage |
 | `tests/developer.test.cjs` | Developer session backups, restore/exit, and blocked session storage |
 | `.github/workflows/deploy-pages.yml` | Runs checks, then deploys GitHub Pages |
 
 The older `fitville` filenames remain valid and are intentional. Visible app branding is FitQuest.
 
-To understand saves: start with `js/storage.js` for **reading and checking** saved data. The browser storage key (`fitville-v1`) and the save/write synchronization logic still live in `js/fitville.js`. Do not rename the key or reorder the skills array: either change could disconnect existing progress.
+To understand saves: start with `js/storage.js` for **reading and checking** saved data. The browser storage key (`fitville-v1`) remains in `js/fitville.js`; loading, writing, and synchronization live in `js/save-manager.js`. The main coordinator responds to save outcomes by updating dialogs and notices. Do not rename the key or reorder the skills array: either change could disconnect existing progress.
 
 ## Where to edit
 
-Start with **js/config.js** for names, titles, rewards, colours, or balancing. Scripts load in this order: `config.js`, `progression.js`, `storage.js`, `intro.js`, `achievements.js`, `developer.js`, then `fitville.js`.
+Start with **js/config.js** for names, titles, rewards, colours, or balancing. Scripts load in this order: `config.js`, `progression.js`, `storage.js`, `intro.js`, `achievements.js`, `save-manager.js`, `developer.js`, then `fitville.js`.
 
 ### Change a reward title
 
@@ -98,6 +100,7 @@ node --check js/progression.js
 node --check js/storage.js
 node --check js/intro.js
 node --check js/achievements.js
+node --check js/save-manager.js
 node --check js/developer.js
 node --check js/fitville.js
 node --test tests/*.test.cjs
@@ -105,7 +108,7 @@ node --test tests/*.test.cjs
 
 Checks cover XP thresholds, Total Levels, rewards, duplicate check-ins, reset boundaries, weekly counts, bonus XP, completion messages, save validation, configuration consistency, achievement notifications, and developer backup/restore protection.
 
-Progression tests import `createProgression(config)` from `js/progression.js` directly. Its functions do not depend on a browser, storage, or mutable tracker state. Integration tests load the production configuration, progression, storage, achievements, developer tools, and tracker code in an isolated environment. The tests are grouped by topic and each `test('description', ...)` states the behavior it expects. `assert.equal` checks an exact value; `assert.throws` checks that invalid data is rejected. The tracker exposes a small test-only hook (`__fitQuestTestHook`) when the isolated test environment provides it. This avoids rewriting application source code. In normal browser use, the hook is absent and startup proceeds normally. As the application is split into modules, prefer direct module tests over adding more test hooks.
+Progression tests import `createProgression(config)` from `js/progression.js` directly. Its functions do not depend on a browser, storage, or mutable tracker state. Integration tests load the production configuration, progression, storage, achievements, save manager, developer tools, and tracker code in an isolated environment. The tests are grouped by topic and each `test('description', ...)` states the behavior it expects. `assert.equal` checks an exact value; `assert.throws` checks that invalid data is rejected. The tracker exposes a small test-only hook (`__fitQuestTestHook`) when the isolated test environment provides it. This avoids rewriting application source code. In normal browser use, the hook is absent and startup proceeds normally. As the application is split into modules, prefer direct module tests over adding more test hooks.
 
 The single workflow in `.github/workflows/deploy-pages.yml` checks JavaScript syntax and runs all test files on every branch push, pull requests targeting `main`, and manual runs. Deployment requires passing checks and a run on `main`; feature branches and pull requests do not deploy. These logic checks do not replace phone-screen visual testing.
 
@@ -121,7 +124,7 @@ Both normal loading and backup imports use `readSave()` from `js/storage.js`. Up
 
 Run the automated checks and preview the normal dashboard and developer mode. Test the check-in and celebration dialogs on a small screen. If you change a CSS file, script, or asset, update its version suffix in `index.html` (or its referencing module) so browsers request the new file.
 
-Developer tools now live in their own module, with explicit callbacks for reading and restoring app state. They own preview state and session backups; the main coordinator blocks normal save writes during previews. Future refactoring should separate save coordination and UI rendering while retaining behaviour and save compatibility.
+Developer tools now live in their own module, with explicit callbacks for reading and restoring app state. They own preview state and session backups; the main coordinator blocks normal save writes during previews. Save coordination now lives in `js/save-manager.js`, which receives storage access and explicit functions for reading or replacing app state. It returns outcomes such as `saved`, `paused`, or `conflict-loaded`; UI rendering stays in the main coordinator. Future refactoring should separate screen rendering while retaining behaviour and save compatibility.
 
 ## Progression module
 

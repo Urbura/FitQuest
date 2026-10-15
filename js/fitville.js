@@ -43,35 +43,29 @@
     }
     // Save parsing and compatibility checks live in storage.js.
     const { readSave } = globalThis.FitQuestStorage.createStorage(CONFIG);
-    // Load and protect saved progress
-    let state = fresh(),
-      storageOK = true,
-      storageLoaded = false,
-      startupReady = false,
-      rejectedSave = null,
-      lastSavedRaw = null;
-    try {
-      const raw = localStorage.getItem(KEY);
-      lastSavedRaw = raw;
-      storageLoaded = true;
-      if (raw !== null) {
-        rejectedSave = raw;
-        state = readSave(raw);
-        rejectedSave = null;
-      }
-    } catch (err) {
-      storageOK = false;
-    }
+    let state = fresh();
+    const saves = globalThis.FitQuestSaveManager.create({
+      // Resolve localStorage inside operations so restricted browsers can still start.
+      storage: {
+        getItem: key => localStorage.getItem(key),
+        setItem: (key, value) => localStorage.setItem(key, value),
+      },
+      key: KEY, readSave, fresh,
+      getState: () => state,
+      setState: value => { state = value; },
+      isPreview: () => developer.active,
+    });
+    saves.loadInitial();
     const developer = globalThis.FitQuestDeveloper.create({
       SKILLS, MAX_LEVEL, MIN_TOTAL_LEVEL, MAX_TOTAL_LEVEL, XP, level,
       getState: () => state,
       setState: value => { state = value; },
       fresh, readSave,
-      rejectSave: raw => { rejectedSave = raw; storageOK = false; },
+      rejectSave: saves.reject,
       showDashboard: () => { tab = 'dashboard'; },
       render, notify, totalSkillLevel, totalReward, syncSharedSave,
     });
-    developer.backupOriginal(storageLoaded, lastSavedRaw);
+    developer.backupOriginal(saves.loaded, saves.lastRaw);
     // Daily reset and shared-save synchronization
     let tab = 'dashboard',
       timer,
@@ -156,66 +150,27 @@
       document.querySelectorAll('.star-reset').forEach((el) => (el.textContent = resetText()));
     }
 
-    // Explicit import/reset may replace a save only after its current snapshot is readable.
+    // Save coordination returns outcomes; this layer handles dialogs and notices.
     function prepareReplacement() {
-      try {
-        lastSavedRaw = localStorage.getItem(KEY);
-        storageLoaded = true;
-        return true;
-      } catch (err) {
-        storageOK = false;
-        notify('Device saving is blocked. Export your progress before reloading.');
-        return false;
-      }
+      if (saves.prepareReplacement()) return true;
+      notify('Device saving is blocked. Export your progress before reloading.');
+      return false;
     }
     function syncSharedSave() {
-      if (developer.active || rejectedSave !== null || !storageLoaded) return false;
-      try {
-        const raw = localStorage.getItem(KEY);
-        if (raw === lastSavedRaw) return false;
-        if (raw === null) {
-          state = fresh();
-        } else {
-          let incoming;
-          try {
-            incoming = readSave(raw);
-          } catch (err) {
-            rejectedSave = raw;
-            lastSavedRaw = raw;
-            storageOK = false;
-            return true;
-          }
-          state = incoming;
-        }
-        lastSavedRaw = raw;
-        storageOK = true;
-        document.getElementById('check-dialog').close();
-        return true;
-      } catch (err) {
-        storageOK = false;
-        return false;
-      }
+      const outcome = saves.synchronize();
+      if (outcome === 'loaded') document.getElementById('check-dialog').close();
+      return outcome === 'loaded' || outcome === 'rejected';
     }
     function save() {
-      if (!startupReady) return false;
-      if (developer.active || rejectedSave !== null || !storageLoaded) return false;
-      try {
-        if (localStorage.getItem(KEY) !== lastSavedRaw) {
-          syncSharedSave();
-          render(false);
-          notify('Progress changed in another tab. The latest save has been loaded.');
-          return false;
-        }
-        const raw = JSON.stringify(state);
-        if (raw !== lastSavedRaw) localStorage.setItem(KEY, raw);
-        lastSavedRaw = raw;
-        storageOK = true;
-        return true;
-      } catch (e) {
-        storageOK = false;
+      const outcome = saves.write();
+      if (outcome === 'conflict-loaded') document.getElementById('check-dialog').close();
+      if (outcome === 'conflict' || outcome === 'conflict-loaded') {
+        render(false);
+        notify('Progress changed in another tab. The latest save has been loaded.');
+      } else if (outcome === 'unavailable') {
         notify('Saving is unavailable. Keep this page open or export a backup.');
-        return false;
       }
+      return outcome === 'saved';
     }
 
     function dismissNotice() {
@@ -700,9 +655,9 @@
 
       document.querySelector('nav').hidden = false;
       let html =
-        rejectedSave !== null
+        saves.rejectedRaw !== null
           ? '<section class="card" role="alert"><h2>Your original save is protected</h2><p>We could not read your saved progress. Automatic saving is paused so the original data stays untouched.</p><p>Export the original save first. Then use Settings to import a working backup or explicitly reset progress. Check-ins made while recovery is pending are temporary.</p><button id="export">Export original save</button><button data-tab="settings">Recovery settings</button></section>'
-          : storageOK
+          : saves.available
             ? ''
             : '<p class="card">Device saving is unavailable. Use Settings to export a backup before closing this page.</p>';
       html += renderScreen();
@@ -994,7 +949,7 @@
         )
           return;
         if (!prepareReplacement()) return;
-        rejectedSave = null;
+        saves.clearRejected();
         state = fresh();
         tab = 'dashboard';
         const persisted = save();
@@ -1036,14 +991,14 @@
       if (b.id === 'export') {
         save();
         const url = URL.createObjectURL(
-          new Blob([rejectedSave !== null ? rejectedSave : JSON.stringify(state, null, 2)], {
+          new Blob([saves.rejectedRaw !== null ? saves.rejectedRaw : JSON.stringify(state, null, 2)], {
             type: 'application/json',
           }),
         );
         const a = document.createElement('a');
         a.href = url;
         a.download =
-          (rejectedSave !== null ? 'fitquest-original-save-' : 'fitquest-save-') +
+          (saves.rejectedRaw !== null ? 'fitquest-original-save-' : 'fitquest-save-') +
           day() +
           '.json';
         a.click();
@@ -1088,7 +1043,7 @@
         if (!confirm('Replace progress on this device with this backup?')) return;
         if (!prepareReplacement()) return;
         state = s;
-        rejectedSave = null;
+        saves.clearRejected();
         const persisted = save();
         render(false);
         notify(
@@ -1278,13 +1233,13 @@
     });
     setupNoticeDismissal();
     developer.setupUI();
-    if (!developer.active && rejectedSave === null) initializeFiveForFiveRewards();
+    if (!developer.active && saves.rejectedRaw === null) initializeFiveForFiveRewards();
     try {
       // Do not interrupt returning players or developer/test sessions.
-      if (!developer.active && rejectedSave === null && !lastSavedRaw && localStorage.getItem(INTRO_KEY) !== '1') introStep = 0;
+      if (!developer.active && saves.rejectedRaw === null && !saves.lastRaw && localStorage.getItem(INTRO_KEY) !== '1') introStep = 0;
     } catch (_) { /* Continue directly to the dashboard if storage is unavailable. */ }
     render(false);
-    startupReady = true;
+    saves.markReady();
     save();
     setInterval(() => {
       if (document.visibilityState === 'visible') {
