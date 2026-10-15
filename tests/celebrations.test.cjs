@@ -12,7 +12,7 @@ test('every rank celebration names the rank and displays its new badge', () => {
     assert.ok(html.includes('Congratulations!'));
     assert.ok(html.includes('You reached ' + rank + '!'));
     assert.ok(html.includes('rank-' + rank.toLowerCase() + '.svg'));
-    assert.ok(html.includes('class="rank-reveal"'));
+    assert.ok(html.includes('class="rank-reveal rank-reveal-' + rank.toLowerCase()));
     assert.ok(html.includes('Total Level ' + level));
   }
 });

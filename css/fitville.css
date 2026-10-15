@@ -1653,13 +1653,14 @@ header nav button[data-tab="settings"] .settings-icon {
 
 /* Rank badges arrive with a brief glow and settle into place. */
 .rank-reveal {
+  --badge-size: 104px;
   position: relative;
   display: grid;
   place-items: center;
   isolation: isolate;
   margin: 16px auto;
-  width: 156px;
-  height: 156px;
+  width: 176px;
+  height: 176px;
 }
 
 .rank-reveal::before {
@@ -1673,12 +1674,20 @@ header nav button[data-tab="settings"] .settings-icon {
 }
 
 .rank-reveal .reward-badge-large {
-  width: 124px;
-  height: 124px;
+  width: var(--badge-size);
+  height: var(--badge-size);
   margin: 0;
   filter: drop-shadow(0 6px 8px #98671b40);
   animation: rank-arrive .85s cubic-bezier(.2,.8,.3,1.15) both;
 }
+
+.rank-reveal-silver { --badge-size: 112px; }
+.rank-reveal-gold { --badge-size: 120px; }
+.rank-reveal-platinum { --badge-size: 128px; }
+.rank-reveal-emerald { --badge-size: 136px; }
+.rank-reveal-diamond { --badge-size: 144px; }
+.rank-reveal-master { --badge-size: 152px; }
+.rank-reveal-grandmaster { --badge-size: 160px; }
 
 .rank-reveal-title {
   color: #086bad;

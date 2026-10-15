@@ -273,7 +273,7 @@
     function rewardBadge(milestone, large = false) {
       const rank = TOTAL_LEVEL_RANKS[milestone.level];
       if (rank) return '<img class="reward-badge' + (large ? ' reward-badge-large' : '') +
-        '" src="assets/icons/rank-' + rank.toLowerCase() + '.svg?v=20261014-star-position" alt="" width="40" height="40">';
+        '" src="assets/icons/rank-' + rank.toLowerCase() + '.svg?v=20261015-evolved-ranks" alt="" width="40" height="40">';
       const path = BADGE_PATHS[milestone.badge] || BADGE_PATHS.dumbbell;
       return '<svg class="reward-badge' + (large ? ' reward-badge-large' : '') +
         '" viewBox="0 0 40 40" aria-hidden="true" focusable="false">' +
@@ -552,7 +552,7 @@
         if (rankButton) rankButton.hidden = !rank;
         rankBadge.hidden = !rank;
         if (rank) {
-          rankBadge.src = 'assets/icons/rank-' + rank.toLowerCase() + '.svg?v=20261014-star-position';
+          rankBadge.src = 'assets/icons/rank-' + rank.toLowerCase() + '.svg?v=20261015-evolved-ranks';
           rankBadge.alt = rank + ' rank';
           rankBadge.title = rank + ' rank';
         }
@@ -832,7 +832,7 @@
         const unlocked = total >= Number(threshold);
         const status = rank === current ? 'Current rank' : unlocked ? 'Unlocked' : 'Locked';
         return '<article class="rank-progression-item' + (rank === current ? ' current-rank' : '') + '">' +
-          '<img src="assets/icons/rank-' + rank.toLowerCase() + '.svg?v=20261014-star-position" alt="" width="48" height="48">' +
+          '<img src="assets/icons/rank-' + rank.toLowerCase() + '.svg?v=20261015-evolved-ranks" alt="" width="48" height="48">' +
           '<div><strong>' + safeText(rank) + '</strong><small>Total Level ' + threshold + '</small></div>' +
           '<small class="rank-status">' + status + '</small></article>';
       }).join('') + '</div>';

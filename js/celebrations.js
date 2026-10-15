@@ -9,7 +9,7 @@
         return '<span class="anime-tag">RANK UP</span>' +
           '<h2 id="level-heading"><span class="congratulations">Congratulations!</span>' +
           'You reached ' + safeText(rank) + '!</h2>' +
-          '<div class="rank-reveal">' + rewardBadge(milestone, true) + '</div>' +
+          '<div class="rank-reveal rank-reveal-' + rank.toLowerCase() + '">' + rewardBadge(milestone, true) + '</div>' +
           '<h3 class="rank-reveal-title">' + safeText(rank) + ' rank unlocked</h3>' +
           '<p>Total Level ' + l + ' · Your new badge is now in the top bar.</p>';
       }

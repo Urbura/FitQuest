@@ -152,7 +152,7 @@ globalThis.FitQuestAchievements = {
           a.kind === 'all' ? 'Every skill within ' + remaining + ' level' + (remaining === 1 ? '' : 's') :
           remaining + ' level' + (remaining === 1 ? '' : 's') + ' away';
         return '<article class="nearby-milestone"><img src="assets/icons/' + achievementBadge(a) +
-          '.svg?v=20261014-star-position" alt="" width="48" height="48"><div><strong>' + safeText(a.name) +
+          '.svg?v=20261015-evolved-ranks" alt="" width="48" height="48"><div><strong>' + safeText(a.name) +
           '</strong><small>' + safeText(requirement) + '</small><small>' + distance + '</small></div></article>';
       }).join('') + '</div>';
     }
@@ -212,7 +212,7 @@ globalThis.FitQuestAchievements = {
             return '<' + tag + (unlocked ? ' type="button" data-view-achievement="' + a.id + '"' : '') + ' class="achievement ' + (unlocked ? 'unlocked' : 'locked') + '">' +
               '<span class="achievement-symbol" aria-hidden="true">' +
               '<img src="assets/icons/' + (unlocked || a.id === 'all-skills-50' ? achievementBadge(a) : 'collection-locked') +
-                '.svg?v=20261014-star-position" alt="" width="56" height="56"></span>' +
+                '.svg?v=20261015-evolved-ranks" alt="" width="56" height="56"></span>' +
               '<div><strong>' + safeText(a.name) + '</strong>' +
                (isNew ? ' <span class="achievement-new">New</span>' : '') + '<small>' + safeText(a.description) +
               '</small><progress max="' + a.goal + '" value="' + Math.min(a.goal, progress) +
