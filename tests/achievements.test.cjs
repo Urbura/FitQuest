@@ -283,3 +283,13 @@ test('all-skills tiers have distinct artwork and the final medal remains secret'
   f.setLevel(0,49);
   assert.doesNotMatch(f.achievements.renderCollections(),/achievement-grandmaster|All Skills Level 50/);
 });
+
+test('generic single-skill milestones use their own tiered crests', () => {
+  const f=fixture();completeLegendProfile(f);
+  const rows=[...f.achievements.renderCollections().matchAll(/<button type="button" data-view-achievement="([^"]+)"[\s\S]*?<\/button>/g)];
+  for(const n of [10,25,50]){
+    const row=rows.find(m=>m[1]==='skill-any-'+n)[0];
+    assert.ok(row.includes('achievement-skill-'+n+'.svg'));
+  }
+  assert.ok(f.achievements.earnedAchievements().includes('fitquest-legend'));
+});

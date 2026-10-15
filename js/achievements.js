@@ -124,6 +124,7 @@ globalThis.FitQuestAchievements = {
       }
     }
     function achievementBadge(achievement) {
+      if (achievement.kind === 'skill') return 'achievement-skill-' + achievement.goal;
       if (achievement.id === 'days-7') return 'achievement-active-7';
       if (achievement.id === 'streak-30') return 'achievement-streak-30';
       if (achievement.kind === 'completionist') return 'achievement-legend';

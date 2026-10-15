@@ -12,3 +12,5 @@ Distributed under the MIT License. See LICENSE.txt.
 `achievement-active-7.svg` and `achievement-streak-30.svg` are original FitQuest medal variants with numbered faces, distinct ribbon colours, and laurel/flame details.
 
 All-skills Levels 20, 30, 40 and 50 have progressively ornamented original SVG medals. Regenerate with `python scripts/generate-all-skills-badges.py`; Level 50 keeps the existing `achievement-grandmaster.svg` filename and remains hidden until earned.
+
+Generic Skill Level 10, 25, and 50 achievements use original numbered bronze, silver, and crowned gold crests. Regenerate with `python scripts/generate-skill-medals.py`.
