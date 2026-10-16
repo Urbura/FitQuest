@@ -1061,6 +1061,7 @@ header nav .collections-icon {
   height: 30px;
   object-fit: contain;
   margin: auto;
+  transform: translateY(2px);
 }
 
 .collections .achievement-symbol img {
