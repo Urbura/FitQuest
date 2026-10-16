@@ -94,10 +94,12 @@
       (!next ? '<p class="muted">All Total Level rewards unlocked!</p>' : '');
   }
 
-  function renderSettings({ developerMode = false } = {}) {
+  function renderSettings({ developerMode = false, soundEnabled = true } = {}) {
     return `<button class="back-button" data-tab="dashboard">← Back to Dashboard</button>
 <section class="card tools">
 <h2>⚙ Settings</h2>
+<button id="sound-toggle" class="wide" aria-pressed="${soundEnabled}">Sound effects: ${soundEnabled ? 'On' : 'Off'}</button>
+<p class="muted">Soft check-in and reward chimes. No background music.</p>
 <p class="muted">Progress stays in this browser. Export before switching devices or clearing browser data.</p>
 <button id="export">Export FitQuest backup</button>
 <p>

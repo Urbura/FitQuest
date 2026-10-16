@@ -422,6 +422,7 @@
       const item = celebrations[0];
       if (!item) return;
       const { i, l, total, milestone } = item;
+      globalThis.FitQuestSounds?.play(item.legend ? 'legend' : total && milestone ? 'rank' : 'level');
       if (item.legend) {
         document.getElementById('level-content').innerHTML = celebrationMarkup.legend();
       } else if (total) {
@@ -585,7 +586,7 @@
     function renderScreen() {
       if (introStep >= 0) return introScreen();
       if (tab === 'collections') return renderCollections();
-      if (tab === 'settings') return globalThis.FitQuestScreens.renderSettings({ developerMode: developer.active });
+      if (tab === 'settings') return globalThis.FitQuestScreens.renderSettings({ developerMode: developer.active, soundEnabled: globalThis.FitQuestSounds?.isEnabled() ?? true });
       return dashboard();
     }
 
@@ -746,6 +747,7 @@
       );
       if (bonus) { reward('+5 XP to all five skills'); notify('🏅 Five for Five! ' + bonus.medals + ' medals · +5 XP to every skill!'); }
       const newBadges = developer.active ? [] : earnedAchievements().filter(id => !earnedBefore.includes(id));
+      if (persisted && !developer.active) globalThis.FitQuestSounds?.play(bonus ? 'medal' : newBadges.length ? 'achievement' : 'checkin');
       if (newBadges.length) notify('🏆 ' + newBadges.length + ' achievement' + (newBadges.length === 1 ? '' : 's') + ' unlocked! Check Collections at the top.');
     }
 
@@ -775,6 +777,12 @@
     function handleTrackerClick(e) {
       const b = e.target.closest('button');
       if (!b) return;
+      if (b.id === 'sound-toggle') {
+        const sounds = globalThis.FitQuestSounds;
+        if (sounds) { sounds.setEnabled(!sounds.isEnabled()); sounds.unlock(); sounds.play('checkin'); }
+        render(false);
+        return;
+      }
       if (b.id === 'bonuses-close') {
         document.getElementById('bonuses-dialog').close();
         return;
@@ -948,6 +956,7 @@
         render(false);
         notify(SKILLS[result.skill].name + (completed ? ' · +2 XP' : ' · quest reward removed') +
           (developer.active ? ' · preview only.' : persisted ? ' · saved.' : ' · temporary; export a backup.'));
+        if (result.firstCompletion && persisted && !developer.active) globalThis.FitQuestSounds?.play('checkin');
         if (result.firstCompletion && celebrations.length) showLevel();
       };
       if (typeof navigator !== 'undefined' && navigator.locks)
