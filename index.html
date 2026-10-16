@@ -87,6 +87,18 @@
           <button class="wide" id="dev-set-history">Apply Test History</button>
           <p class="muted">Weekly bests are calculated from the generated history.</p>
         </details>
+        <details><summary>Preview sounds</summary>
+          <p class="muted">Hear each cue without changing XP, achievements, or your save. Turn Sound effects on in Settings to listen.</p>
+          <div class="choices">
+            <button type="button" data-dev-sound="checkin">Check-in</button>
+            <button type="button" data-dev-sound="level">Skill level-up</button>
+            <button type="button" data-dev-sound="achievement">Achievement</button>
+            <button type="button" data-dev-sound="medal">Five for Five</button>
+            <button type="button" data-dev-sound="rank">Rank-up</button>
+            <button type="button" data-dev-sound="legend">FitQuest Legend</button>
+          </div>
+          <p id="dev-sound-status" class="muted" role="status"></p>
+        </details>
         <details><summary>Play reward celebrations</summary>
           <label for="dev-rank-preview">Rank</label>
           <select id="dev-rank-preview">
@@ -143,7 +155,7 @@
     <script src="js/intro.js?v=20261013-intro-module"></script>
     <script src="js/achievements.js?v=20261015-larger-personal-bests"></script>
     <script src="js/save-manager.js?v=20261015-module"></script>
-    <script src="js/developer.js?v=20261015-visible-test-tools"></script>
+    <script src="js/developer.js?v=20261016-sound-preview"></script>
     <script src="js/celebrations.js?v=20261015-legend"></script>
     <script src="js/screens.js?v=20261016-soft-sounds"></script>
     <script src="js/pwa.js?v=20261015-offline"></script>

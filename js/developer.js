@@ -108,6 +108,18 @@
         writeSession(DEV_BACKUP, raw === null ? '__EMPTY__' : raw);
     }
     function handleClick(b) {
+      if (DEV && ['checkin', 'level', 'achievement', 'medal', 'rank', 'legend'].includes(b.dataset.devSound)) {
+        const sounds = root.FitQuestSounds;
+        const status = document.getElementById('dev-sound-status');
+        if (!sounds?.isEnabled()) {
+          if (status) status.textContent = 'Sound effects are off. Turn them on in Settings to preview.';
+          return true;
+        }
+        sounds.unlock();
+        sounds.play(b.dataset.devSound);
+        if (status) status.textContent = 'Playing ' + b.textContent + '.';
+        return true;
+      }
       if (DEV && b.id === 'dev-set-history') {
         const values = Object.fromEntries(['activeDays', 'streakDays', 'perfectDays'].map(key =>
           [key, Number(document.getElementById('dev-' + key).value)]));
