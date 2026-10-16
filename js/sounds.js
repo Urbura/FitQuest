@@ -2,13 +2,16 @@
 (function (root) {
   'use strict';
   const KEY = 'fitquest-sound-enabled';
+  // Each step is [frequency or chord, start offset, decay].
+  // A chord shares one note's gain budget rather than adding volume.
   const cues = {
-    checkin: [1, [523.25, 659.25]],
-    achievement: [2, [659.25, 783.99, 1046.5]],
-    medal: [3, [523.25, 659.25, 783.99, 1046.5]],
-    level: [4, [523.25, 659.25, 880]],
-    rank: [5, [523.25, 659.25, 783.99, 1046.5]],
-    legend: [6, [659.25, 783.99, 1046.5, 1318.51]],
+    checkin: [1, [[440, 0, .13], [554.37, .15, .18]]],
+    achievement: [2, [[783.99, 0, .13], [659.25, .15, .13], [987.77, .30, .20]]],
+    medal: [3, [[659.25, 0, .11], [783.99, .13, .11], [659.25, .26, .11], [1046.5, .39, .22]]],
+    level: [4, [[523.25, 0, .14], [698.46, .16, .14], [880, .32, .23]]],
+    rank: [5, [[392, 0, .12], [523.25, .14, .12], [659.25, .28, .12],
+      [783.99, .42, .12], [[523.25, 659.25, 1046.5], .56, .38]]],
+    legend: [6, [[659.25, 0, .13], [783.99, .15, .13], [1046.5, .30, .13], [1318.51, .45, .26]]],
   };
   function create(env) {
     let enabled = true, context, pending, timer, voices = [], generation = 0;
@@ -46,19 +49,22 @@
         try {
           stop();
           const start = context.currentTime + .01;
-          cues[selected][1].forEach((frequency, index) => {
-            if (generation !== token) return;
-            const oscillator = context.createOscillator(), gain = context.createGain();
-            const at = start + index * .085;
-            oscillator.type = 'sine';
-            oscillator.frequency.value = frequency;
-            gain.gain.setValueAtTime(0, at);
-            gain.gain.linearRampToValueAtTime(.035, at + .012);
-            gain.gain.exponentialRampToValueAtTime(.0001, at + .22);
-            oscillator.connect(gain); gain.connect(context.destination);
-            oscillator.onended = () => { oscillator.disconnect(); gain.disconnect(); voices = voices.filter(v => v !== oscillator); };
-            voices.push(oscillator);
-            oscillator.start(at); oscillator.stop(at + .24);
+          cues[selected][1].forEach(([pitch, offset, decay]) => {
+            const pitches = Array.isArray(pitch) ? pitch : [pitch];
+            pitches.forEach(frequency => {
+              if (generation !== token) return;
+              const oscillator = context.createOscillator(), gain = context.createGain();
+              const at = start + offset;
+              oscillator.type = 'sine';
+              oscillator.frequency.value = frequency;
+              gain.gain.setValueAtTime(0, at);
+              gain.gain.linearRampToValueAtTime(.035 / pitches.length, at + .018);
+              gain.gain.exponentialRampToValueAtTime(.0001, at + decay);
+              oscillator.connect(gain); gain.connect(context.destination);
+              oscillator.onended = () => { oscillator.disconnect(); gain.disconnect(); voices = voices.filter(v => v !== oscillator); };
+              voices.push(oscillator);
+              oscillator.start(at); oscillator.stop(at + decay + .01);
+            });
           });
         } catch (_) { stop(); }
       }, 50); // Collapse simultaneous rewards to their most significant cue.
