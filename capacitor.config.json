@@ -1,0 +1,6 @@
+{
+  "appId": "ca.theprairiebison.fitquest",
+  "appName": "FitQuest",
+  "webDir": "dist",
+  "ios": { "contentInset": "never" }
+}
