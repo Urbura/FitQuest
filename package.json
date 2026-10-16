@@ -1,0 +1,33 @@
+{
+  "name": "fitquest",
+  "version": "1.0.0",
+  "description": "A lightweight, mobile-friendly habit RPG. Rate Sleep, Diet, Stretching, Cardio, and Strength to earn XP, ranks, and achievements. Supports home-screen installation and offline use after the initial download.",
+  "scripts": {
+    "test": "node --test tests/*.test.cjs",
+    "build:native": "node scripts/build-native.cjs",
+    "ios:sync": "npm run build:native && cap sync ios",
+    "ios:open": "cap open ios"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Urbura/FitQuest.git"
+  },
+  "keywords": [],
+  "author": "",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Urbura/FitQuest/issues"
+  },
+  "homepage": "https://github.com/Urbura/FitQuest#readme",
+  "dependencies": {
+    "@capacitor/core": "^8.5.3",
+    "@capacitor/ios": "^8.5.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.5.3"
+  },
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  }
+}
