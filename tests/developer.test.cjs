@@ -6,10 +6,11 @@ const { join } = require('node:path');
 const vm = require('node:vm');
 
 function fixture({ search = '?dev', blocked = false } = {}) {
-  const session = new Map(), nodes = new Map(), previews = [];
+  const session = new Map(), nodes = new Map(), previews = [], sounds = [];
   let state = { skills: Array.from({ length: 5 }, () => ({ xp: 7 })) };
   let rejected = null, replacedURL = null;
   const context = vm.createContext({
+    FitQuestSounds: { isEnabled: () => true, unlock() {}, play: kind => sounds.push(kind) },
     URL, URLSearchParams, Map,
     location: { search, href: 'https://example.com/?dev&keep=1#skills' },
     history: { replaceState: (_, __, url) => { replacedURL = url; } },
@@ -35,7 +36,7 @@ function fixture({ search = '?dev', blocked = false } = {}) {
     day: () => '2026-10-15', previewCelebration: item => previews.push(item),
     totalSkillLevel: () => 5, totalReward: () => ({ title: 'Rank' }),
   });
-  return { developer, session, previews, node: id => nodes.get(id), setInput: (id, value) => { nodes.set(id, { value }); }, state: () => state, rejected: () => rejected,
+  return { developer, session, previews, sounds, previewSound: kind => developer.handleClick({ dataset: { devSound: kind }, textContent: kind }), node: id => nodes.get(id), setInput: (id, value) => { nodes.set(id, { value }); }, state: () => state, rejected: () => rejected,
     replacedURL: () => replacedURL, click: id => developer.handleClick({ id, dataset: {} }) };
 }
 
@@ -112,4 +113,16 @@ test('Developer Mode always exposes its launcher and Settings can open the panel
   const normal=fixture({search:''});normal.developer.setupUI();
   assert.equal(normal.node('dev-open').hidden,true);
   assert.equal(normal.click('dev-open-settings'),false);
+});
+
+test('sound previews play all six cues without changing progress or session backup', () => {
+  const f=fixture();
+  const before=JSON.stringify(f.state()), backup=JSON.stringify([...f.session]);
+  for (const kind of ['checkin','level','achievement','medal','rank','legend']) assert.equal(f.previewSound(kind),true);
+  assert.deepEqual(f.sounds,['checkin','level','achievement','medal','rank','legend']);
+  assert.equal(JSON.stringify(f.state()),before);
+  assert.equal(JSON.stringify([...f.session]),backup);
+  const normal=fixture({search:''});
+  assert.equal(normal.previewSound('rank'),false);
+  assert.deepEqual(normal.sounds,[]);
 });
