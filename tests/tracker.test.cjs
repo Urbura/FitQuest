@@ -63,6 +63,29 @@ function tracker(now = '2026-10-08T16:00:00Z') {
 
 // XP and level progression
 
+test('central check-in opens all skills and reviews zero ratings without awarding XP', () => {
+  const t = tracker();
+  t.dashboard(); // Initialize the existing daily-reset migration before comparing state.
+  const before = JSON.stringify(t.state());
+  t.openDailyCheck();
+  assert.match(t.dialogHTML(), /0 \/ 5 skills checked in/);
+  assert.equal((t.dialogHTML().match(/data-open-skill=/g) || []).length, 5);
+  assert.equal(JSON.stringify(t.state()), before);
+  assert.match(t.dashboard(), /data-open-checkin/);
+  t.recordCheckIn(4, 0);
+  t.openDailyCheck();
+  assert.match(t.dialogHTML(), /1 \/ 5 skills checked in/);
+  assert.match(t.dialogHTML(), /✓ 0\/5/);
+  for (let i = 0; i < 4; i++) t.recordCheckIn(i, 1);
+  const completed = JSON.stringify(t.state());
+  t.openDailyCheck();
+  assert.match(t.dialogHTML(), /Choose a skill to review or edit/);
+  assert.match(t.dashboard(), /All five skills checked in/);
+  assert.equal(JSON.stringify(t.state()), completed);
+  t.openSkillCheck(4);
+  assert.match(t.dialogHTML(), /Edit today’s rating/);
+});
+
 test('each skill level costs strictly more XP and all boundaries are correct', () => {
   const progression = createProgression(config);
   const { xpThresholds, levelForXP } = progression;
@@ -619,3 +642,4 @@ test('reward animation controls are preview-only and can replay without persisti
   assert.equal(t.queued().length,1);assert.equal(t.queued()[0].legend,true);
   assert.equal(t.state().legendCelebrated,undefined);
 });
+

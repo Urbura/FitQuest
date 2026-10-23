@@ -899,6 +899,10 @@
             : 'Progress reset in this page only. Device saving is unavailable.',
         );
       }
+      if (b.dataset.openCheckin !== undefined) {
+        openDailyCheck();
+        return;
+      }
       if (b.dataset.openSkill !== undefined) {
         openSkillCheck(Number(b.dataset.openSkill));
         return;
@@ -1009,6 +1013,14 @@
       'Mostly met',
       'Goal met',
     ];
+    function openDailyCheck() {
+      document.getElementById('check-content').innerHTML = globalThis.FitQuestScreens.renderDailyCheckin({
+        entry: dailyEntry(), skills: SKILLS, displayOrder: SKILL_DISPLAY_ORDER, skillIcon, safeText,
+      });
+      const dialog = document.getElementById('check-dialog');
+      if (!dialog.open) dialog.showModal();
+    }
+
     function openSkillCheck(i, editing = false, viewingProgress = false) {
       if (!Number.isInteger(i) || i < 0 || i >= SKILLS.length) return;
       const s = SKILLS[i],
@@ -1123,7 +1135,7 @@
         editCheckIn, skillBonus, checkInXP, totalSkillLevel, totalReward,
         TOTAL_REWARDS, weeklyCheckInCount, day, nextReset, nextRewardText,
         queueLevels, queueLegendCelebration, previewCelebration,
-        setPreviewHistory: developer.setHistory, unlockPreviewAchievements: developer.unlockAllAchievements, dashboard, openSkillCheck, totalRewardsPanel, rewardBadge,
+        setPreviewHistory: developer.setHistory, unlockPreviewAchievements: developer.unlockAllAchievements, dashboard, openDailyCheck, openSkillCheck, totalRewardsPanel, rewardBadge,
         dialogHTML: () => document.getElementById('check-content').innerHTML,
         state: () => state,
         setState: (value) => { state = value; },
@@ -1219,3 +1231,4 @@
     if (nav) nav.hidden = true;
   }
 })();
+

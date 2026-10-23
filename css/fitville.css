@@ -495,18 +495,87 @@ body.tracker-home .tracker-intro p {
   top: 51%;
   transform: translate(-50%,-50%);
   text-align: center;
-  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: clamp(80px,23vw,104px);
+  height: clamp(80px,23vw,104px);
+  padding: 6px;
+  border: 2px solid #ffe1a0;
+  border-radius: 50%;
+  background: linear-gradient(150deg,#f8d783,#dca746);
+  color: #203c55;
+  box-shadow: 0 3px 12px #203c5526;
+  cursor: pointer;
+}
+
+.star-summary.is-complete {
+  background: #e1e9e8;
+  border-color: #8aa59c;
+  box-shadow: none;
+}
+
+.star-summary:focus-visible {
+  outline: 3px solid #087bd9;
+  outline-offset: 3px;
+}
+
+.star-summary:hover {
+  filter: brightness(1.04);
 }
 
 .star-summary strong {
   display: block;
-  font-size: 26px;
+  font-size: 23px;
   color: #086bad;
 }
 
 .star-summary span {
+  font-size: 11px;
+  line-height: 1.1;
+  color: #203c55;
+}
+
+.star-summary .central-checkin-title {
+  font-size: 9px;
+}
+
+.daily-checkin-skills {
+  display: grid;
+  gap: 8px;
+}
+
+.daily-checkin-skill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 56px;
+  width: 100%;
+  padding: 8px 12px;
+  text-align: left;
+}
+
+.daily-checkin-skill .skill-symbol {
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  margin: 0;
+}
+
+.daily-checkin-skill .skill-symbol>span {
+  width: 25px;
+  height: 25px;
+}
+
+.daily-checkin-skill strong {
+  flex: 1;
+}
+
+.daily-checkin-skill>span:last-child {
+  white-space: nowrap;
   font-size: 12px;
-  color: #597067;
 }
 
 .star-check {
@@ -2028,9 +2097,16 @@ header nav button[data-tab="settings"] .settings-icon {
     grid-column: 1 / -1;
     grid-row: 1;
     display: flex;
-    align-items: baseline;
+    flex-direction: row;
+    align-items: center;
     justify-content: center;
     gap: 6px;
+    width: auto;
+    height: 44px;
+    min-height: 44px;
+    padding: 5px 12px;
+    border-radius: 24px;
+    justify-self: center;
   }
 
   .star-summary strong {
@@ -2251,3 +2327,4 @@ header nav button[data-tab="settings"] .settings-icon {
     grid-template-columns: 1fr;
   }
 }
+

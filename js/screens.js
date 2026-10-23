@@ -11,9 +11,12 @@
       (complete ? 'Every small step adds up.' : 'Tap a skill and rate your day out of 5.') +
       '</p><p class="next-reward">' +
       safeText(nextReward) +
-      '</p></section><div class="skill-star" aria-label="Five fitness skills"><div class="star-summary" aria-live="polite"><strong>' +
+      '</p></section><div class="skill-star" aria-label="Five fitness skills"><button type="button" class="star-summary' +
+      (complete ? ' is-complete' : '') + '" data-open-checkin aria-haspopup="dialog" aria-controls="check-dialog" aria-label="' +
+      (complete ? 'All five skills checked in. Review today’s ratings.' : 'Daily check-in. ' + doneCount + ' of 5 skills checked in.') +
+      '"><span class="central-checkin-title">Fitness Skills</span><strong>' +
       doneCount +
-      ' / 5</strong><span>checked in</span></div>' +
+      ' / 5</strong><span>' + (complete ? 'Checked In' : 'Check In') + '</span></button>' +
       displayOrder.map((i, position) => {
         const s = skills[i],
           totalXP = skillState[i].xp,
@@ -64,6 +67,20 @@
       }).join('') +
       '</div>' + dailyQuestHTML
     );
+  }
+
+  function renderDailyCheckin({ entry, skills, displayOrder, skillIcon, safeText }) {
+    const doneCount = entry ? entry.scores.filter(Number.isInteger).length : 0;
+    return '<div class="row"><h2 id="check-heading">Daily Check-In</h2>' +
+      '<button id="check-close" class="popup-close" aria-label="Close check-in">×</button></div>' +
+      '<p>' + doneCount + ' / ' + skills.length + ' skills checked in today. ' +
+      (doneCount === skills.length ? 'Choose a skill to review or edit its rating.' : 'Choose a skill to rate your day.') +
+      '</p><div class="daily-checkin-skills">' + displayOrder.map(i => {
+        const done = entry && Number.isInteger(entry.scores[i]);
+        return '<button type="button" class="daily-checkin-skill" data-open-skill="' + i + '">' +
+          skillIcon(i) + '<strong>' + safeText(skills[i].name) + '</strong><span>' +
+          (done ? '✓ ' + entry.scores[i] + '/5' : 'Check In') + '</span></button>';
+      }).join('') + '</div>';
   }
 
   function renderTotalRewards({ current, index, rewards, next, minTotal, maxTotal, preview, rewardBadge, safeText }) {
@@ -149,7 +166,8 @@ ${developerMode ? '<button id="dev-open-settings" class="wide">Open test tools</
         '<small class="rank-status">' + status + '</small></article>';
     }).join('') + '</div>';
   }
-  const screens = { renderDashboard, renderTotalRewards, renderSettings, renderJourney, renderRanks };
+  const screens = { renderDashboard, renderDailyCheckin, renderTotalRewards, renderSettings, renderJourney, renderRanks };
   root.FitQuestScreens = screens;
   if (typeof module !== 'undefined' && module.exports) module.exports = screens;
 })(typeof globalThis !== 'undefined' ? globalThis : this);
+
