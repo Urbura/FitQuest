@@ -48,7 +48,7 @@
           '<strong>' +
           s.name +
           '</strong>' +
-          '<progress class="star-progress" max="1" value="' +
+          '<progress class="star-progress" data-quest-xp="skill-' + i + '" data-xp-level="' + l + '" data-xp-fraction="' + progress + '" max="1" value="' +
           progress +
           '" aria-label="' +
           s.name +

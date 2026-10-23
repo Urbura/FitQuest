@@ -607,6 +607,7 @@
             : '<p class="card">Device saving is unavailable. Use Settings to export a backup before closing this page.</p>';
       html += renderScreen();
       document.getElementById('view').innerHTML = html;
+      globalThis.QuestXPAnimation?.animate(document.getElementById('view'));
       globalThis.FitQuestPWA?.refresh();
       renderedDay = day();
       scheduleDailyReset();
