@@ -69,18 +69,25 @@
     );
   }
 
-  function renderDailyCheckin({ entry, skills, displayOrder, skillIcon, safeText }) {
+  function renderDailyCheckin({ entry, skills, displayOrder, skillIcon, safeText, day }) {
     const doneCount = entry ? entry.scores.filter(Number.isInteger).length : 0;
     return '<div class="row"><h2 id="check-heading">Daily Check-In</h2>' +
       '<button id="check-close" class="popup-close" aria-label="Close check-in">×</button></div>' +
       '<p>' + doneCount + ' / ' + skills.length + ' skills checked in today. ' +
-      (doneCount === skills.length ? 'Choose a skill to review or edit its rating.' : 'Choose a skill to rate your day.') +
+      (doneCount === skills.length ? 'All done! Tap a number to correct a rating.' : 'Tap a number for each skill. Each rating saves immediately.') +
       '</p><div class="daily-checkin-skills">' + displayOrder.map(i => {
         const done = entry && Number.isInteger(entry.scores[i]);
-        return '<button type="button" class="daily-checkin-skill" data-open-skill="' + i + '">' +
-          skillIcon(i) + '<strong>' + safeText(skills[i].name) + '</strong><span>' +
-          (done ? '✓ ' + entry.scores[i] + '/5' : 'Check In') + '</span></button>';
-      }).join('') + '</div>';
+        return '<section class="daily-checkin-skill"><div class="row">' +
+          '<strong id="daily-skill-' + i + '">' + safeText(skills[i].name) + '</strong><span>' +
+          (done ? '✓ ' + entry.scores[i] + '/5' : 'Not checked in') + '</span></div>' +
+          '<div class="daily-checkin-ratings" role="group" aria-labelledby="daily-skill-' + i + '">' +
+          [0, 1, 2, 3, 4, 5].map(score => '<button type="button" id="daily-rate-' + i + '-' + score +
+            '" data-daily-score="' + score + '" data-skill="' + i + '" data-day="' + day +
+            '" aria-pressed="' + Boolean(done && entry.scores[i] === score) + '" aria-label="' +
+            safeText(skills[i].name) + ': ' + score + ' out of 5">' + score + '</button>').join('') +
+          '</div></section>';
+      }).join('') + '</div><p class="muted daily-rating-help">0 = no progress · 5 = goal met. Planned rest can count as meeting your goal.</p>' +
+      '<button type="button" class="wide" data-close-checkin>Done</button>';
   }
 
   function renderTotalRewards({ current, index, rewards, next, minTotal, maxTotal, preview, rewardBadge, safeText }) {

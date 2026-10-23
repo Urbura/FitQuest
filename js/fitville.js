@@ -677,9 +677,9 @@
       state.skills[i].xp += delta;
       return { status: 'updated', delta, state };
     }
-    function submitCorrection(i, score, expectedDay) {
+    function submitCorrection(i, score, expectedDay, keepDailyOpen = false) {
       const result = editCheckIn(i, score, expectedDay);
-      document.getElementById('check-dialog').close();
+      if (!keepDailyOpen) document.getElementById('check-dialog').close();
       if (result.status !== 'updated') {
         notify('This rating could not be changed. Open the skill again to check its current status.');
         return;
@@ -687,6 +687,7 @@
       const persisted = save();
       render(false);
       if (state !== result.state) return;
+      if (keepDailyOpen) openDailyCheck(i, score);
       // Edits refresh levels and rewards without replaying check-in celebrations.
       notify(SKILLS[i].name + ' · corrected to ' + score + '/5 · ' +
         (result.delta > 0 ? '+' : '') + result.delta + ' XP' +
@@ -717,12 +718,12 @@
       });
       return { medals };
     }
-    function submitCheckIn(i, score) {
+    function submitCheckIn(i, score, keepDailyOpen = false) {
       const earnedBefore = developer.active ? [] : earnedAchievements();
       initializeFiveForFiveRewards();
       const result = recordCheckIn(i, score);
       if (result.status === 'invalid') return;
-      document.getElementById('check-dialog').close();
+      if (!keepDailyOpen) document.getElementById('check-dialog').close();
       if (result.status === 'duplicate') {
         notify(SKILLS[i].name + ' is already checked in today.');
         return;
@@ -733,6 +734,7 @@
       render(false);
       // A newer shared save can replace this state during saving.
       if (state !== result.state) return;
+      if (keepDailyOpen) openDailyCheck(i, score);
       if (result.earned > 0) reward('+' + result.earned + ' XP');
       notify(
         SKILLS[i].name +
@@ -915,8 +917,12 @@
         window.scrollTo(0, 0);
         return;
       }
-      if (b.id === 'check-close') {
+      if (b.id === 'check-close' || b.dataset.closeCheckin !== undefined) {
         document.getElementById('check-dialog').close();
+        return;
+      }
+      if (b.dataset.dailyScore !== undefined) {
+        submitDailyRating(Number(b.dataset.skill), Number(b.dataset.dailyScore), b.dataset.day);
         return;
       }
       if (b.dataset.editSkill !== undefined) {
@@ -1013,12 +1019,30 @@
       'Mostly met',
       'Goal met',
     ];
-    function openDailyCheck() {
+    function submitDailyRating(i, score, expectedDay) {
+      if (!Number.isInteger(i) || i < 0 || i >= SKILLS.length ||
+          !Number.isInteger(score) || score < 0 || score > 5) return;
+      if (expectedDay !== day()) {
+        openDailyCheck();
+        notify('A new check-in day has started. Please review your ratings.');
+        return;
+      }
+      const entry = dailyEntry();
+      if (entry && Number.isInteger(entry.scores[i])) {
+        submitCorrection(i, score, expectedDay, true);
+      } else {
+        submitCheckIn(i, score, true);
+      }
+    }
+
+    function openDailyCheck(focusSkill, focusScore) {
       document.getElementById('check-content').innerHTML = globalThis.FitQuestScreens.renderDailyCheckin({
-        entry: dailyEntry(), skills: SKILLS, displayOrder: SKILL_DISPLAY_ORDER, skillIcon, safeText,
+        entry: dailyEntry(), skills: SKILLS, displayOrder: SKILL_DISPLAY_ORDER, skillIcon, safeText, day: day(),
       });
       const dialog = document.getElementById('check-dialog');
       if (!dialog.open) dialog.showModal();
+      if (Number.isInteger(focusSkill) && !document.getElementById('level-dialog').open)
+        document.getElementById('daily-rate-' + focusSkill + '-' + focusScore)?.focus({ preventScroll: true });
     }
 
     function openSkillCheck(i, editing = false, viewingProgress = false) {
@@ -1135,7 +1159,7 @@
         editCheckIn, skillBonus, checkInXP, totalSkillLevel, totalReward,
         TOTAL_REWARDS, weeklyCheckInCount, day, nextReset, nextRewardText,
         queueLevels, queueLegendCelebration, previewCelebration,
-        setPreviewHistory: developer.setHistory, unlockPreviewAchievements: developer.unlockAllAchievements, dashboard, openDailyCheck, openSkillCheck, totalRewardsPanel, rewardBadge,
+        setPreviewHistory: developer.setHistory, unlockPreviewAchievements: developer.unlockAllAchievements, dashboard, openDailyCheck, submitDailyRating, openSkillCheck, totalRewardsPanel, rewardBadge,
         dialogHTML: () => document.getElementById('check-content').innerHTML,
         state: () => state,
         setState: (value) => { state = value; },

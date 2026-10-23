@@ -548,33 +548,40 @@ body.tracker-home .tracker-intro p {
 }
 
 .daily-checkin-skill {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-height: 56px;
   width: 100%;
-  padding: 8px 12px;
+  padding: 8px 0;
   text-align: left;
 }
 
-.daily-checkin-skill .skill-symbol {
-  flex: 0 0 36px;
-  width: 36px;
-  height: 36px;
-  margin: 0;
+.daily-checkin-ratings {
+  display: grid;
+  grid-template-columns: repeat(6,minmax(0,1fr));
+  gap: 5px;
+  margin-top: 6px;
 }
 
-.daily-checkin-skill .skill-symbol>span {
-  width: 25px;
-  height: 25px;
+.daily-checkin-ratings button {
+  min-width: 0;
+  min-height: 44px;
+  padding: 6px 0;
+  background: #edf6ff;
+  color: #203c55;
+  border: 1px solid #9dbad2;
+  border-radius: 10px;
 }
 
-.daily-checkin-skill strong {
-  flex: 1;
+.daily-checkin-ratings button[aria-pressed="true"] {
+  background: #087bd9;
+  border-color: #087bd9;
+  color: white;
 }
 
-.daily-checkin-skill>span:last-child {
+.daily-checkin-skill .row>span {
   white-space: nowrap;
+  font-size: 12px;
+}
+
+.daily-rating-help {
   font-size: 12px;
 }
 

@@ -32,7 +32,7 @@ function tracker(now = '2026-10-08T16:00:00Z') {
   };
   const nodes = new Map();
   const node = (id) => {
-    if (!nodes.has(id)) nodes.set(id, { open: true, addEventListener() {}, focus() {}, showModal() { this.open = true; }, close() { this.open = false; } });
+    if (!nodes.has(id)) nodes.set(id, { open: true, querySelector: () => null, addEventListener() {}, focus() {}, setAttribute() {}, removeAttribute() {}, showModal() { this.open = true; }, close() { this.open = false; } });
     return nodes.get(id);
   };
   const clock = Date.parse(now);
@@ -41,9 +41,14 @@ function tracker(now = '2026-10-08T16:00:00Z') {
     static now() { return clock; }
   }
   const context = vm.createContext({
-    Date: Clock, URLSearchParams, Map, matchMedia: () => ({ matches: true }), localStorage: storage(), sessionStorage: storage(),
+    Date: Clock, URL, URLSearchParams, Map, setTimeout: () => 1, clearTimeout() {}, matchMedia: () => ({ matches: true }), localStorage: storage(), sessionStorage: storage(),
     location: { search: '' },
-    document: { addEventListener() {}, getElementById: node },
+    document: {
+      baseURI: 'https://example.com/FitQuest/',
+      body: { classList: { remove() {}, toggle() {} }, dataset: {}, style: { setProperty() {} }, append() {} },
+      createElement: () => ({ remove() {} }),
+      querySelectorAll: () => [], querySelector: node, addEventListener() {}, getElementById: node,
+    },
     console: { error: (...args) => { throw new Error(args.map(String).join(' ')); } },
   });
   // The application calls this hook before browser startup.
@@ -69,7 +74,7 @@ test('central check-in opens all skills and reviews zero ratings without awardin
   const before = JSON.stringify(t.state());
   t.openDailyCheck();
   assert.match(t.dialogHTML(), /0 \/ 5 skills checked in/);
-  assert.equal((t.dialogHTML().match(/data-open-skill=/g) || []).length, 5);
+  assert.equal((t.dialogHTML().match(/data-daily-score=/g) || []).length, 30);
   assert.equal(JSON.stringify(t.state()), before);
   assert.match(t.dashboard(), /data-open-checkin/);
   t.recordCheckIn(4, 0);
@@ -79,11 +84,38 @@ test('central check-in opens all skills and reviews zero ratings without awardin
   for (let i = 0; i < 4; i++) t.recordCheckIn(i, 1);
   const completed = JSON.stringify(t.state());
   t.openDailyCheck();
-  assert.match(t.dialogHTML(), /Choose a skill to review or edit/);
+  assert.match(t.dialogHTML(), /All done! Tap a number to correct/);
   assert.match(t.dashboard(), /All five skills checked in/);
   assert.equal(JSON.stringify(t.state()), completed);
   t.openSkillCheck(4);
   assert.match(t.dialogHTML(), /Edit today’s rating/);
+});
+
+test('central numeric ratings save immediately, stay in the overview, and correct without duplicate XP', () => {
+  const t = tracker();
+  t.openDailyCheck();
+  const today = t.day();
+  t.submitDailyRating(4, 0, today);
+  assert.match(t.dialogHTML(), /1 \/ 5 skills checked in/);
+  assert.match(t.dialogHTML(), /id="daily-rate-4-0"[^>]*aria-pressed="true"/);
+  assert.equal(t.state().skills[4].xp, 0);
+  t.submitDailyRating(4, 3, today);
+  assert.equal(t.state().skills[4].xp, 3);
+  t.submitDailyRating(4, 3, today);
+  assert.equal(t.state().skills[4].xp, 3);
+  for (let i = 0; i < 4; i++) t.submitDailyRating(i, 2, today);
+  assert.match(t.dialogHTML(), /All done!/);
+  assert.equal(t.journeySummary().checkIns, 5);
+});
+
+test('expired and invalid central ratings cannot change progress', () => {
+  const t = tracker();
+  t.openDailyCheck();
+  const before = JSON.stringify(t.state());
+  t.submitDailyRating(4, 5, '2000-01-01');
+  t.submitDailyRating(4, 6, t.day());
+  t.submitDailyRating(-1, 2, t.day());
+  assert.equal(JSON.stringify(t.state()), before);
 });
 
 test('each skill level costs strictly more XP and all boundaries are correct', () => {
