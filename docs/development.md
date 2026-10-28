@@ -16,7 +16,7 @@ The header, next-reward message, and celebration all use this entry.
 
 ### Change a background
 
-`themeArtwork` maps theme keys to local SVG scenes. `themes` supplies the translucent centre overlay for text contrast. Each `totalRewards` entry selects a theme and supplies its readable `themeName`. Keep milestone entries ordered by level. Regenerate scenery with `python scripts/generate-backgrounds.py`, and rank badges with `python scripts/generate-rank-badges.py`.
+`themeArtwork` maps theme keys to local background assets. The Beginner (`sky`) theme uses the approved anime attic image `assets/backgrounds/beginner-attic-v1.webp`; other ranks retain their SVG scenes. The WebP is an optimized export of the approved artwork, with no content changes. `themes` supplies the translucent centre overlay for text contrast. Each `totalRewards` entry selects a theme and supplies its readable `themeName`. Keep milestone entries ordered by level. Regenerate scenery with `python scripts/generate-backgrounds.py`, and rank badges with `python scripts/generate-rank-badges.py`.
 
 ### Change skill information
 
