@@ -2,7 +2,7 @@
 // Updates wait for existing windows to close; never mix releases in an open session.
 'use strict';
 const CACHE_PREFIX = 'fitquest-shell-';
-const CACHE_NAME = CACHE_PREFIX + '20261028-v37';
+const CACHE_NAME = CACHE_PREFIX + '20261028-v38';
 const APP_FILES = [
   "./",
   "index.html",
@@ -12,7 +12,7 @@ const APP_FILES = [
   "assets/app/icon-dev-180.png",
   "assets/app/icon-dev-192.png",
   "assets/app/icon-dev-512.png",
-  "css/fitville.css?v=20261028-writequest-flow",
+  "css/fitville.css?v=20261028-roomier-controls",
   "js/sounds.js?v=20261016-distinct-melodies",
   "js/config.js?v=20261028-beginner-attic",
   "js/progression.js?v=20261028-writequest-flow",
