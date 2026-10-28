@@ -126,3 +126,24 @@ test('sound previews play all six cues without changing progress or session back
   assert.equal(normal.previewSound('rank'),false);
   assert.deepEqual(normal.sounds,[]);
 });
+
+
+for (const blocked of [false, true]) {
+  test(`Settings entry protects normal progress and previews Beginner with session storage blocked=${blocked}`, () => {
+    const f = fixture({search:'', blocked});
+    const original = JSON.stringify(f.state());
+    assert.equal(f.developer.enter(false, original), false);
+    assert.equal(f.developer.active, false);
+    assert.equal(f.developer.enter(true, original), true);
+    assert.equal(f.developer.active, true);
+    f.developer.setProfileLevels([10,20,30,40,50]);
+    assert.equal(f.click('dev-preview-beginner'), true);
+    assert.equal(f.developer.totalLevel, 5);
+    assert.equal(f.node('dev-tools').hidden, true);
+    assert.equal(f.click('dev-open-settings'), true);
+    assert.equal(f.node('dev-tools').hidden, false);
+    assert.equal(f.click('dev-exit'), true);
+    assert.equal(JSON.stringify(f.state()), original);
+    assert.equal(f.developer.active, false);
+  });
+}

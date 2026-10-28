@@ -781,6 +781,21 @@
     function handleTrackerClick(e) {
       const b = e.target.closest('button');
       if (!b) return;
+      if (b.id === 'dev-enter-settings') {
+        if (syncSharedSave()) {
+          render(false);
+          notify('Progress changed in another tab. Please open Developer Mode again.');
+          return;
+        }
+        if (!save() || !developer.enter(saves.loaded, saves.lastRaw)) {
+          notify('Save your progress or export a backup before opening Developer Mode.');
+          return;
+        }
+        render(false);
+        developer.handleClick({ id: 'dev-open-settings', dataset: {} });
+        notify('Developer Mode opened. Your normal save is protected.');
+        return;
+      }
       if (b.id === 'sound-toggle') {
         const sounds = globalThis.FitQuestSounds;
         if (sounds) { sounds.setEnabled(!sounds.isEnabled()); sounds.unlock(); sounds.play('checkin'); }

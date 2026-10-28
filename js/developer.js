@@ -107,6 +107,16 @@
       if (DEV && readSession(DEV_BACKUP) === null && storageLoaded)
         writeSession(DEV_BACKUP, raw === null ? '__EMPTY__' : raw);
     }
+    // Explicit Settings entry works even if an installed shortcut loses its query string.
+    function enter(storageLoaded, raw) {
+      if (DEV) return true;
+      if (!storageLoaded) return false;
+      DEV = true;
+      backupOriginal(true, raw);
+      devTotalLevel = null;
+      setupDevUI();
+      return true;
+    }
     function handleClick(b) {
       if (DEV && ['checkin', 'level', 'achievement', 'medal', 'rank', 'legend'].includes(b.dataset.devSound)) {
         const sounds = root.FitQuestSounds;
@@ -142,6 +152,15 @@
         devTotalLevel = rank;
         render(false); hideTools();
         previewCelebration({ rank });
+        return true;
+      }
+      if (DEV && b.id === 'dev-preview-beginner') {
+        devTotalLevel = MIN_TOTAL_LEVEL;
+        document.getElementById('dev-total-level').value = MIN_TOTAL_LEVEL;
+        hideTools();
+        showDashboard();
+        render(false);
+        notify('Beginner background preview · your saved progress is unchanged.');
         return true;
       }
       if (DEV && b.id === 'dev-play-legend') {
@@ -262,7 +281,7 @@
     return {
       get active() { return DEV; },
       get totalLevel() { return devTotalLevel; },
-      setupUI: setupDevUI, backupOriginal, handleClick, setProfileLevels, setHistory, unlockAllAchievements,
+      setupUI: setupDevUI, enter, backupOriginal, handleClick, setProfileLevels, setHistory, unlockAllAchievements,
       // Used by the isolated tracker test harness; normal UI uses validated controls.
       preview(value) { DEV = value !== null; devTotalLevel = value; },
     };

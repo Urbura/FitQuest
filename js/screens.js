@@ -134,7 +134,7 @@
 </section>
 <section class="card">
 <h3>Help</h3>
-${developerMode ? '<button id="dev-open-settings" class="wide">Open test tools</button>' : ''}
+${developerMode ? '<button id="dev-open-settings" class="wide">Open test tools</button>' : '<button id="dev-enter-settings" class="wide">Open Developer Mode</button>'}
 <button id="intro-replay" class="wide">Replay tutorial</button>
 <p class="muted">Practise using FitQuest without changing your progress.</p>
 </section>
