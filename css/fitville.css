@@ -822,21 +822,27 @@ header h1 {
 }
 
 header .stats {
-  display: contents;
-  flex-wrap: wrap;
+  display: inline-flex;
+  flex: 0 1 auto;
+  flex-wrap: nowrap;
+  min-width: 0;
+  border: 1px solid #d9f4ff90;
+  border-radius: 999px;
+  background: #07568b55;
+  box-shadow: inset 0 1px 3px #033d6d30;
   justify-content: flex-end;
   margin: 0;
   white-space: nowrap;
   flex-direction: row;
   align-items: center;
-  gap: 6px;
+  gap: 0;
 }
 
 header .stats>:is(span,button) {
-  border: 1px solid #d9f4ff90;
+  border: 0;
   border-radius: 999px;
-  background: #07568b55;
-  box-shadow: inset 0 1px 3px #033d6d30;
+  background: transparent;
+  box-shadow: none;
   font-weight: 700;
   line-height: 16px;
   font-size: 11px;
@@ -1721,8 +1727,7 @@ header #overall-level {
 
 header #header-rank-button {
   flex: 0 0 44px;
-  flex-basis: 52px;
-  width: 52px;
+  width: 44px;
 }
 
 header #journey-open {
@@ -1890,7 +1895,7 @@ header nav button[data-tab="settings"] .settings-icon {
   }
 
   header .stats {
-    gap: 3px;
+    gap: 0;
   }
 
   #header-rank-badge {
