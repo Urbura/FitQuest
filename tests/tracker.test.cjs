@@ -92,7 +92,7 @@ test('one save commits all ratings, corrections replace XP, and repeated saves d
   assert.equal(t.saveDailyCheckin(t.day()), true);
   assert.equal(t.state().skills[4].xp, 3);
   assert.deepEqual(Array.from(t.state().days[t.day()].scores), [0,0,0,0,3]);
-  assert.match(t.dashboard(), /Fitness day complete/);
+  assert.match(t.dashboard(), /class="star-summary is-complete"/);
   t.openDailyCheck();
   assert.equal(t.saveDailyCheckin(t.day()), true);
   assert.equal(t.state().skills[4].xp, 3);
@@ -308,13 +308,15 @@ test('a positive skill completes the fitness day; all-zero ratings leave it open
   const t = tracker();
   assert.match(t.dashboard(), /Your daily check-in/);
   t.recordCheckIn(0, 0);
-  assert.doesNotMatch(t.dashboard(), /Fitness day complete/);
+  assert.doesNotMatch(t.dashboard(), /class="star-summary is-complete"/);
   t.recordCheckIn(4, 1);
-  assert.match(t.dashboard(), /Fitness day complete/);
-  assert.match(t.dashboard(), /Every small step adds up/);
+  assert.match(t.dashboard(), /class="star-summary is-complete"/);
+  assert.match(t.dashboard(), /central-checkmark[^>]*>✓/);
+  assert.match(t.dashboard(), />Checked In</);
+  assert.doesNotMatch(t.dashboard(), /Fitness day complete|Every small step adds up/);
   const tomorrow = tracker('2026-10-09T16:00:00Z');
   tomorrow.setState(tomorrow.readSave(JSON.stringify(t.state())));
-  assert.doesNotMatch(tomorrow.dashboard(), /Fitness day complete/);
+  assert.doesNotMatch(tomorrow.dashboard(), /class="star-summary is-complete"/);
   assert.match(tomorrow.dashboard(), /Your daily check-in/);
 });
 

@@ -5,18 +5,15 @@
     const doneCount = entry ? entry.scores.filter(score => score > 0).length : 0,
       complete = Boolean(entry && entry.scores.some(score => score > 0));
     return (
-      '<section class="tracker-intro" aria-live="polite"><h2>' +
-      (complete ? 'Fitness day complete.' : 'Your daily check-in') +
-      '</h2><p class="muted">' +
-      (complete ? 'Every small step adds up.' : 'One skill is enough. Rate progress toward your own goal.') +
-      '</p><p class="next-reward">' +
-      safeText(nextReward) +
+      '<section class="tracker-intro" aria-live="polite">' +
+      (complete ? '' : '<h2>Your daily check-in</h2><p class="muted">One skill is enough. Rate progress toward your own goal.</p>') +
+      '<p class="next-reward">' + safeText(nextReward) +
       '</p></section><div class="skill-star" aria-label="Five fitness skills"><button type="button" class="star-summary' +
       (complete ? ' is-complete' : '') + '" data-open-checkin aria-haspopup="dialog" aria-controls="check-dialog" aria-label="' +
-      (complete ? 'Fitness day complete. Review today’s ratings.' : 'Daily check-in. ' + doneCount + ' of 5 skills checked in.') +
-      '"><span class="central-checkin-title">Fitness Skills</span><strong>' +
-      doneCount +
-      ' / 5</strong><span>' + (complete ? 'Day Complete' : 'Check In') + '</span></button>' +
+      (complete ? 'Checked in. ' + doneCount + ' of 5 skills. Review today’s ratings.' : 'Daily check-in. ' + doneCount + ' of 5 skills checked in.') +
+      '"><span class="central-checkin-title">Fitness Skills</span>' +
+      (complete ? '<strong class="central-checkmark" aria-hidden="true">✓</strong><span class="central-checkin-status">Checked In</span>' :
+        '<strong>' + doneCount + ' / 5</strong><span>Check In</span>') + '</button>' +
       displayOrder.map((i, position) => {
         const s = skills[i],
           totalXP = skillState[i].xp,

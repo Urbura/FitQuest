@@ -527,9 +527,19 @@ body.tracker-home .tracker-intro p {
 }
 
 .star-summary.is-complete {
-  background: #e1e9e8;
-  border-color: #8aa59c;
-  box-shadow: none;
+  background: linear-gradient(150deg,#ffe9a1,#e6b64f);
+  border-color: #f9d477;
+  box-shadow: 0 0 0 2px #fff1bd80,0 4px 14px #a36d0f33;
+}
+
+.star-summary.is-complete .central-checkmark {
+  color: #207343;
+  font-size: 32px;
+}
+
+.star-summary .central-checkin-status {
+  font-size: 14px;
+  font-weight: 700;
 }
 
 .star-summary:focus-visible {
