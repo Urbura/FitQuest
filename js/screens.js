@@ -7,8 +7,7 @@
     return (
       '<section class="tracker-intro" aria-live="polite">' +
       (complete ? '' : '<h2>Your daily check-in</h2><p class="muted">One skill is enough. Rate progress toward your own goal.</p>') +
-      '<p class="next-reward">' + safeText(nextReward) +
-      '</p></section><div class="skill-star" aria-label="Five fitness skills"><button type="button" class="star-summary' +
+      '</section><div class="skill-star" aria-label="Five fitness skills"><button type="button" class="star-summary' +
       (complete ? ' is-complete' : '') + '" data-open-checkin aria-haspopup="dialog" aria-controls="check-dialog" aria-label="' +
       (complete ? 'Checked in. ' + doneCount + ' of 5 skills. Review today’s ratings.' : 'Daily check-in. ' + doneCount + ' of 5 skills checked in.') +
       '"><span class="central-checkin-title">Fitness Skills</span>' +
