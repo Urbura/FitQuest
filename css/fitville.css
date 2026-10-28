@@ -98,8 +98,9 @@ a {
   color: #28684f;
 }
 
+/* Press feedback must preserve transforms used to position dashboard buttons. */
 button:active {
-  transform: translateY(2px);
+  filter: brightness(.94);
 }
 
 button:focus-visible {
@@ -196,7 +197,7 @@ button {
   color: white;
   cursor: pointer;
   min-height: 44px;
-  transition: transform .15s,background .2s;
+  transition: background .2s;
   box-shadow: 0 3px 0 #183f3520;
   background: #087cd9;
   touch-action: manipulation;
@@ -607,7 +608,7 @@ body.tracker-home .tracker-intro p {
 }
 
 .star-skill:active .skill-symbol {
-  transform: scale(.95);
+  box-shadow: 0 0 0 3px #087bd933;
 }
 
 .star-reset {
@@ -869,7 +870,7 @@ nav button {
   background: radial-gradient(circle at 35% 25%,#f7fdff,#c9eaff 60%,#87c8ee);
   color: #165a88;
   box-shadow: 0 2px 3px #07568b55,inset 0 1px 2px #fff;
-  transition: transform .15s,box-shadow .15s;
+  transition: box-shadow .15s;
 }
 
 nav button span {
@@ -879,7 +880,6 @@ nav button span {
 }
 
 nav button:hover {
-  transform: translateY(-1px);
   box-shadow: 0 3px 7px #07568b55;
 }
 
