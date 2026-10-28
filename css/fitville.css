@@ -455,7 +455,50 @@ body.tracker-home .tracker-intro p {
   border-radius: 16px;
   background: #fffdf2ed;
   color: #203c55;
-  box-shadow: 0 4px 12px #203c5526;
+  box-shadow: 0 0 8px color-mix(in srgb,var(--skill) 50%,transparent),
+    0 0 18px color-mix(in srgb,var(--skill) 25%,transparent),
+    inset 0 0 9px color-mix(in srgb,var(--skill) 12%,transparent);
+  transition: box-shadow .2s,background .2s;
+}
+
+
+/* Mastery keeps the card stationary; only its aura and painted sheen animate. */
+.star-skill.is-mastery {
+  isolation: isolate;
+  border-color: #f2d17b;
+  animation: skill-mastery-aura 4.8s ease-in-out infinite;
+  animation-delay: var(--glow-delay,0s);
+}
+
+.star-skill.is-mastery::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: -1;
+  background: linear-gradient(115deg,transparent 38%,#fff7cc55 48%,#ffffff66 50%,transparent 62%);
+  background-size: 300% 100%;
+  opacity: 0;
+  animation: skill-mastery-sheen 11s ease-in-out infinite;
+  animation-delay: var(--glow-delay,0s);
+}
+
+@keyframes skill-mastery-aura {
+  0%,100% {
+    box-shadow: 0 0 7px color-mix(in srgb,var(--skill) 65%,transparent),
+      0 0 16px color-mix(in srgb,var(--skill) 30%,transparent),inset 0 0 8px #f2d17b44;
+  }
+  50% {
+    box-shadow: 0 0 11px var(--skill),
+      0 0 24px color-mix(in srgb,var(--skill) 45%,transparent),inset 0 0 12px #f2d17b66;
+  }
+}
+
+@keyframes skill-mastery-sheen {
+  0%,65% { opacity: 0; background-position: 150% 0; }
+  72% { opacity: .65; }
+  88%,100% { opacity: 0; background-position: -50% 0; }
 }
 
 .star-skill .skill-symbol {
@@ -653,7 +696,6 @@ body.tracker-home .tracker-intro p {
 
 .star-skill.is-complete {
   background: #effaf2f2;
-  box-shadow: 0 4px 12px #267b5126;
 }
 
 

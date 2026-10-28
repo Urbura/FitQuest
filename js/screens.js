@@ -25,10 +25,11 @@
           '<button class="star-skill star-position-' +
           position +
           (done ? ' is-complete' : '') +
+          (maxed ? ' is-mastery' : '') +
           '" data-open-skill="' +
           i +
           '" style="--skill:' +
-          s.color +
+          s.color + ';--glow-delay:' + (-position * 1.7) + 's' +
           '" aria-label="' +
           s.name +
           ', level ' +
