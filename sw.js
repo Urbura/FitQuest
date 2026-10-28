@@ -2,7 +2,7 @@
 // Updates wait for existing windows to close; never mix releases in an open session.
 'use strict';
 const CACHE_PREFIX = 'fitquest-shell-';
-const CACHE_NAME = CACHE_PREFIX + '20261028-v34';
+const CACHE_NAME = CACHE_PREFIX + '20261028-v35';
 const APP_FILES = [
   "./",
   "index.html",
@@ -12,10 +12,10 @@ const APP_FILES = [
   "assets/app/icon-dev-180.png",
   "assets/app/icon-dev-192.png",
   "assets/app/icon-dev-512.png",
-  "css/fitville.css?v=20261028-stable-buttons",
+  "css/fitville.css?v=20261028-writequest-flow",
   "js/sounds.js?v=20261016-distinct-melodies",
-  "js/config.js?v=20261015-rank-scenery",
-  "js/progression.js?v=20261008-progression",
+  "js/config.js?v=20261028-writequest-flow",
+  "js/progression.js?v=20261028-writequest-flow",
   "js/storage.js?v=20261014-two-swaps",
   "js/intro.js?v=20261013-intro-module",
   "js/achievements.js?v=20261015-larger-personal-bests",
@@ -23,9 +23,9 @@ const APP_FILES = [
   "js/developer.js?v=20261016-sound-preview",
   "js/celebrations.js?v=20261015-legend",
   "js/xp-animation.js?v=20261023-xp-animation",
-  "js/screens.js?v=20261023-xp-animation",
+  "js/screens.js?v=20261028-writequest-flow",
   "js/pwa.js?v=20261015-offline",
-  "js/fitville.js?v=20261023-xp-animation",
+  "js/fitville.js?v=20261028-writequest-flow",
   "assets/app/icon-fq-180.png",
   "assets/app/icon-fq-192.png",
   "assets/app/icon-fq-512.png",

@@ -2,28 +2,28 @@
 (function (root) {
   'use strict';
   function renderDashboard({ entry, skills, skillState, displayOrder, maxLevel, xp, levelForXP, skillIcon, nextReward, dailyQuestHTML, safeText }) {
-    const doneCount = entry ? entry.scores.filter(Number.isInteger).length : 0,
-      complete = doneCount === skills.length;
+    const doneCount = entry ? entry.scores.filter(score => score > 0).length : 0,
+      complete = Boolean(entry && entry.scores.some(score => score > 0));
     return (
       '<section class="tracker-intro" aria-live="polite"><h2>' +
-      (complete ? 'Today’s check-in is complete.' : 'Your daily check-in') +
+      (complete ? 'Fitness day complete.' : 'Your daily check-in') +
       '</h2><p class="muted">' +
-      (complete ? 'Every small step adds up.' : 'Tap a skill and rate your day out of 5.') +
+      (complete ? 'Every small step adds up.' : 'One skill is enough. Rate progress toward your own goal.') +
       '</p><p class="next-reward">' +
       safeText(nextReward) +
       '</p></section><div class="skill-star" aria-label="Five fitness skills"><button type="button" class="star-summary' +
       (complete ? ' is-complete' : '') + '" data-open-checkin aria-haspopup="dialog" aria-controls="check-dialog" aria-label="' +
-      (complete ? 'All five skills checked in. Review today’s ratings.' : 'Daily check-in. ' + doneCount + ' of 5 skills checked in.') +
+      (complete ? 'Fitness day complete. Review today’s ratings.' : 'Daily check-in. ' + doneCount + ' of 5 skills checked in.') +
       '"><span class="central-checkin-title">Fitness Skills</span><strong>' +
       doneCount +
-      ' / 5</strong><span>' + (complete ? 'Checked In' : 'Check In') + '</span></button>' +
+      ' / 5</strong><span>' + (complete ? 'Day Complete' : 'Check In') + '</span></button>' +
       displayOrder.map((i, position) => {
         const s = skills[i],
           totalXP = skillState[i].xp,
           l = levelForXP(totalXP),
           maxed = l === maxLevel,
           progress = maxed ? 1 : (totalXP - xp[l]) / (xp[l + 1] - xp[l]),
-          done = entry && Number.isInteger(entry.scores[i]);
+          done = entry && entry.scores[i] > 0;
         return (
           '<button class="star-skill star-position-' +
           position +
@@ -69,25 +69,23 @@
     );
   }
 
-  function renderDailyCheckin({ entry, skills, displayOrder, skillIcon, safeText, day }) {
-    const doneCount = entry ? entry.scores.filter(Number.isInteger).length : 0;
+  function renderDailyCheckin({ ratings, skills, displayOrder, safeText, day }) {
     return '<div class="row"><h2 id="check-heading">Daily Check-In</h2>' +
       '<button id="check-close" class="popup-close" aria-label="Close check-in">×</button></div>' +
-      '<p>' + doneCount + ' / ' + skills.length + ' skills checked in today. ' +
-      (doneCount === skills.length ? 'All done! Tap a number to correct a rating.' : 'Tap a number for each skill. Each rating saves immediately.') +
-      '</p><div class="daily-checkin-skills">' + displayOrder.map(i => {
-        const done = entry && Number.isInteger(entry.scores[i]);
+      '<p>Rate progress toward your own goal: 0–5. One skill is enough; leave the others at zero.</p>' +
+      '<div class="daily-checkin-skills">' + displayOrder.map(i => {
+        const rating = ratings[i];
         return '<section class="daily-checkin-skill"><div class="row">' +
           '<strong id="daily-skill-' + i + '">' + safeText(skills[i].name) + '</strong><span>' +
-          (done ? '✓ ' + entry.scores[i] + '/5' : 'Not checked in') + '</span></div>' +
+          rating + '/5</span></div>' +
           '<div class="daily-checkin-ratings" role="group" aria-labelledby="daily-skill-' + i + '">' +
           [0, 1, 2, 3, 4, 5].map(score => '<button type="button" id="daily-rate-' + i + '-' + score +
             '" data-daily-score="' + score + '" data-skill="' + i + '" data-day="' + day +
-            '" aria-pressed="' + Boolean(done && entry.scores[i] === score) + '" aria-label="' +
+            '" aria-pressed="' + (rating === score) + '" aria-label="' +
             safeText(skills[i].name) + ': ' + score + ' out of 5">' + score + '</button>').join('') +
           '</div></section>';
-      }).join('') + '</div><p class="muted daily-rating-help">0 = no progress · 5 = goal met. Planned rest can count as meeting your goal.</p>' +
-      '<button type="button" class="wide" data-close-checkin>Done</button>';
+      }).join('') + '</div><p class="muted daily-rating-help">0 = no progress · 5 = goal met. Planned rest can count as meeting your goal. Ratings save when you press the button below.</p>' +
+      '<button type="button" class="wide" id="save-daily-checkin" data-day="' + day + '">Save Today’s Check-In</button>';
   }
 
   function renderTotalRewards({ current, index, rewards, next, minTotal, maxTotal, preview, rewardBadge, safeText }) {
@@ -125,12 +123,13 @@
 <button id="sound-toggle" class="wide" aria-pressed="${soundEnabled}">Sound effects: ${soundEnabled ? 'On' : 'Off'}</button>
 <p class="muted">Soft check-in and reward chimes. No background music.</p>
 <p class="muted">Progress stays in this browser. Export before switching devices or clearing browser data.</p>
-<button id="export">Export FitQuest backup</button>
-<p>
-<label>Import FitQuest backup<br>
+<button id="export" class="wide">Export Backup</button>
+<details class="backup-options">
+<summary>Restore Backup</summary>
+<p><label>Import FitQuest backup<br>
 <input id="import" type="file" accept=".json,application/json" style="max-width:100%;margin-top:10px" aria-label="Import FitQuest backup">
-</label>
-</p>
+</label></p>
+</details>
 <button id="restart" class="restart wide">Reset tracker progress</button>
 </section>
 <section class="card">
@@ -177,4 +176,3 @@ ${developerMode ? '<button id="dev-open-settings" class="wide">Open test tools</
   root.FitQuestScreens = screens;
   if (typeof module !== 'undefined' && module.exports) module.exports = screens;
 })(typeof globalThis !== 'undefined' ? globalThis : this);
-

@@ -28,12 +28,12 @@ Each entry in `skills` contains its name, hint, icon, colour, regular titles, ma
 
 - `maxSkillLevel`: currently 50.
 - `xp.firstLevelCost`: 5 XP to reach level 2.
-- `xp.costIncrease`: each subsequent level costs 1 additional XP.
+- `xp.growthRate`: 1.029, matching WriteQuest. Each level costs `ceil(5 * 1.029 ** (level - 1))` XP.
 - `bonusMilestones`: +1, +2, +3, and +4 XP at skill levels 10, 20, 30, and 40. The current save validator supports bonus values 0–4.
 - Total Level is the sum of all five skill levels, ranging from 5–250.
-- Check-ins are limited to one per skill per reset day. Completed skills offer **Edit today’s rating** until the daily reset. Corrections replace the original XP contribution, retain the original bonus, and do not replay celebrations or increase participation counts. A zero rating earns zero XP; positive ratings receive the bonus earned by the skill level before that check-in.
+- The central Daily Check-In stages all five ratings (unrated skills default to zero) until Save Today’s Check-In. Closing discards unsaved ratings. Skill buttons open progress details with a link to Daily Check-In. Saving writes the form once; failed writes restore the original in-memory progress and retain the draft to retry. Check-ins are limited to one per skill per reset day. Completed skills offer **Edit today’s rating** until the daily reset. Corrections replace the original XP contribution, retain the original bonus, and do not replay celebrations or increase participation counts. A zero rating earns zero XP; positive ratings receive the bonus earned by the skill level before that check-in.
 
-Each skill needs 1,421 total XP to reach level 50. Perfect daily check-ins with the current skill bonuses take 191 days when counting check-in XP alone. Daily quest XP and the Five for Five medal bonus can shorten that time. Changes to XP settings recalculate levels from existing saved XP; review that effect before deploying.
+Each skill needs 552 total XP to reach level 50. Consistent 3/5 daily ratings with milestone bonuses take 108 check-ins, matching WriteQuest. Daily quest XP and the Five for Five medal bonus can shorten that time. Existing XP and history stay unchanged; the faster curve can raise existing levels.
 
 Changing the maximum level also requires checking title counts, Total Level reward milestones, developer input limits in `index.html`, and regression expectations.
 

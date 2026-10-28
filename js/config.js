@@ -68,7 +68,7 @@ globalThis.FitQuestConfig = {
   "maxSkillLevel": 50,
   "xp": {
     "firstLevelCost": 5,
-    "costIncrease": 1
+    "growthRate": 1.029
   },
   "bonusMilestones": [
     {

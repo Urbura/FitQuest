@@ -22,11 +22,12 @@ const config = configContext.FitQuestConfig;
 // Build a fresh, isolated app for each test with fake browser storage and time.
 // No real browser or saved user data is touched.
 function tracker(now = '2026-10-08T16:00:00Z') {
+  let failWrites = false;
   const storage = () => {
     const data = new Map();
     return {
       getItem: (key) => data.get(key) ?? null,
-      setItem: (key, value) => data.set(key, String(value)),
+      setItem: (key, value) => { if (failWrites) throw Error("Storage full"); data.set(key, String(value)); },
       removeItem: (key) => data.delete(key),
     };
   };
@@ -63,49 +64,46 @@ function tracker(now = '2026-10-08T16:00:00Z') {
   vm.runInContext(screensSource, context, { filename: 'js/screens.js' });
   vm.runInContext(source, context, { filename: 'js/fitville.js', timeout: 1000 });
   assert.ok(context.tracker, 'Tracker logic must load without a startup error');
+  context.tracker.enableSaving();
+  context.tracker.failWrites = value => { failWrites = value; };
   return context.tracker;
 }
 
 // XP and level progression
 
-test('central check-in opens all skills and reviews zero ratings without awarding XP', () => {
+test('central ratings remain a draft until one save and reopening discards unsaved edits', () => {
   const t = tracker();
-  t.dashboard(); // Initialize the existing daily-reset migration before comparing state.
+  t.dashboard();
   const before = JSON.stringify(t.state());
   t.openDailyCheck();
-  assert.match(t.dialogHTML(), /0 \/ 5 skills checked in/);
+  assert.match(t.dialogHTML(), /One skill is enough/);
   assert.equal((t.dialogHTML().match(/data-daily-score=/g) || []).length, 30);
+  t.submitDailyRating(4, 3, t.day());
   assert.equal(JSON.stringify(t.state()), before);
-  assert.match(t.dashboard(), /data-open-checkin/);
-  t.recordCheckIn(4, 0);
+  assert.match(t.dialogHTML(), /id="daily-rate-4-3"[^>]*aria-pressed="true"/);
   t.openDailyCheck();
-  assert.match(t.dialogHTML(), /1 \/ 5 skills checked in/);
-  assert.match(t.dialogHTML(), /✓ 0\/5/);
-  for (let i = 0; i < 4; i++) t.recordCheckIn(i, 1);
-  const completed = JSON.stringify(t.state());
-  t.openDailyCheck();
-  assert.match(t.dialogHTML(), /All done! Tap a number to correct/);
-  assert.match(t.dashboard(), /All five skills checked in/);
-  assert.equal(JSON.stringify(t.state()), completed);
-  t.openSkillCheck(4);
-  assert.match(t.dialogHTML(), /Edit today’s rating/);
+  assert.match(t.dialogHTML(), /id="daily-rate-4-0"[^>]*aria-pressed="true"/);
 });
 
-test('central numeric ratings save immediately, stay in the overview, and correct without duplicate XP', () => {
+test('one save commits all ratings, corrections replace XP, and repeated saves do not duplicate XP', () => {
   const t = tracker();
   t.openDailyCheck();
-  const today = t.day();
-  t.submitDailyRating(4, 0, today);
-  assert.match(t.dialogHTML(), /1 \/ 5 skills checked in/);
-  assert.match(t.dialogHTML(), /id="daily-rate-4-0"[^>]*aria-pressed="true"/);
-  assert.equal(t.state().skills[4].xp, 0);
-  t.submitDailyRating(4, 3, today);
+  t.submitDailyRating(4, 3, t.day());
+  assert.equal(t.saveDailyCheckin(t.day()), true);
   assert.equal(t.state().skills[4].xp, 3);
-  t.submitDailyRating(4, 3, today);
+  assert.deepEqual(Array.from(t.state().days[t.day()].scores), [0,0,0,0,3]);
+  assert.match(t.dashboard(), /Fitness day complete/);
+  t.openDailyCheck();
+  assert.equal(t.saveDailyCheckin(t.day()), true);
   assert.equal(t.state().skills[4].xp, 3);
-  for (let i = 0; i < 4; i++) t.submitDailyRating(i, 2, today);
-  assert.match(t.dialogHTML(), /All done!/);
-  assert.equal(t.journeySummary().checkIns, 5);
+  t.openDailyCheck();
+  t.submitDailyRating(4, 1, t.day());
+  assert.equal(t.saveDailyCheckin(t.day()), true);
+  assert.equal(t.state().skills[4].xp, 1);
+  t.openDailyCheck();
+  t.submitDailyRating(4, 5, t.day());
+  assert.equal(t.saveDailyCheckin('2000-01-01'), false);
+  assert.equal(t.state().skills[4].xp, 1);
 });
 
 test('expired and invalid central ratings cannot change progress', () => {
@@ -118,16 +116,16 @@ test('expired and invalid central ratings cannot change progress', () => {
   assert.equal(JSON.stringify(t.state()), before);
 });
 
-test('each skill level costs strictly more XP and all boundaries are correct', () => {
+test('every skill XP boundary matches WriteQuest and remains correct', () => {
   const progression = createProgression(config);
   const { xpThresholds, levelForXP } = progression;
   assert.equal(levelForXP(0), 1);
   for (let skillLevel = 2; skillLevel <= 50; skillLevel++) {
-    assert.equal(xpThresholds[skillLevel] - xpThresholds[skillLevel - 1], skillLevel + 3);
+    assert.equal(xpThresholds[skillLevel] - xpThresholds[skillLevel - 1], Math.ceil(5 * Math.pow(1.029, skillLevel - 2)));
     assert.equal(levelForXP(xpThresholds[skillLevel] - 1), skillLevel - 1);
     assert.equal(levelForXP(xpThresholds[skillLevel]), skillLevel);
   }
-  assert.equal(xpThresholds[50], 1421);
+  assert.equal(xpThresholds[50], 552);
   assert.equal(levelForXP(100000), 50);
 });
 
@@ -282,15 +280,15 @@ test('bonuses use the skill level before check-in and do not stack', () => {
   assert.equal(t.recordCheckIn(2, 0).earned, 0);
 });
 
-test('perfect check-ins reach skill level 50 in 191 days with bonuses', () => {
+test('three-out-of-five check-ins reach skill level 50 in 108 days like WriteQuest', () => {
   const progression = createProgression(config);
   let days = 0, experience = 0;
   while (progression.levelForXP(experience) < 50) {
-    experience += progression.experienceForCheckIn(5, progression.levelForXP(experience));
+    experience += progression.experienceForCheckIn(3, progression.levelForXP(experience));
     days++;
-    assert.ok(days <= 191);
+    assert.ok(days <= 108);
   }
-  assert.equal(days, 191);
+  assert.equal(days, 108);
 });
 
 test('bonus history round-trips and malformed bonuses are rejected', () => {
@@ -306,17 +304,17 @@ test('bonus history round-trips and malformed bonuses are rejected', () => {
 
 // Check-in interface and completion messages
 
-test('completion message appears after all five check-ins, including zero ratings', () => {
+test('a positive skill completes the fitness day; all-zero ratings leave it open', () => {
   const t = tracker();
   assert.match(t.dashboard(), /Your daily check-in/);
-  for (let i = 0; i < 4; i++) t.recordCheckIn(i, i);
-  assert.doesNotMatch(t.dashboard(), /Today’s check-in is complete/);
-  t.recordCheckIn(4, 0);
-  assert.match(t.dashboard(), /Today’s check-in is complete/);
+  t.recordCheckIn(0, 0);
+  assert.doesNotMatch(t.dashboard(), /Fitness day complete/);
+  t.recordCheckIn(4, 1);
+  assert.match(t.dashboard(), /Fitness day complete/);
   assert.match(t.dashboard(), /Every small step adds up/);
   const tomorrow = tracker('2026-10-09T16:00:00Z');
   tomorrow.setState(tomorrow.readSave(JSON.stringify(t.state())));
-  assert.doesNotMatch(tomorrow.dashboard(), /Today’s check-in is complete/);
+  assert.doesNotMatch(tomorrow.dashboard(), /Fitness day complete/);
   assert.match(tomorrow.dashboard(), /Your daily check-in/);
 });
 
@@ -358,7 +356,7 @@ test('reward selection is directly testable without tracker startup', () => {
 test('progression uses the supplied configuration rather than fixed constants', () => {
   const custom = JSON.parse(JSON.stringify(config));
   custom.maxSkillLevel = 3;
-  custom.xp = { firstLevelCost: 2, costIncrease: 3 };
+  custom.xp = { firstLevelCost: 2, growthRate: 2.5 };
   custom.bonusMilestones = [{ level: 2, xp: 1 }];
   custom.totalRewards = [{ level: 5, title: 'Start' }, { level: 15, title: 'Finish' }];
   const progression = createProgression(custom);
@@ -385,10 +383,10 @@ test('corrections replace XP and remain one daily check-in', () => {
 
 test('corrections retain pre-check-in bonus across milestones, zero and reload', () => {
   const t = tracker();
-  t.state().skills[0].xp = 80;
+  t.state().skills[0].xp = t.XP[10] - 1;
   t.recordCheckIn(0, 1);
   t.editCheckIn(0, 5, t.day());
-  assert.equal(t.state().skills[0].xp, 85);
+  assert.equal(t.state().skills[0].xp, t.XP[10] + 4);
   t.state().skills[1].xp = 81;
   t.recordCheckIn(1, 0);
   t.editCheckIn(1, 5, t.day());
@@ -473,8 +471,7 @@ test('ratings and progress use separate views and retain correction state', () =
     t.openSkillCheck(0, editing, true);
     html = t.dialogHTML();
     assert.match(html, /popup-progress/);
-    assert.match(html, /data-skill-rating="0"/);
-    assert.ok(html.includes('data-editing="' + editing + '"'));
+    assert.match(html, /data-open-checkin/);
     assert.doesNotMatch(html, /data-quick-score|data-edit-score/);
     t.openSkillCheck(0, editing);
     assert.ok(t.dialogHTML().includes(editing ? 'data-edit-score' : 'data-quick-score'));
@@ -675,3 +672,32 @@ test('reward animation controls are preview-only and can replay without persisti
   assert.equal(t.state().legendCelebrated,undefined);
 });
 
+
+test('failed daily saves preserve the original XP and keep the draft available to retry', () => {
+  const t = tracker();
+  t.openDailyCheck();
+  const original = JSON.stringify(t.state());
+  t.submitDailyRating(4, 5, t.day());
+  t.failWrites(true);
+  assert.equal(t.saveDailyCheckin(t.day()), false);
+  assert.equal(JSON.stringify(t.state()), original);
+  assert.match(t.dialogHTML(), /id="daily-rate-4-5"[^>]*aria-pressed="true"/);
+  t.failWrites(false);
+  assert.equal(t.saveDailyCheckin(t.day()), true);
+  assert.equal(t.state().skills[4].xp, 5);
+});
+
+test('batch save retains the fifth Five for Five bonus and never pays it twice', () => {
+  const t = tracker();
+  for (const day of ['2026-10-01','2026-10-02','2026-10-03','2026-10-04']) {
+    t.state().days[day] = { scores:[5,5,5,5,5], rates:[1,1,1,1,1] };
+  }
+  t.openDailyCheck();
+  for (let i = 0; i < 5; i++) t.submitDailyRating(i, 5, t.day());
+  assert.equal(t.saveDailyCheckin(t.day()), true);
+  assert.equal(t.state().fiveForFivePaidMilestones, 1);
+  assert.ok(t.state().skills.every(skill => skill.xp === 10));
+  t.openDailyCheck();
+  assert.equal(t.saveDailyCheckin(t.day()), true);
+  assert.ok(t.state().skills.every(skill => skill.xp === 10));
+});

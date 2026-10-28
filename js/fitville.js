@@ -73,6 +73,7 @@
       timer,
       renderedDay = null,
       dailyResetTimer;
+    let draftRatings = null, draftDay = null;
     const RESET_UTC_HOUR = CONFIG.dailyReset.utcHour,
       RESET_UTC_MINUTE = CONFIG.dailyReset.utcMinute,
       RESET_SHIFT = (RESET_UTC_HOUR * 60 + RESET_UTC_MINUTE) * 60 * 1000;
@@ -700,7 +701,7 @@
       if (!Number.isInteger(state.fiveForFivePaidMilestones) || state.fiveForFivePaidMilestones < 0)
         state.fiveForFivePaidMilestones = Math.floor(achievementStats().perfectDayMedals / 5);
     }
-    function awardFiveForFiveBonus() {
+    function awardFiveForFiveBonus(queueCelebrations = true) {
       const medals = achievementStats().perfectDayMedals;
       const reached = Math.floor(medals / 5);
       if (reached <= state.fiveForFivePaidMilestones) return null;
@@ -714,7 +715,7 @@
       let priorTotal = totalBefore;
       SKILLS.forEach((_, index) => {
         const nextTotal = priorTotal + after[index] - before[index];
-        queueLevels(index, before[index], after[index], priorTotal, nextTotal);
+        if (queueCelebrations) queueLevels(index, before[index], after[index], priorTotal, nextTotal);
         priorTotal = nextTotal;
       });
       return { medals };
@@ -907,7 +908,7 @@
         return;
       }
       if (b.dataset.openSkill !== undefined) {
-        openSkillCheck(Number(b.dataset.openSkill));
+        openSkillCheck(Number(b.dataset.openSkill), false, true);
         return;
       }
       if (b.dataset.tab) {
@@ -920,6 +921,10 @@
       }
       if (b.id === 'check-close' || b.dataset.closeCheckin !== undefined) {
         document.getElementById('check-dialog').close();
+        return;
+      }
+      if (b.id === 'save-daily-checkin') {
+        saveDailyCheckin(b.dataset.day);
         return;
       }
       if (b.dataset.dailyScore !== undefined) {
@@ -1020,30 +1025,92 @@
       'Mostly met',
       'Goal met',
     ];
+    // Daily ratings are a draft until the user saves the complete form.
     function submitDailyRating(i, score, expectedDay) {
       if (!Number.isInteger(i) || i < 0 || i >= SKILLS.length ||
           !Number.isInteger(score) || score < 0 || score > 5) return;
-      if (expectedDay !== day()) {
+      if (expectedDay !== day() || draftDay !== day()) {
+        draftRatings = null;
         openDailyCheck();
         notify('A new check-in day has started. Please review your ratings.');
         return;
       }
-      const entry = dailyEntry();
-      if (entry && Number.isInteger(entry.scores[i])) {
-        submitCorrection(i, score, expectedDay, true);
-      } else {
-        submitCheckIn(i, score, true);
-      }
+      draftRatings[i] = score;
+      renderDailyDraft(i, score);
     }
 
-    function openDailyCheck(focusSkill, focusScore) {
+    function renderDailyDraft(focusSkill, focusScore) {
       document.getElementById('check-content').innerHTML = globalThis.FitQuestScreens.renderDailyCheckin({
-        entry: dailyEntry(), skills: SKILLS, displayOrder: SKILL_DISPLAY_ORDER, skillIcon, safeText, day: day(),
+        ratings: draftRatings, skills: SKILLS, displayOrder: SKILL_DISPLAY_ORDER, safeText, day: draftDay,
       });
+      if (Number.isInteger(focusSkill))
+        document.getElementById('daily-rate-' + focusSkill + '-' + focusScore)?.focus({ preventScroll: true });
+    }
+
+    function openDailyCheck() {
+      // Opening again discards an abandoned draft and loads the saved ratings.
+      draftDay = day();
+      draftRatings = (dailyEntry()?.scores || Array(SKILLS.length).fill(0)).map(score => score ?? 0);
+      renderDailyDraft();
       const dialog = document.getElementById('check-dialog');
       if (!dialog.open) dialog.showModal();
-      if (Number.isInteger(focusSkill) && !document.getElementById('level-dialog').open)
-        document.getElementById('daily-rate-' + focusSkill + '-' + focusScore)?.focus({ preventScroll: true });
+    }
+
+    function saveDailyCheckin(expectedDay) {
+      if (!draftRatings || expectedDay !== day() || draftDay !== day()) {
+        openDailyCheck();
+        notify('A new check-in day has started. Please review your ratings.');
+        return false;
+      }
+      // Refuse a stale draft rather than applying it to a newer shared save.
+      if (syncSharedSave()) {
+        openDailyCheck();
+        notify('Progress changed in another tab. Review the latest ratings before saving.');
+        return false;
+      }
+      const original = state;
+      const earnedBefore = developer.active ? [] : earnedAchievements();
+      const before = state.skills.map(skill => level(skill.xp));
+      const totalBefore = totalSkillLevel();
+      state = readSave(JSON.stringify(state));
+      const working = state;
+      initializeFiveForFiveRewards();
+      for (let i = 0; i < SKILLS.length; i++) {
+        const entry = dailyEntry();
+        const result = entry && Number.isInteger(entry.scores[i])
+          ? editCheckIn(i, draftRatings[i], expectedDay)
+          : recordCheckIn(i, draftRatings[i]);
+        if (!['recorded', 'updated'].includes(result.status)) {
+          state = original;
+          notify('Ratings could not be saved. Please review and try again.');
+          return false;
+        }
+      }
+      awardFiveForFiveBonus(false);
+      const persisted = developer.active || save();
+      if (!persisted) {
+        if (state === working) state = original;
+        notify('Ratings were not saved. Keep this form open and try again, or export a backup.');
+        return false;
+      }
+      const earned = state.skills.reduce((sum, skill, i) => sum + skill.xp - original.skills[i].xp, 0);
+      const after = state.skills.map(skill => level(skill.xp));
+      draftRatings = null;
+      document.getElementById('check-dialog').close();
+      render(false);
+      let runningTotal = totalBefore;
+      SKILLS.forEach((_, i) => {
+        const nextTotal = runningTotal + after[i] - before[i];
+        queueLevels(i, before[i], after[i], runningTotal, nextTotal);
+        runningTotal = nextTotal;
+      });
+      const newBadges = developer.active ? [] : earnedAchievements().filter(id => !earnedBefore.includes(id));
+      if (!developer.active) globalThis.FitQuestSounds?.play(newBadges.length ? 'achievement' : 'checkin');
+      if (earned > 0) reward('+' + earned + ' XP');
+      notify('Today’s check-in saved' + (developer.active ? ' · preview only' : '') +
+        '. ' + (earned > 0 ? '+' : '') + earned + ' XP.' +
+        (newBadges.length ? ' ' + newBadges.length + ' achievements unlocked.' : ''));
+      return true;
     }
 
     function openSkillCheck(i, editing = false, viewingProgress = false) {
@@ -1095,8 +1162,7 @@
         document.getElementById('check-content').innerHTML =
           '<div class="row"><h2 id="check-heading">' + skillIcon(i) + ' ' + s.name +
           '</h2><button id="check-close" class="popup-close" aria-label="Close check-in">×</button></div>' +
-          xpPanel + '<button class="wide" data-skill-rating="' + i +
-          '" data-editing="' + editing + '">Back to ' + (done && !editing ? 'check-in' : 'ratings') + '</button>';
+          xpPanel + '<p>' + safeText(s.hint) + '</p><button class="wide" data-open-checkin>Go to Daily Check-In</button>';
         if (!document.getElementById('check-dialog').open)
           document.getElementById('check-dialog').showModal();
         return;
@@ -1154,13 +1220,14 @@
     // Normal browsers never provide this hook, so startup is unchanged.
     if (typeof globalThis.__fitQuestTestHook === 'function') {
       globalThis.__fitQuestTestHook({
+        enableSaving: () => saves.markReady(),
         XP, MAX_LEVEL, MAX_TOTAL_LEVEL, fresh, level, readSave, recordCheckIn,
         achievementStats, earnedAchievements, setProfileLevels: developer.setProfileLevels, journeySummary, journeyPanel, dailyQuest, setQuestCompleted, swapDailyQuest,
         unseenAchievements, markAchievementViewed,
         editCheckIn, skillBonus, checkInXP, totalSkillLevel, totalReward,
         TOTAL_REWARDS, weeklyCheckInCount, day, nextReset, nextRewardText,
         queueLevels, queueLegendCelebration, previewCelebration,
-        setPreviewHistory: developer.setHistory, unlockPreviewAchievements: developer.unlockAllAchievements, dashboard, openDailyCheck, submitDailyRating, openSkillCheck, totalRewardsPanel, rewardBadge,
+        setPreviewHistory: developer.setHistory, unlockPreviewAchievements: developer.unlockAllAchievements, dashboard, openDailyCheck, submitDailyRating, saveDailyCheckin, openSkillCheck, totalRewardsPanel, rewardBadge,
         dialogHTML: () => document.getElementById('check-content').innerHTML,
         state: () => state,
         setState: (value) => { state = value; },
@@ -1256,4 +1323,3 @@
     if (nav) nav.hidden = true;
   }
 })();
-

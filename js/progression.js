@@ -10,11 +10,12 @@
     const maxTotalLevel = maxSkillLevel * config.skills.length;
 
     // Index is the level; value is cumulative XP required to reach it.
-    const xpThresholds = Array.from({ length: maxSkillLevel + 1 }, (_, skillLevel) => {
-      const steps = Math.max(0, skillLevel - 1);
-      return steps * config.xp.firstLevelCost +
-        (steps * (steps - 1) * config.xp.costIncrease) / 2;
-    });
+    // Match WriteQuest: each level costs ceil(5 * 1.029 ** (level - 1)).
+    const xpThresholds = Array(maxSkillLevel + 1).fill(0);
+    for (let skillLevel = 2; skillLevel <= maxSkillLevel; skillLevel++) {
+      xpThresholds[skillLevel] = xpThresholds[skillLevel - 1] +
+        Math.ceil(config.xp.firstLevelCost * Math.pow(config.xp.growthRate, skillLevel - 2));
+    }
 
     function levelForXP(experience) {
       let skillLevel = 1;
