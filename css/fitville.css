@@ -2380,3 +2380,15 @@ header nav button[data-tab="settings"] .settings-icon {
 @media (prefers-reduced-motion: reduce) {
   .daily-quest-xp-reward { animation: none; transform: translateX(-50%); }
 }
+
+/* One header control combines the rank emblem and Total Level. */
+header .stats #overall-level {
+  flex-direction: row;
+  gap: 4px;
+}
+header .stats #overall-level-value { white-space: nowrap; }
+#total-dialog { max-height: 85dvh; overflow-y: auto; }
+@media (max-width:480px) {
+  header .stats #overall-level { gap: 2px; }
+  header .stats #header-rank-badge { width: 32px; height: 32px; }
+}

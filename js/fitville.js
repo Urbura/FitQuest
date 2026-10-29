@@ -521,8 +521,6 @@
       const rank = rankForTotalLevel(totalLevel);
       const rankBadge = document.getElementById('header-rank-badge');
       if (rankBadge) {
-        const rankButton = document.getElementById('header-rank-button');
-        if (rankButton) rankButton.hidden = !rank;
         rankBadge.hidden = !rank;
         if (rank) {
           rankBadge.src = 'assets/icons/rank-' + rank.toLowerCase() + '.svg?v=20261015-evolved-ranks';
@@ -531,6 +529,7 @@
         }
       }
       document.getElementById('overall-level-value').textContent = 'Total Level ' + totalLevel;
+      document.getElementById('overall-level').setAttribute('aria-label', (rank || 'Unranked') + ', Total Level ' + totalLevel + '. View rank progression.');
       if (document.getElementById('total-dialog').open)
         document.getElementById('total-content').innerHTML = totalRewardsPanel();
       updateCollectionBadge();
@@ -555,7 +554,7 @@
         minTotal: MIN_TOTAL_LEVEL, maxTotal: MAX_TOTAL_LEVEL,
         preview: developer.active && developer.totalLevel !== null,
         rewardBadge, safeText,
-      });
+      }) + '<h3>Rank progression</h3>' + rankProgressionPanel();
     }
     function openTotalRewards() {
       totalRewardIndex = null;
@@ -827,17 +826,6 @@
         refreshDayIfNeeded();
         document.getElementById('journey-content').innerHTML = journeyPanel();
         document.getElementById('journey-dialog').showModal();
-        return;
-      }
-      if (b.id === 'ranks-close') {
-        document.getElementById('ranks-dialog').close();
-        return;
-      }
-      if (b.id === 'header-rank-button') {
-        if (syncSharedSave()) render(false);
-        refreshDayIfNeeded();
-        document.getElementById('ranks-content').innerHTML = rankProgressionPanel();
-        document.getElementById('ranks-dialog').showModal();
         return;
       }
       if (b.dataset.achievementCategory !== undefined) {

@@ -12,7 +12,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="FitQuest" />
     <script src="js/app-metadata.js?v=20261015-dev-icon"></script>
-    <link rel="stylesheet" href="css/fitville.css?v=20261029-quest-confirm" />
+    <link rel="stylesheet" href="css/fitville.css?v=20261029-combined-ranks" />
   </head>
   <body>
     <header>
@@ -20,7 +20,7 @@
         <div class="muted">YOUR EVERYDAY ADVENTURE</div>
         <h1><button id="journey-open" type="button" aria-label="FitQuest: view your journey" aria-haspopup="dialog" aria-controls="journey-dialog"><img class="app-logo" src="assets/fitquest-logo-v1.webp" alt="FitQuest" width="640" height="189" fetchpriority="high" /></button></h1>
         <p class="muted">Track habits. Build your fitness skills.</p>
-        <div class="stats" role="group" aria-label="Rank and Total Level progression"><button id="header-rank-button" type="button" aria-haspopup="dialog" aria-controls="ranks-dialog" aria-label="View rank progression" hidden><img id="header-rank-badge" width="40" height="40" alt="" hidden /></button><button id="overall-level" type="button" aria-haspopup="dialog" aria-controls="total-dialog" title="View Total Level ranks"><span id="overall-level-value"></span></button></div>
+        <div class="stats"><button id="overall-level" type="button" aria-haspopup="dialog" aria-controls="total-dialog" title="View rank progression"><img id="header-rank-badge" width="40" height="40" alt="" hidden /><span id="overall-level-value"></span></button></div>
       </div>
     </header>
     <div id="dev-tools" hidden>
@@ -137,11 +137,6 @@
       <div class="row"><h2 id="total-heading">Total Level ranks</h2><button id="total-close" class="popup-close" aria-label="Close Total Level ranks">×</button></div>
       <div id="total-content"></div>
     </dialog>
-    <dialog id="ranks-dialog" aria-labelledby="ranks-heading">
-      <div class="row"><h2 id="ranks-heading">Rank progression</h2><button id="ranks-close" class="popup-close" aria-label="Close rank progression">×</button></div>
-      <p class="muted">Ranks unlock as your Total Level increases.</p>
-      <div id="ranks-content"></div>
-    </dialog>
     <dialog id="journey-dialog" aria-labelledby="journey-heading">
       <div class="row"><h2 id="journey-heading">Your Journey</h2><button id="journey-close" class="popup-close" aria-label="Close your journey">×</button></div>
       <div id="journey-content"></div>
@@ -167,7 +162,7 @@
     <script src="js/xp-animation.js?v=20261023-xp-animation"></script>
     <script src="js/screens.js?v=20261028-clean-dashboard"></script>
     <script src="js/pwa.js?v=20261015-offline"></script>
-    <script src="js/fitville.js?v=20261029-quest-confirm"></script>
+    <script src="js/fitville.js?v=20261029-combined-ranks"></script>
   </body>
 </html>
 
