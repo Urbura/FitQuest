@@ -208,11 +208,13 @@ test('first Total Level and reward celebrations queue once, with skill celebrati
   const first = tracker();
   first.queueLevels(0, 1, 2, 5, 6);
   assert.equal(first.queued().length, 2);
-  assert.equal(first.queued()[0].l, 6);
-  assert.equal(first.queued()[0].total, true);
+  assert.equal(first.queued()[0].l, 2);
+  assert.equal(first.queued()[0].i, 0);
+  assert.equal(first.queued()[1].total, true);
   const milestone = tracker();
   milestone.queueLevels(0, 9, 10, 49, 50);
-  assert.equal(milestone.queued()[0].milestone.title, 'Gold');
+  assert.equal(milestone.queued()[0].l, 10);
+  assert.equal(milestone.queued()[1].milestone.title, 'Gold');
   const later = tracker();
   later.queueLevels(0, 10, 10, 50, 50);
   assert.equal(later.queued().length, 0);
@@ -702,4 +704,46 @@ test('batch save retains the fifth Five for Five bonus and never pays it twice',
   t.openDailyCheck();
   assert.equal(t.saveDailyCheckin(t.day()), true);
   assert.ok(t.state().skills.every(skill => skill.xp === 10));
+});
+
+ test('every newly gained skill level queues once, and unchanged or lowered levels stay quiet', () => {
+  const t = tracker();
+  t.queueLevels(2, 8, 11, 40, 43);
+  assert.deepEqual(Array.from(t.queued(), item => [item.i, item.l]), [[2, 9], [2, 10], [2, 11]]);
+  t.queueLevels(2, 11, 11, 43, 43);
+  t.queueLevels(2, 11, 10, 43, 42);
+  assert.equal(t.queued().length, 3);
+});
+
+test('confirmed quest saves exactly two XP to its own skill and repeated submissions do not duplicate it', () => {
+  const t = tracker();
+  const quest = { ...t.dailyQuest() };
+  const before = t.state().skills.map(skill => skill.xp);
+  assert.equal(t.commitDailyQuest(true, t.day(), quest).status, 'updated');
+  t.state().skills.forEach((skill, i) => assert.equal(skill.xp, before[i] + (i === quest.skill ? 2 : 0)));
+  assert.equal(t.commitDailyQuest(true, t.day(), quest).status, 'unchanged');
+  assert.equal(t.state().skills[quest.skill].xp, before[quest.skill] + 2);
+});
+
+test('confirmation for an expired day or swapped task cannot award XP', () => {
+  const t = tracker();
+  const quest = { ...t.dailyQuest() };
+  assert.equal(t.commitDailyQuest(true, '2000-01-01', quest).status, 'expired');
+  t.swapDailyQuest(t.day());
+  const before = JSON.stringify(t.state());
+  assert.equal(t.commitDailyQuest(true, t.day(), quest).status, 'expired');
+  assert.equal(JSON.stringify(t.state()), before);
+});
+
+test('failed quest save rolls back completion and XP so it can be retried', () => {
+  const t = tracker();
+  const quest = { ...t.dailyQuest() };
+  const before = t.state().skills[quest.skill].xp;
+  t.failWrites(true);
+  assert.equal(t.commitDailyQuest(true, t.day(), quest).status, 'failed');
+  assert.equal(t.dailyQuest().completed, false);
+  assert.equal(t.state().skills[quest.skill].xp, before);
+  t.failWrites(false);
+  assert.equal(t.commitDailyQuest(true, t.day(), quest).status, 'updated');
+  assert.equal(t.state().skills[quest.skill].xp, before + 2);
 });

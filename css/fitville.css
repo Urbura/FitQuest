@@ -2355,3 +2355,28 @@ header nav button[data-tab="settings"] .settings-icon {
   }
 }
 
+
+/* Reward stays on the skill receiving the quest XP. */
+.daily-quest-xp-reward {
+  position: absolute;
+  z-index: 5;
+  left: 50%;
+  bottom: 25%;
+  pointer-events: none;
+  color: #fff2b8;
+  background: #142b45;
+  border: 1px solid #ffd35d;
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-weight: 800;
+  white-space: nowrap;
+  animation: quest-xp-rise 1800ms ease-out both;
+}
+@keyframes quest-xp-rise {
+  from { transform: translate(-50%, 10px); opacity: 0; }
+  15%, 70% { opacity: 1; }
+  to { transform: translate(-50%, -38px); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .daily-quest-xp-reward { animation: none; transform: translateX(-50%); }
+}
