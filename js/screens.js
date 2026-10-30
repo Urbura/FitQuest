@@ -68,7 +68,7 @@
   function renderDailyCheckin({ ratings, skills, displayOrder, safeText, day }) {
     return '<div class="row"><h2 id="check-heading">Daily Check-In</h2>' +
       '<button id="check-close" class="popup-close" aria-label="Close check-in">×</button></div>' +
-      '<p>Rate progress toward your own goal: 0–5. One skill is enough; leave the others at zero.</p>' +
+      '<p>Rate progress toward your own goal: 0–5. </p>' +
       '<div class="daily-checkin-skills">' + displayOrder.map(i => {
         const rating = ratings[i];
         return '<section class="daily-checkin-skill"><div class="row">' +
@@ -80,7 +80,7 @@
             '" aria-pressed="' + (rating === score) + '" aria-label="' +
             safeText(skills[i].name) + ': ' + score + ' out of 5">' + score + '</button>').join('') +
           '</div></section>';
-      }).join('') + '</div><p class="muted daily-rating-help">0 = no progress · 5 = goal met. Planned rest can count as meeting your goal. Ratings save when you press the button below.</p>' +
+      }).join('') + '</div><p class="muted daily-rating-help">0 = no progress · 5 = goal met. Planned rest can count as meeting your goal.</p>' +
       '<button type="button" class="wide" id="save-daily-checkin" data-day="' + day + '">Save Today’s Check-In</button>';
   }
 
