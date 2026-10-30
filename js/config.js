@@ -261,7 +261,7 @@ globalThis.FitQuestConfig = {
     "sky": "assets/backgrounds/beginner-attic-v1.webp",
     "pearl": "assets/backgrounds/pearl.svg",
     "rose": "assets/backgrounds/silver-cozy.svg",
-    "ice": "assets/backgrounds/ice.svg",
+    "ice": "assets/backgrounds/gold-cozy.svg",
     "lagoon": "assets/backgrounds/lagoon.svg",
     "ocean": "assets/backgrounds/ocean.svg",
     "meadow": "assets/backgrounds/meadow.svg",
