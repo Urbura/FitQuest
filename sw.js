@@ -2,7 +2,7 @@
 // Updates wait for existing windows to close; never mix releases in an open session.
 'use strict';
 const CACHE_PREFIX = 'fitquest-shell-';
-const CACHE_NAME = CACHE_PREFIX + '20261104-v55';
+const CACHE_NAME = CACHE_PREFIX + '20261104-v56';
 const APP_FILES = [
   "./",
   "index.html",
@@ -14,7 +14,7 @@ const APP_FILES = [
   "assets/app/icon-dev-512.png",
   "css/fitville.css?v=20261029-combined-ranks",
   "js/sounds.js?v=20261016-distinct-melodies",
-  "js/config.js?v=20261104-grandmaster",
+  "js/config.js?v=20261104-rank-art",
   "js/progression.js?v=20261028-writequest-flow",
   "js/storage.js?v=20261014-two-swaps",
   "js/intro.js?v=20261013-intro-module",
@@ -31,16 +31,16 @@ const APP_FILES = [
   "assets/app/icon-fq-512.png",
   "assets/app/icon.svg",
   "assets/backgrounds/ice.svg",
-  "assets/backgrounds/lagoon.svg",
+  "assets/backgrounds/platinum-overlook.webp",
   "assets/backgrounds/lavender.svg",
   "assets/backgrounds/twilight-dojo.webp",
   "assets/backgrounds/meadow.svg",
   "assets/backgrounds/diamond-crystal-hall.webp",
-  "assets/backgrounds/silver-cozy.svg",
-  "assets/backgrounds/gold-cozy.svg",
+  "assets/backgrounds/silver-lakeside.webp",
+  "assets/backgrounds/gold-studio.webp",
   "assets/backgrounds/ocean.svg",
   "assets/backgrounds/emerald-terrace.webp",
-  "assets/backgrounds/pearl.svg",
+  "assets/backgrounds/bronze-courtyard.webp",
   "assets/backgrounds/rose.svg",
   "assets/backgrounds/sky.svg",
   "assets/backgrounds/beginner-attic-v1.webp",
