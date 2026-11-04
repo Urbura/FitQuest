@@ -10,7 +10,7 @@
       (complete ? 'Checked in. ' + doneCount + ' of 5 skills. Review today’s ratings.' : 'Daily check-in. ' + doneCount + ' of 5 skills checked in.') +
       '"><span class="central-checkin-title">Fitness Skills</span>' +
       (complete ? '<strong class="central-checkmark" aria-hidden="true">✓</strong><span class="central-checkin-status">Checked In</span>' :
-        '<strong>' + doneCount + ' / 5</strong><span>Check In</span>') + '</button>' +
+        '<strong>' + doneCount + ' / 5</strong><span class="central-checkin-prompt">Check In</span>') + '</button>' +
       displayOrder.map((i, position) => {
         const s = skills[i],
           totalXP = skillState[i].xp,

@@ -581,7 +581,7 @@ body.tracker-home .tracker-intro p {
 }
 
 .star-summary .central-checkin-status {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
 }
 
@@ -597,7 +597,7 @@ body.tracker-home .tracker-intro p {
 .star-summary strong {
   display: block;
   line-height: 1.1;
-  font-size: 23px;
+  font-size: 25px;
   color: #086bad;
 }
 
@@ -609,7 +609,22 @@ body.tracker-home .tracker-intro p {
 }
 
 .star-summary .central-checkin-title {
-  font-size: 9px;
+  font-size: 11px;
+}
+
+.star-summary .central-checkin-prompt {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.central-checkin-prompt::after {
+  content: "";
+  display: block;
+  width: 8px;
+  height: 8px;
+  margin: 4px auto 0;
+  border-radius: 50%;
+  background: #c62032;
 }
 
 .daily-checkin-skills {
@@ -2148,7 +2163,7 @@ header nav button[data-tab="settings"] .settings-icon {
 
 
   .star-summary strong {
-    font-size: 20px;
+    font-size: 22px;
   }
 
   .star-summary span {
