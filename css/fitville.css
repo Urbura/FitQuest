@@ -184,9 +184,22 @@ body {
   margin: 0;
   color: #203c33;
   font: 16px system-ui,sans-serif;
-  background: var(--tracker-background, linear-gradient(145deg,#d8f3ff,#eefbff));
+  isolation: isolate;
+  background: var(--rank-artwork, var(--tracker-background, linear-gradient(145deg,#d8f3ff,#eefbff))) center / cover no-repeat fixed;
   min-height: 100vh;
   min-height: 100dvh;
+}
+
+/* The full-size artwork fills the edges behind the slightly smaller focal image. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--rank-artwork, none) center / cover no-repeat;
+  transform: scale(.88);
+  mask-image: radial-gradient(ellipse closest-side, #000 77%, transparent 100%);
 }
 
 button {
