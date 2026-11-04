@@ -535,10 +535,11 @@
       updateCollectionBadge();
       document.body.dataset.theme = reward.theme;
       const artwork = CONFIG.themeArtwork[reward.theme];
+      const artworkSize = reward.theme === 'sky' ? 'contain' : 'cover';
       const background = CONFIG.themes[reward.theme] + (artwork
-        ? ', url("' + new URL(artwork, document.baseURI).href + '") center / cover no-repeat'
+        ? ', url("' + new URL(artwork, document.baseURI).href + '") center / ' + artworkSize + ' no-repeat'
         : '');
-      document.body.style.setProperty('--tracker-background', background);
+      document.body.style.setProperty('--tracker-background', background + (reward.theme === 'sky' ? ' #d8e5ef' : ''));
     }
 
     let totalRewardIndex = null;
