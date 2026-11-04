@@ -2,7 +2,7 @@
 // Updates wait for existing windows to close; never mix releases in an open session.
 'use strict';
 const CACHE_PREFIX = 'fitquest-shell-';
-const CACHE_NAME = CACHE_PREFIX + '20261104-v60';
+const CACHE_NAME = CACHE_PREFIX + '20261104-v61';
 const APP_FILES = [
   "./",
   "index.html",
@@ -23,7 +23,7 @@ const APP_FILES = [
   "js/developer.js?v=20261028-phone-dev-tools",
   "js/celebrations.js?v=20261015-legend",
   "js/xp-animation.js?v=20261023-xp-animation",
-  "js/screens.js?v=20261104-checkin-dot",
+  "js/screens.js?v=20261104-checkin-copy",
   "js/pwa.js?v=20261015-offline",
   "js/fitville.js?v=20261104-full-background",
   "assets/app/icon-fq-180.png",

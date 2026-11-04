@@ -66,7 +66,6 @@
   function renderDailyCheckin({ ratings, skills, displayOrder, safeText, day }) {
     return '<div class="row"><h2 id="check-heading">Daily Check-In</h2>' +
       '<button id="check-close" class="popup-close" aria-label="Close check-in">×</button></div>' +
-      '<p>One skill is enough. Rate progress toward your own goal: 0–5.</p>' +
       '<div class="daily-checkin-skills">' + displayOrder.map(i => {
         const rating = ratings[i];
         return '<section class="daily-checkin-skill"><div class="row">' +
