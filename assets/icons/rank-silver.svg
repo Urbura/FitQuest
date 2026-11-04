@@ -10,5 +10,5 @@
   <path d="M32 5 53 15 56 34Q53 49 32 58 11 49 8 34L11 15Z" fill="none" stroke="url(#metal)" stroke-width="3"/>
   <path d="M32 16 47 32 32 48 17 32Z" fill="url(#metal)" stroke="#f4fbff" stroke-width="1.5" stroke-linejoin="round"/>
   <path d="M32 16V32H17Z M32 32H47L32 48Z" fill="#fff" opacity=".24"/>
-  <path d="M13 23V17L22 13M51 23V17L42 13M24 52L32 56 40 52" fill="none" stroke="url(#metal)" stroke-width="1.4" stroke-linecap="round" opacity=".8"/>
+  <path d="M24 52L32 56 40 52" fill="none" stroke="url(#metal)" stroke-width="1.4" stroke-linecap="round" opacity=".8"/>
 </svg>

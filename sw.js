@@ -2,7 +2,7 @@
 // Updates wait for existing windows to close; never mix releases in an open session.
 'use strict';
 const CACHE_PREFIX = 'fitquest-shell-';
-const CACHE_NAME = CACHE_PREFIX + '20261104-v52';
+const CACHE_NAME = CACHE_PREFIX + '20261104-v53';
 const APP_FILES = [
   "./",
   "index.html",
