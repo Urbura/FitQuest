@@ -233,7 +233,7 @@ globalThis.FitQuestConfig = {
       "title": "Emerald",
       "badge": "dumbbell",
       "theme": "ocean",
-      "themeName": "Emerald Sanctuary"
+      "themeName": "Emerald Terrace"
     },
     {
       "level": 150,
@@ -263,7 +263,7 @@ globalThis.FitQuestConfig = {
     "rose": "assets/backgrounds/silver-cozy.svg",
     "ice": "assets/backgrounds/gold-cozy.svg",
     "lagoon": "assets/backgrounds/lagoon.svg",
-    "ocean": "assets/backgrounds/ocean.svg",
+    "ocean": "assets/backgrounds/emerald-terrace.webp",
     "meadow": "assets/backgrounds/diamond-crystal-hall.webp",
     "lavender": "assets/backgrounds/lavender.svg",
     "sunrise": "assets/backgrounds/sunrise.svg"
