@@ -240,7 +240,7 @@ globalThis.FitQuestConfig = {
       "title": "Diamond",
       "badge": "heart",
       "theme": "meadow",
-      "themeName": "Diamond Sky"
+      "themeName": "Moonlit Crystal Hall"
     },
     {
       "level": 200,
@@ -264,7 +264,7 @@ globalThis.FitQuestConfig = {
     "ice": "assets/backgrounds/gold-cozy.svg",
     "lagoon": "assets/backgrounds/lagoon.svg",
     "ocean": "assets/backgrounds/ocean.svg",
-    "meadow": "assets/backgrounds/meadow.svg",
+    "meadow": "assets/backgrounds/diamond-crystal-hall.webp",
     "lavender": "assets/backgrounds/lavender.svg",
     "sunrise": "assets/backgrounds/sunrise.svg"
   },
