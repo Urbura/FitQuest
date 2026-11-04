@@ -247,7 +247,7 @@ globalThis.FitQuestConfig = {
       "title": "Master",
       "badge": "kettlebell",
       "theme": "lavender",
-      "themeName": "Master Ascension"
+      "themeName": "Twilight Dojo"
     },
     {
       "level": 250,
@@ -265,7 +265,7 @@ globalThis.FitQuestConfig = {
     "lagoon": "assets/backgrounds/lagoon.svg",
     "ocean": "assets/backgrounds/emerald-terrace.webp",
     "meadow": "assets/backgrounds/diamond-crystal-hall.webp",
-    "lavender": "assets/backgrounds/lavender.svg",
+    "lavender": "assets/backgrounds/twilight-dojo.webp",
     "sunrise": "assets/backgrounds/sunrise.svg"
   },
   "themes": {
