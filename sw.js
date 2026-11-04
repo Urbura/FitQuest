@@ -2,7 +2,7 @@
 // Updates wait for existing windows to close; never mix releases in an open session.
 'use strict';
 const CACHE_PREFIX = 'fitquest-shell-';
-const CACHE_NAME = CACHE_PREFIX + '20261104-v49';
+const CACHE_NAME = CACHE_PREFIX + '20261104-v50';
 const APP_FILES = [
   "./",
   "index.html",
@@ -14,7 +14,7 @@ const APP_FILES = [
   "assets/app/icon-dev-512.png",
   "css/fitville.css?v=20261029-combined-ranks",
   "js/sounds.js?v=20261016-distinct-melodies",
-  "js/config.js?v=20261104-master",
+  "js/config.js?v=20261104-grandmaster",
   "js/progression.js?v=20261028-writequest-flow",
   "js/storage.js?v=20261014-two-swaps",
   "js/intro.js?v=20261013-intro-module",
@@ -45,6 +45,7 @@ const APP_FILES = [
   "assets/backgrounds/sky.svg",
   "assets/backgrounds/beginner-attic-v1.webp",
   "assets/backgrounds/sunrise.svg",
+  "assets/backgrounds/sunrise-summit.webp",
   "assets/fitquest-logo-v1.webp",
   "assets/icons/achievement-bronze.svg",
   "assets/icons/achievement-first-check-in.svg",

@@ -254,7 +254,7 @@ globalThis.FitQuestConfig = {
       "title": "Grandmaster",
       "badge": "trophy",
       "theme": "sunrise",
-      "themeName": "Grandmaster Radiance"
+      "themeName": "Sunrise Summit"
     }
   ],
   "themeArtwork": {
@@ -266,7 +266,7 @@ globalThis.FitQuestConfig = {
     "ocean": "assets/backgrounds/emerald-terrace.webp",
     "meadow": "assets/backgrounds/diamond-crystal-hall.webp",
     "lavender": "assets/backgrounds/twilight-dojo.webp",
-    "sunrise": "assets/backgrounds/sunrise.svg"
+    "sunrise": "assets/backgrounds/sunrise-summit.webp"
   },
   "themes": {
     "sky": "radial-gradient(ellipse at 50% 45%, #f3fcffde 0%, #e9f8ffb8 36%, #e9f8ff00 82%)",
