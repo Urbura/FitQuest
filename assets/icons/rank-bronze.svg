@@ -1,1 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160"><title>FitQuest Bronze rank</title><defs><linearGradient id="metal" x2=".7" y2="1"><stop stop-color="#efba85"/><stop offset=".45" stop-color="#a65b32"/><stop offset=".7" stop-color="#efba85"/><stop offset="1" stop-color="#a65b32"/></linearGradient><linearGradient id="field" x2=".3" y2="1"><stop stop-color="#61351f"/><stop offset=".5" stop-color="#895032"/><stop offset="1" stop-color="#61351f"/></linearGradient><linearGradient id="star" x2=".5" y2="1"><stop stop-color="#fffde5"/><stop offset=".5" stop-color="#f9d5a2"/><stop offset="1" stop-color="#a65b32"/></linearGradient></defs><g transform="translate(80 80) scale(0.92) translate(-80 -80)"><path d="M80 25Q100 42 124 45L119 93Q111 119 80 138Q49 119 41 93L36 45Q60 42 80 25Z" fill="url(#metal)" stroke="#61351f" stroke-width="2.8"/><path d="M80 36Q99 49 114 52L109 92Q100 113 80 126Q60 113 51 92L46 52Q63 48 80 36Z" fill="url(#field)" stroke="#efba85" stroke-width="2"/><polygon points="80.0,49.0 87.6,68.5 108.5,69.7 92.4,83.0 97.6,103.3 80.0,92.0 62.4,103.3 67.6,83.0 51.5,69.7 72.4,68.5" fill="url(#star)" stroke="#61351f" stroke-width="1.6"/><path d="M80 79L80.0 49.0 87.6 68.5Z" fill="#fff" opacity=".3"/><path d="M80 79L108.5 69.7 92.4 83.0Z" fill="#fff" opacity=".3"/><path d="M80 79L97.6 103.3 80.0 92.0Z" fill="#fff" opacity=".3"/><path d="M80 79L62.4 103.3 67.6 83.0Z" fill="#fff" opacity=".3"/><path d="M80 79L51.5 69.7 72.4 68.5Z" fill="#fff" opacity=".3"/><path d="M41 47Q63 43 80 29L80 34Q63 48 46 51" fill="#efba85" opacity=".65"/></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>FitQuest Bronze rank</title>
+  <defs>
+    <linearGradient id="metal" x2="0" y2="1">
+      <stop stop-color="#ffd0a2"/>
+      <stop offset="1" stop-color="#a4512b"/>
+    </linearGradient>
+  </defs>
+  <path d="M32 3 55 13 59 34Q56 51 32 61 8 51 5 34L9 13Z" fill="#522c25" stroke="#111827" stroke-width="3"/>
+  <path d="M32 5 53 15 56 34Q53 49 32 58 11 49 8 34L11 15Z" fill="none" stroke="url(#metal)" stroke-width="3"/>
+  <path d="M32 16 42 23V40L32 48 22 40V23Z" fill="url(#metal)" stroke="#ffd0a2" stroke-width="1.5" stroke-linejoin="round"/>
+</svg>
