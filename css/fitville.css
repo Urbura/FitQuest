@@ -2403,3 +2403,41 @@ header .stats #overall-level-value { white-space: nowrap; }
   header .stats #overall-level { gap: 2px; }
   header .stats #header-rank-badge { width: 32px; height: 32px; }
 }
+
+/* WriteQuest-inspired dashboard palette, over the existing rank artwork. */
+body.tracker-home {
+  --home-panel: #172741;
+  --home-panel-light: #203653;
+  --home-ink: #f7ebd3;
+  --home-muted: #c2ccdb;
+  --home-gold: #f4c76a;
+}
+
+.tracker-home .star-skill,
+.tracker-home .star-summary:not(.is-complete),
+.tracker-home header .stats,
+.tracker-home header nav button:not([aria-selected="true"]) {
+  background: linear-gradient(150deg, var(--home-panel-light), var(--home-panel));
+  color: var(--home-ink);
+}
+
+.tracker-home .star-skill.is-complete {
+  background: linear-gradient(150deg, #23463f, var(--home-panel));
+}
+
+.tracker-home .star-skill .star-level,
+.tracker-home .star-skill .star-xp,
+.tracker-home .star-summary:not(.is-complete) span {
+  color: var(--home-muted);
+}
+
+.tracker-home .star-summary:not(.is-complete) strong {
+  color: var(--home-gold);
+}
+
+.tracker-home .star-summary:not(.is-complete),
+.tracker-home header .stats,
+.tracker-home header nav button:not([aria-selected="true"]) {
+  border-color: #f4c76a80;
+  box-shadow: 0 2px 7px #0b14287a;
+}
