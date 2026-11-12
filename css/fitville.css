@@ -365,10 +365,6 @@ html {
   max-height: calc(100dvh - 24px - var(--safe-top) - var(--safe-bottom));
 }
 
-.tracker-intro {
-  margin-bottom: 18px;
-}
-
 .skill-symbol {
   display: inline-flex;
   width: 38px;
@@ -417,22 +413,6 @@ body.tracker-home main {
   padding-right: calc(12px + var(--safe-right));
   padding-bottom: calc(12px + var(--safe-bottom));
   padding-left: calc(12px + var(--safe-left));
-}
-
-body.tracker-home .tracker-intro {
-  text-align: center;
-  margin: 0;
-  flex-shrink: 0;
-}
-
-body.tracker-home .tracker-intro h2 {
-  margin: 0 0 4px;
-  font-size: 20px;
-}
-
-body.tracker-home .tracker-intro p {
-  margin: 0;
-  font-size: 13px;
 }
 
 .skill-star {
@@ -708,13 +688,6 @@ body.tracker-home .tracker-intro p {
   box-shadow: 0 0 0 3px #087bd933;
 }
 
-.star-reset {
-  flex-shrink: 0;
-  text-align: center;
-  font-size: 11px;
-  margin: 6px 0 0;
-}
-
 .star-level {
   order: 2;
   color: var(--skill);
@@ -840,14 +813,6 @@ nav button[data-tab="settings"] .settings-icon {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-}
-
-body.tracker-home .tracker-intro .next-reward {
-  margin: 7px auto 0;
-  max-width: 440px;
-  color: #23516a;
-  font-size: 12px;
-  line-height: 1.35;
 }
 
 .weekly-check-ins {
@@ -1358,7 +1323,7 @@ header nav .collections-icon {
   max-height: min(85dvh, calc(100dvh - 32px - var(--safe-top) - var(--safe-bottom)));
 }
 
-body.tracker-home .star-xp,body.tracker-home .star-level,body.tracker-home .star-summary span,body.tracker-home .star-reset,body.tracker-home .tracker-intro p,body.tracker-home .tracker-intro .next-reward,body.tracker-home .weekly-check-ins {
+body.tracker-home .star-xp,body.tracker-home .star-level,body.tracker-home .star-summary span,body.tracker-home .weekly-check-ins {
   color: #203c33;
 }
 
@@ -1585,27 +1550,6 @@ body.tracker-home .star-xp,body.tracker-home .star-level,body.tracker-home .star
   margin-top: 4px;
 }
 
-#header-rank-button {
-  padding: 0;
-  border: 0;
-  background: transparent;
-  flex-shrink: 0;
-  min-width: 44px;
-  min-height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-#header-rank-button[hidden] {
-  display: none;
-}
-
-#ranks-dialog {
-  max-height: 85dvh;
-  overflow-y: auto;
-}
-
 .rank-progression-list {
   display: grid;
   gap: 8px;
@@ -1801,11 +1745,6 @@ header #overall-level {
   min-width: 0;
 }
 
-header #header-rank-button {
-  flex: 0 0 44px;
-  width: 44px;
-}
-
 header #journey-open {
   padding: 3px 6px;
 }
@@ -1988,11 +1927,6 @@ header nav button[data-tab="settings"] .settings-icon {
     min-height: 44px;
   }
 
-  header #header-rank-button {
-    flex-basis: 44px;
-    width: 44px;
-  }
-
   header #journey-open {
     padding: 3px 4px;
   }
@@ -2149,11 +2083,6 @@ header nav button[data-tab="settings"] .settings-icon {
     font-size: 10px;
   }
 
-  body.tracker-home .tracker-intro .next-reward {
-    margin-top: 4px;
-    font-size: 11px;
-  }
-
   .weekly-check-ins {
     margin-top: 3px;
     font-size: 11px;
@@ -2208,21 +2137,6 @@ header nav button[data-tab="settings"] .settings-icon {
   .weekly-check-ins {
     font-size: 11px;
     margin-top: 4px;
-  }
-
-  .star-reset {
-    font-size: 10px;
-    margin-top: 3px;
-  }
-
-  body.tracker-home .tracker-intro h2 {
-    font-size: 14px;
-    line-height: 1.2;
-    margin: 0 0 3px;
-  }
-
-  body.tracker-home .tracker-intro p {
-    display: none;
   }
 
   .collections {
