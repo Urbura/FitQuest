@@ -76,7 +76,7 @@ test('central ratings remain a draft until one save and reopening discards unsav
   t.dashboard();
   const before = JSON.stringify(t.state());
   t.openDailyCheck();
-  assert.match(t.dialogHTML(), /One skill is enough/);
+  assert.match(t.dialogHTML(), /id="save-daily-checkin"[^>]*data-day=/);
   assert.equal((t.dialogHTML().match(/data-daily-score=/g) || []).length, 30);
   t.submitDailyRating(4, 3, t.day());
   assert.equal(JSON.stringify(t.state()), before);
@@ -198,10 +198,6 @@ test('reward milestones have distinct titles and themes and unlock at the correc
     assert.equal(t.totalReward(reward.level).title, reward.title);
     if (reward.level > 5) assert.notEqual(t.totalReward(reward.level - 1).title, reward.title);
   }
-  t.preview(50);
-  assert.match(t.nextRewardText(), /^Next rank at Total Level 75: Platinum$/);
-  t.preview(250);
-  assert.equal(t.nextRewardText(), 'All Total Level rewards unlocked!');
 });
 
 test('first Total Level and reward celebrations queue once, with skill celebrations retained', () => {
@@ -308,7 +304,7 @@ test('bonus history round-trips and malformed bonuses are rejected', () => {
 
 test('a positive skill completes the fitness day; all-zero ratings leave it open', () => {
   const t = tracker();
-  assert.match(t.dashboard(), /Your daily check-in/);
+  assert.match(t.dashboard(), /class="star-summary"[^>]*data-open-checkin/);
   t.recordCheckIn(0, 0);
   assert.doesNotMatch(t.dashboard(), /class="star-summary is-complete"/);
   t.recordCheckIn(4, 1);
@@ -319,7 +315,7 @@ test('a positive skill completes the fitness day; all-zero ratings leave it open
   const tomorrow = tracker('2026-10-09T16:00:00Z');
   tomorrow.setState(tomorrow.readSave(JSON.stringify(t.state())));
   assert.doesNotMatch(tomorrow.dashboard(), /class="star-summary is-complete"/);
-  assert.match(tomorrow.dashboard(), /Your daily check-in/);
+  assert.match(tomorrow.dashboard(), /class="star-summary"[^>]*data-open-checkin/);
 });
 
 // Configuration and progression module boundaries
@@ -491,7 +487,6 @@ test('rank rewards have distinct badges and do not promote backgrounds', () => {
     assert.match(panel, /reward-badge-large/);
     assert.doesNotMatch(panel, /background/);
   }
-  assert.doesNotMatch(t.nextRewardText(), /background/);
 });
 
 test('developer Total Level override also controls rank achievements', () => {

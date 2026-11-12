@@ -1,7 +1,7 @@
 // Pure screen markup: inputs describe the view; no browser storage or app state is changed.
 (function (root) {
   'use strict';
-  function renderDashboard({ entry, skills, skillState, displayOrder, maxLevel, xp, levelForXP, skillIcon, nextReward, dailyQuestHTML, safeText }) {
+  function renderDashboard({ entry, skills, skillState, displayOrder, maxLevel, xp, levelForXP, skillIcon, dailyQuestHTML }) {
     const doneCount = entry ? entry.scores.filter(score => score > 0).length : 0,
       complete = Boolean(entry && entry.scores.some(score => score > 0));
     return (

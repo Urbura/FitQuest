@@ -149,9 +149,6 @@
         Math.max(50, nextReset() - Date.now() + 50),
       );
     }
-    function refreshResetCountdown() {
-      document.querySelectorAll('.star-reset').forEach((el) => (el.textContent = resetText()));
-    }
 
     // Save coordination returns outcomes; this layer handles dialogs and notices.
     function prepareReplacement() {
@@ -284,12 +281,6 @@
         '<path d="' + path + '" transform="translate(4 4)" fill="none" stroke="#235f90" ' +
         'stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
     }
-    function nextRewardText() {
-      const current = currentTotalLevel(),
-        next = nextRewardForTotalLevel(current);
-      if (!next) return 'All Total Level rewards unlocked!';
-      return 'Next rank at Total Level ' + next.level + ': ' + next.title;
-    }
     // A day-derived random seed keeps the suggested quest stable across reloads.
     // Saved swaps and completion live beside that day's check-ins.
     function dailyQuest() {
@@ -341,7 +332,7 @@
         entry: dailyEntry(), skills: SKILLS, skillState: state.skills,
         displayOrder: SKILL_DISPLAY_ORDER, maxLevel: MAX_LEVEL,
         xp: XP, levelForXP: level, skillIcon,
-        nextReward: nextRewardText(), dailyQuestHTML: dailyQuestPanel(), safeText,
+        dailyQuestHTML: dailyQuestPanel(),
       });
     }
 
@@ -595,7 +586,6 @@
     }
 
     function render(persist = true) {
-      document.body.classList.remove('map-home');
       document.body.classList.toggle('tracker-home', tab === 'dashboard' && introStep < 0);
       renderHUD();
       document
@@ -1298,7 +1288,7 @@
         achievementStats, earnedAchievements, setProfileLevels: developer.setProfileLevels, journeySummary, journeyPanel, dailyQuest, setQuestCompleted, swapDailyQuest, commitDailyQuest,
         unseenAchievements, markAchievementViewed,
         editCheckIn, skillBonus, checkInXP, totalSkillLevel, totalReward,
-        TOTAL_REWARDS, weeklyCheckInCount, day, nextReset, nextRewardText,
+        TOTAL_REWARDS, weeklyCheckInCount, day, nextReset,
         queueLevels, queueLegendCelebration, previewCelebration,
         setPreviewHistory: developer.setHistory, unlockPreviewAchievements: developer.unlockAllAchievements, dashboard, openDailyCheck, submitDailyRating, saveDailyCheckin, openSkillCheck, totalRewardsPanel, rewardBadge,
         dialogHTML: () => document.getElementById('check-content').innerHTML,
@@ -1362,7 +1352,6 @@
     setInterval(() => {
       if (document.visibilityState === 'visible') {
         refreshDayIfNeeded();
-        refreshResetCountdown();
         renderHUD();
       }
     }, 60000);
@@ -1370,7 +1359,6 @@
       if (document.visibilityState === 'visible') {
         if (syncSharedSave()) render(false);
         refreshDayIfNeeded();
-        refreshResetCountdown();
         renderHUD();
       }
     });

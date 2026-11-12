@@ -12,11 +12,15 @@ Find the entry in `totalRewards` and edit its `title`:
 { level: 25, title: 'Silver', theme: 'rose', themeName: 'Silver Horizon' }
 ```
 
-The header, next-reward message, and celebration all use this entry.
+The Total Level reward panel and celebrations use this entry. Header rank names are defined separately in `achievements.js`; keep them aligned until rank definitions are consolidated.
 
 ### Change a background
 
-`themeArtwork` maps theme keys to local background assets. The Beginner (`sky`) theme uses the approved anime attic image `assets/backgrounds/beginner-attic-v1.webp`; other ranks retain their SVG scenes. The WebP is an optimized export of the approved artwork, with no content changes. `themes` supplies the translucent centre overlay for text contrast. Each `totalRewards` entry selects a theme and supplies its readable `themeName`. Keep milestone entries ordered by level. Regenerate scenery with `python scripts/generate-backgrounds.py`, and rank badges with `python scripts/generate-rank-badges.py`.
+`themeArtwork` maps the existing theme keys to WebP artwork for Beginner through Grandmaster. Each `totalRewards` entry selects a theme and supplies its readable `themeName`; keep milestone entries ordered by level and preserve existing theme keys.
+
+`renderHUD()` sets `--rank-artwork` and the `--tracker-background` gradient fallback. In `css/fitville.css`, the body fills the screen with the artwork, while a second, masked layer at 88% scale reduces perceived zoom. Both layers are intentional. The gradient is a fallback when no artwork is configured, rather than an overlay on the image.
+
+Legacy SVG scenery remains in the repository and offline cache. `python scripts/generate-backgrounds.py` regenerates those legacy scenes, not the current WebP artwork. Rank badges can be regenerated with `python scripts/generate-rank-badges.py`. When changing cached app files or artwork, update the versioned URLs in `index.html` and `sw.js` together and bump the service worker cache version.
 
 ### Change skill information
 
