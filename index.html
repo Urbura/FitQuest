@@ -12,15 +12,17 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="FitQuest" />
     <script src="js/app-metadata.js?v=20261015-dev-icon"></script>
-    <link rel="stylesheet" href="css/fitville.css?v=20261116-level-up-sequence" />
+    <link rel="stylesheet" href="css/fitville.css?v=20261116-compact-header" />
   </head>
   <body>
     <header>
       <div>
-        <div class="muted">YOUR EVERYDAY ADVENTURE</div>
-        <h1><button id="journey-open" type="button" aria-label="FitQuest: view your journey" aria-haspopup="dialog" aria-controls="journey-dialog"><img class="app-logo" src="assets/fitquest-logo-v1.webp" alt="FitQuest" width="640" height="189" fetchpriority="high" /></button></h1>
-        <p class="muted">Track habits. Build your fitness skills.</p>
-        <div class="stats"><button id="overall-level" type="button" aria-haspopup="dialog" aria-controls="total-dialog" title="View rank progression"><img id="header-rank-badge" width="40" height="40" alt="" hidden /><span id="overall-level-value"></span></button></div>
+        <h1><button id="journey-open" type="button" aria-label="FitQuest: view your journey" aria-haspopup="dialog" aria-controls="journey-dialog"><span class="app-logo">Fit<span>Quest</span></span></button></h1>
+        <div class="stats"><button id="overall-level" type="button" aria-haspopup="dialog" aria-controls="total-dialog" title="View rank progression"><img id="header-rank-badge" width="28" height="28" alt="" hidden /><span class="total-level-copy"><span>Total Level</span><strong id="overall-level-value"></strong></span></button></div>
+        <nav aria-label="Main navigation">
+          <button data-tab="collections" title="Collections"><svg class="collections-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h10v5c0 4-2 6-5 6S7 12 7 8ZM7 5H3v3c0 3 2 4 5 4m9-7h4v3c0 3-2 4-5 4M12 14v6m-5 1h10"/></svg><span class="collection-count" hidden></span>Collections</button>
+          <button data-tab="settings"><span class="settings-icon" aria-hidden="true"></span>Settings</button>
+        </nav>
       </div>
     </header>
     <div id="dev-tools" hidden>
@@ -146,10 +148,7 @@
       <div id="bonuses-content"></div>
     </dialog>
     <div id="notice" role="status"></div>
-    <nav aria-label="Main navigation">
-      <button data-tab="collections" title="Collections"><img class="collections-icon" src="assets/icons/collection-trophy.svg?v=20261014-lowered" alt="" width="30" height="30" /><span class="collection-count" hidden></span>Collections</button>
-       <button data-tab="settings"><span class="settings-icon" aria-hidden="true"></span>Settings</button>
-    </nav>
+
     <script src="js/sounds.js?v=20261016-distinct-melodies"></script>
     <script src="js/config.js?v=20261104-rank-art"></script>
     <script src="js/progression.js?v=20261116-reward-snapshots"></script>
@@ -160,9 +159,9 @@
     <script src="js/developer.js?v=20261028-phone-dev-tools"></script>
     <script src="js/celebrations.js?v=20261015-legend"></script>
     <script src="js/xp-animation.js?v=20261116-sequential-xp"></script>
-    <script src="js/screens.js?v=20261116-level-up-sequence"></script>
+    <script src="js/screens.js?v=20261116-compact-header"></script>
     <script src="js/pwa.js?v=20261015-offline"></script>
-    <script src="js/fitville.js?v=20261116-level-up-sequence"></script>
+    <script src="js/fitville.js?v=20261116-compact-header"></script>
   </body>
 </html>
 
