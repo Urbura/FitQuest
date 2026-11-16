@@ -106,6 +106,7 @@ globalThis.FitQuestConfig = {
       "hint": "How close were you to your 7½–8½ hour sleep goal?",
       "icon": "moon",
       "color": "#7962a6",
+      "iconColor": "#c4a7ff",
       "titles": [
         "Dreamer",
         "Rest Seeker",
@@ -124,6 +125,7 @@ globalThis.FitQuestConfig = {
       "hint": "How well did you meet your eating goals today?",
       "icon": "salad",
       "color": "#4f7836",
+      "iconColor": "#9ade77",
       "titles": [
         "Fresh Starter",
         "Balanced Bite",
@@ -142,6 +144,7 @@ globalThis.FitQuestConfig = {
       "hint": "How well did you meet your stretching goal today?",
       "icon": "stretching",
       "color": "#267b7d",
+      "iconColor": "#67d6d2",
       "titles": [
         "First Stretch",
         "Limber Learner",
@@ -160,6 +163,7 @@ globalThis.FitQuestConfig = {
       "hint": "How well did you meet your movement or cardio goal today?",
       "icon": "run",
       "color": "#ad5b28",
+      "iconColor": "#ffb574",
       "titles": [
         "Trail Starter",
         "Steady Strider",
@@ -178,6 +182,7 @@ globalThis.FitQuestConfig = {
       "hint": "How well did you follow your workout plan today?",
       "icon": "barbell",
       "color": "#3b6daa",
+      "iconColor": "#78b7ff",
       "titles": [
         "First Lift",
         "Iron Learner",

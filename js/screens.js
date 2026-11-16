@@ -26,7 +26,7 @@
           '" data-open-skill="' +
           i +
           '" style="--skill:' +
-          s.color + ';--glow-delay:' + (-position * 1.7) + 's' +
+          s.color + ';--skill-icon:' + (s.iconColor || s.color) + ';--glow-delay:' + (-position * 1.7) + 's' +
           '" aria-label="' +
           s.name +
           ', level ' +
