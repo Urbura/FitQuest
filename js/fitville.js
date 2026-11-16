@@ -31,6 +31,7 @@
       calculateTotalLevel,
       rewardForTotalLevel: totalReward,
       nextRewardForTotalLevel,
+      checkinAwards,
     } = globalThis.FitQuestProgression.createProgression(CONFIG);
     function fresh() {
       return {
@@ -373,7 +374,47 @@
       ranks: TOTAL_LEVEL_RANKS, rewardBadge, safeText,
     });
     let celebrations = [],
-      celebrationFocus;
+      celebrationFocus, celebrationResume = null, xpPresentationActive = false;
+
+    function presentProgressAwards(beforeXP, { savedSummary = false } = {}) {
+      const awards = checkinAwards(beforeXP, state.skills.map(skill => skill.xp));
+      const beforeTotal = beforeXP.reduce((sum, experience) => sum + level(experience), 0);
+      const afterTotal = totalSkillLevel();
+      const count = dailyEntry()?.scores.filter(score => score > 0).length || 0;
+      const leveled = awards.flatMap(award => award.levels.map(progress => ({ i: award.id, l: progress.level })));
+      const celebrated = new Set();
+      celebrationFocus = document.activeElement;
+      xpPresentationActive = true;
+      render(false);
+      const finish = () => {
+        xpPresentationActive = false;
+        celebrations = leveled.filter(item => !celebrated.has(item.i + ':' + item.l));
+        for (const milestone of TOTAL_REWARDS) {
+          if (milestone.level > beforeTotal && milestone.level <= afterTotal)
+            celebrations.push({ total: true, l: milestone.level, milestone });
+        }
+        queueLegendCelebration(false);
+        if (savedSummary) celebrations.push({ saved: true, count });
+        if (celebrations.length) showLevel();
+        else restoreCelebrationFocus();
+      };
+      if (awards.length && globalThis.QuestXPAnimation?.showCheckinAwards) {
+        globalThis.FitQuestSounds?.play('checkin');
+        globalThis.QuestXPAnimation.showCheckinAwards(awards, finish, {
+          onLevelUp: (award, skillLevel, resume) => {
+            celebrated.add(award.id + ':' + skillLevel);
+            celebrationResume = resume;
+            celebrations = [{ i: award.id, l: skillLevel }];
+            showLevel();
+          },
+        });
+      } else finish();
+    }
+
+    function restoreCelebrationFocus() {
+      if (celebrationFocus?.isConnected) celebrationFocus.focus();
+      else document.querySelector('[data-open-checkin]')?.focus();
+    }
     function queueLevels(i, before, after, totalBefore, totalAfter) {
       // Show the skill that earned the level before its Total Level rewards.
       for (let l = before + 1; l <= after; l++) celebrations.push({ i, l });
@@ -398,15 +439,15 @@
       showLevel();
       return true;
     }
-    function queueLegendCelebration() {
-      if (developer.active || saves.rejectedRaw !== null || state.legendCelebrated ||
+    function queueLegendCelebration(autoStart = true) {
+      if (xpPresentationActive || developer.active || saves.rejectedRaw !== null || state.legendCelebrated ||
           !earnedAchievements().includes('fitquest-legend')) return;
       const profile = state;
       state.legendCelebrated = true;
       save();
       if (state !== profile) return;
       celebrations.push({ legend: true });
-      if (!document.getElementById('level-dialog').open) {
+      if (autoStart && !document.getElementById('level-dialog').open) {
         celebrationFocus = document.activeElement;
         showLevel();
       }
@@ -415,8 +456,14 @@
       const item = celebrations[0];
       if (!item) return;
       const { i, l, total, milestone } = item;
-      globalThis.FitQuestSounds?.play(item.legend ? 'legend' : total && milestone ? 'rank' : 'level');
-      if (item.legend) {
+      globalThis.FitQuestSounds?.play(item.saved ? 'checkin' : item.legend ? 'legend' : total && milestone ? 'rank' : 'level');
+      if (item.saved) {
+        document.getElementById('level-content').innerHTML =
+          '<div class="level-saved-check" aria-hidden="true">✓</div><h2 id="level-heading">' +
+          (item.count ? 'Fitness day complete' : 'Check-in saved') + '</h2><p>' +
+          (item.count ? item.count + ' of 5 skills checked in. Progress saved.' : 'Your ratings are saved. A positive rating in any skill completes your fitness day.') +
+          '</p>' + (developer.active ? '<p class="muted">Test Mode preview · normal progress unchanged.</p>' : '');
+      } else if (item.legend) {
         document.getElementById('level-content').innerHTML = celebrationMarkup.legend();
       } else if (total) {
         document.getElementById('level-content').innerHTML = celebrationMarkup.totalLevel(item);
@@ -428,32 +475,39 @@
               ? 'New bonus: +' + skillBonus(l) + ' XP on each check-in rated 1–5.'
               : l % 7 === 0
               ? 'New title: ' + titleFor(i, l)
-              : 'No new item at this level. Next title at level ' +
-                Math.min(MAX_LEVEL, Math.ceil(l / 7) * 7) +
-                '.';
+              : '';
         document.getElementById('level-content').innerHTML =
-          '<span class="anime-tag">' + SKILLS[i].name +
-          ' · LEVEL UP!</span><h2 id="level-heading"><span class="congratulations">Congratulations!</span>' + SKILLS[i].name + ' reached Level ' +
-          l + '!</h2>' +
-          (l === MAX_LEVEL ? crown(i) : '<div class="level-emblem">' + skillIcon(i) + '</div>') +
-          '<p><b>' + safeText(unlock) + '</b></p><p class="muted">' +
-          (l === MAX_LEVEL
-            ? 'Your skill crown is displayed in your skill check-in.'
-            : 'Current title: ' + titleFor(i, l)) + '</p>';
+          '<div class="level-emblem">' + skillIcon(i) + '</div><h2 id="level-heading">Level Up!</h2>' +
+          '<p class="level-up-summary">' + safeText(SKILLS[i].name) + ' reached Level ' + l + '!</p>' +
+          (l === MAX_LEVEL ? crown(i) : '') +
+          (unlock ? '<p><b>' + safeText(unlock) + '</b></p>' : '') +
+          (developer.active ? '<p class="muted">Test Mode preview · normal progress unchanged.</p>' : '');
       }
       document.getElementById('level-next').textContent =
-        celebrations.length > 1
-          ? 'Next celebration (' + (celebrations.length - 1) + ' remaining)'
-          : 'Continue adventure';
+        item.saved ? 'Done' : 'Continue →';
       const dialog = document.getElementById('level-dialog');
       if (!dialog.open) dialog.showModal();
       document.getElementById('level-next').focus();
-      fireworks(item.legend ? 1 : 4);
+      if (item.saved) document.getElementById('fireworks').innerHTML = '';
+      else fireworks(item.legend ? 1 : 4, !total && !item.legend);
     }
-    function fireworks(burstCount = 4) {
+    function fireworks(burstCount = 4, skillLevelUp = false) {
       const field = document.getElementById('fireworks');
       field.innerHTML = '';
       if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      if (skillLevelUp) {
+        for (let j = 0; j < 24; j++) {
+          const spark = document.createElement('span'), angle = (j * 137.5 % 360) * Math.PI / 180;
+          const distance = 65 + (j % 4) * 16;
+          spark.className = 'spark';
+          spark.style.cssText = 'left:50%;top:35%;background:' +
+            ['#f4c76a', '#38bdf8', '#c084fc', '#f472b6', '#86efac'][j % 5] +
+            ';--dx:' + Math.cos(angle) * distance + 'px;--dy:' + Math.sin(angle) * distance +
+            'px;animation-delay:' + ((j % 3) * .1) + 's;animation-duration:950ms';
+          field.append(spark);
+        }
+        return;
+      }
       for (let burst = 0; burst < burstCount; burst++) {
         const x = 15 + Math.random() * 70,
           y = 15 + Math.random() * 40;
@@ -485,7 +539,11 @@
       else {
         document.getElementById('level-dialog').close();
         document.getElementById('fireworks').innerHTML = '';
-        if (celebrationFocus && celebrationFocus.isConnected) celebrationFocus.focus();
+        if (celebrationResume) {
+          const resume = celebrationResume;
+          celebrationResume = null;
+          resume();
+        } else restoreCelebrationFocus();
       }
     }
 
@@ -673,7 +731,7 @@
       return { status: 'updated', delta, state };
     }
     function submitCorrection(i, score, expectedDay, keepDailyOpen = false) {
-      const before = level(state.skills[i]?.xp || 0), totalBefore = totalSkillLevel();
+      const beforeXP = state.skills.map(skill => skill.xp);
       const result = editCheckIn(i, score, expectedDay);
       if (!keepDailyOpen) document.getElementById('check-dialog').close();
       if (result.status !== 'updated') {
@@ -681,11 +739,11 @@
         return;
       }
       const persisted = save();
-      render(false);
       if (state !== result.state) return;
       if (keepDailyOpen) openDailyCheck(i, score);
       if (persisted || developer.active)
-        queueLevels(i, before, level(state.skills[i].xp), totalBefore, totalSkillLevel());
+        presentProgressAwards(beforeXP, { savedSummary: true });
+      else render(false);
       notify(SKILLS[i].name + ' · corrected to ' + score + '/5 · ' +
         (result.delta > 0 ? '+' : '') + result.delta + ' XP' +
         (developer.active ? ' · preview only.' : persisted ? ' · saved.' : ' · temporary; export a backup.'));
@@ -716,6 +774,7 @@
       return { medals };
     }
     function submitCheckIn(i, score, keepDailyOpen = false) {
+      const beforeXP = state.skills.map(skill => skill.xp);
       const earnedBefore = developer.active ? [] : earnedAchievements();
       initializeFiveForFiveRewards();
       const result = recordCheckIn(i, score);
@@ -725,14 +784,13 @@
         notify(SKILLS[i].name + ' is already checked in today.');
         return;
       }
-      queueLevels(i, result.before, result.after, result.totalBefore, result.totalAfter);
-      const bonus = awardFiveForFiveBonus();
+      const bonus = awardFiveForFiveBonus(false);
       const persisted = save();
-      render(false);
       // A newer shared save can replace this state during saving.
       if (state !== result.state) return;
       if (keepDailyOpen) openDailyCheck(i, score);
-      if (result.earned > 0) reward('+' + result.earned + ' XP');
+      if (persisted || developer.active) presentProgressAwards(beforeXP, { savedSummary: true });
+      else render(false);
       notify(
         SKILLS[i].name +
           ' · ' +
@@ -980,6 +1038,7 @@
           current.index !== expectedQuest.index || current.swaps !== expectedQuest.swaps)
         return { status: 'expired' };
       const original = readSave(JSON.stringify(state));
+      const beforeXP = state.skills.map(skill => skill.xp);
       const result = setQuestCompleted(completed, expectedDay);
       if (result.status !== 'updated') return result;
       const working = state;
@@ -989,18 +1048,7 @@
         state = original;
         return { status: 'failed' };
       }
-      return result;
-    }
-    function showQuestXP(skill) {
-      const card = document.querySelector('[data-open-skill="' + skill + '"]');
-      if (!card) return;
-      const label = document.createElement('span');
-      label.className = 'daily-quest-xp-reward';
-      label.setAttribute('role', 'status');
-      label.setAttribute('aria-label', '+2 XP to ' + SKILLS[skill].name);
-      label.textContent = '+2 XP';
-      card.append(label);
-      setTimeout(() => label.remove(), 1800);
+      return { ...result, beforeXP };
     }
     function confirmDailyQuest() {
       const dialog = document.getElementById('daily-quest-confirm');
@@ -1034,8 +1082,8 @@
       globalThis.FitQuestSounds?.unlock();
       const apply = () => {
         const result = commitDailyQuest(completed, expectedDay, expectedQuest);
-        render(false);
         if (result.status !== 'updated') {
+          render(false);
           if (result.status !== 'unchanged') notify(result.status === 'failed'
             ? 'Quest was not saved. Please try again.' : 'Your Daily Quest changed. Please review it before submitting.');
           return;
@@ -1043,13 +1091,8 @@
         notify(SKILLS[result.skill].name + (completed ? ' · +2 XP' : ' · quest reward removed') +
           (developer.active ? ' · preview only.' : ' · saved.'));
         if (completed) {
-          showQuestXP(result.skill);
-          globalThis.FitQuestSounds?.play('checkin');
-          // Let the skill bar finish its 600 ms animation before opening fireworks.
-          setTimeout(() => {
-            queueLevels(result.skill, result.before, result.after, result.totalBefore, result.totalAfter);
-          }, 1000);
-        }
+          presentProgressAwards(result.beforeXP);
+        } else render(false);
       };
       if (typeof navigator !== 'undefined' && navigator.locks)
         navigator.locks.request('fitness-level-up-save', apply).catch(() => notify('Could not save the quest. Please try again.'));
@@ -1146,8 +1189,7 @@
       }
       const original = state;
       const earnedBefore = developer.active ? [] : earnedAchievements();
-      const before = state.skills.map(skill => level(skill.xp));
-      const totalBefore = totalSkillLevel();
+      const beforeXP = state.skills.map(skill => skill.xp);
       state = readSave(JSON.stringify(state));
       const working = state;
       initializeFiveForFiveRewards();
@@ -1170,19 +1212,10 @@
         return false;
       }
       const earned = state.skills.reduce((sum, skill, i) => sum + skill.xp - original.skills[i].xp, 0);
-      const after = state.skills.map(skill => level(skill.xp));
       draftRatings = null;
       document.getElementById('check-dialog').close();
-      render(false);
-      let runningTotal = totalBefore;
-      SKILLS.forEach((_, i) => {
-        const nextTotal = runningTotal + after[i] - before[i];
-        queueLevels(i, before[i], after[i], runningTotal, nextTotal);
-        runningTotal = nextTotal;
-      });
       const newBadges = developer.active ? [] : earnedAchievements().filter(id => !earnedBefore.includes(id));
-      if (!developer.active && !celebrations.length) globalThis.FitQuestSounds?.play(newBadges.length ? 'achievement' : 'checkin');
-      if (earned > 0) reward('+' + earned + ' XP');
+      presentProgressAwards(beforeXP, { savedSummary: true });
       notify('Today’s check-in saved' + (developer.active ? ' · preview only' : '') +
         '. ' + (earned > 0 ? '+' : '') + earned + ' XP.' +
         (newBadges.length ? ' ' + newBadges.length + ' achievements unlocked.' : ''));
@@ -1302,13 +1335,14 @@
         unseenAchievements, markAchievementViewed,
         editCheckIn, skillBonus, checkInXP, totalSkillLevel, totalReward,
         TOTAL_REWARDS, weeklyCheckInCount, day, nextReset,
-        queueLevels, queueLegendCelebration, previewCelebration,
+        queueLevels, queueLegendCelebration, previewCelebration, presentProgressAwards, nextCelebration,
         setPreviewHistory: developer.setHistory, unlockPreviewAchievements: developer.unlockAllAchievements, dashboard, openDailyCheck, submitDailyRating, saveDailyCheckin, openSkillCheck, totalRewardsPanel, rewardBadge,
         dialogHTML: () => document.getElementById('check-content').innerHTML,
         state: () => state,
         setState: (value) => { state = value; },
         preview: developer.preview,
         queued: () => celebrations,
+        levelHTML: () => document.getElementById('level-content').innerHTML,
       });
       return;
     }
