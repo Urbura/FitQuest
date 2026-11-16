@@ -56,10 +56,31 @@
       return config.totalRewards.find((milestone) => milestone.level > totalLevel) || null;
     }
 
+    // Capture immutable presentation data after saving. Animation never awards XP.
+    function progressForXP(experience) {
+      const level = levelForXP(experience);
+      return {
+        level,
+        remaining: level === maxSkillLevel ? 0 : experience - xpThresholds[level],
+        need: level === maxSkillLevel ? 0 : xpThresholds[level + 1] - xpThresholds[level],
+      };
+    }
+    function checkinAwards(beforeXP, afterXP) {
+      return config.skillDisplayOrder.map(i => {
+        const before = progressForXP(beforeXP[i]), after = progressForXP(afterXP[i]);
+        return {
+          id: i, name: config.skills[i].name, color: config.skills[i].color,
+          delta: afterXP[i] - beforeXP[i], before, after,
+          levels: Array.from({ length: Math.max(0, after.level - before.level) },
+            (_, offset) => progressForXP(xpThresholds[before.level + offset + 1])),
+        };
+      }).filter(award => award.delta !== 0);
+    }
+
     return {
       maxSkillLevel, minTotalLevel, maxTotalLevel, xpThresholds,
       levelForXP, bonusForLevel, experienceForCheckIn, calculateTotalLevel,
-      rewardForTotalLevel, nextRewardForTotalLevel,
+      rewardForTotalLevel, nextRewardForTotalLevel, progressForXP, checkinAwards,
     };
   }
 

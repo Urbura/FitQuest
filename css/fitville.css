@@ -282,7 +282,7 @@ dialog::backdrop {
 }
 
 #level-content h2 {
-  color: #087cd9;
+  color: #f4c76a;
   margin: 12px 0;
   font-size: 29px;
   line-height: 1.3;
@@ -297,7 +297,29 @@ dialog::backdrop {
 
 #level-dialog {
   max-width: 420px;
+  background: #172741;
+  color: #f7ebd3;
+  border: 1px solid #e4b85b;
+  border-radius: 20px;
 }
+
+#level-dialog .muted { color: #c2ccdb; }
+#level-next, .checkin-rewards button { background: #293f5b; color: #f7ebd3; border: 1px solid #657a96; }
+.level-up-summary { font-size: 19px; color: #f7ebd3; }
+.level-saved-check { color: #86efac; font-size: 48px; }
+.checkin-rewards { background: #172741; color: #f7ebd3; border: 1px solid #e4b85b; border-radius: 20px; max-width: 420px; text-align: left; padding: 24px 20px; }
+.checkin-rewards .muted { color: #c2ccdb; font-size: 13px; }
+.checkin-rewards h2 { color: #f4c76a; }
+.checkin-rewards button { width: 100%; }
+.checkin-reward-row { padding: 10px 12px; margin: 8px 0; border: 1px solid transparent; border-radius: 12px; background: #ffffff09; }
+.checkin-reward-row .row { gap: 8px; flex-wrap: wrap; }
+.checkin-reward-gain { color: #f8d77d; opacity: .55; white-space: nowrap; }
+.checkin-reward-row.is-awarding { border-color: #f8d77d; box-shadow: 0 0 14px #f8d77d33; }
+.checkin-reward-row.is-awarding .checkin-reward-gain,
+.checkin-reward-row.is-awarded .checkin-reward-gain { opacity: 1; }
+.xp-reward-meter { margin-top: 7px; height: 12px; border-radius: 999px; background: #33465f; overflow: hidden; }
+.xp-reward-fill { height: 100%; border-radius: inherit; }
+.checkin-reward-row.is-awarding .xp-reward-fill { filter: brightness(1.3); }
 
 #fireworks {
   position: absolute;
@@ -2309,6 +2331,7 @@ header nav button[data-tab="settings"] .settings-icon {
 
 /* Responsive: (prefers-reduced-motion:reduce) */
 @media (prefers-reduced-motion:reduce) {
+  .checkin-reward-row.is-awarding { box-shadow: none; }
   *,*:before,*:after {
     animation: none !important;
     transition: none !important;
@@ -2330,31 +2353,6 @@ header nav button[data-tab="settings"] .settings-icon {
   }
 }
 
-
-/* Reward stays on the skill receiving the quest XP. */
-.daily-quest-xp-reward {
-  position: absolute;
-  z-index: 5;
-  left: 50%;
-  bottom: 25%;
-  pointer-events: none;
-  color: #fff2b8;
-  background: #142b45;
-  border: 1px solid #ffd35d;
-  border-radius: 999px;
-  padding: 5px 12px;
-  font-weight: 800;
-  white-space: nowrap;
-  animation: quest-xp-rise 1800ms ease-out both;
-}
-@keyframes quest-xp-rise {
-  from { transform: translate(-50%, 10px); opacity: 0; }
-  15%, 70% { opacity: 1; }
-  to { transform: translate(-50%, -38px); opacity: 0; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .daily-quest-xp-reward { animation: none; transform: translateX(-50%); }
-}
 
 /* One header control combines the rank emblem and Total Level. */
 header .stats #overall-level {

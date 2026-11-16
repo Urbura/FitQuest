@@ -21,7 +21,7 @@ vm.runInContext(configSource, configContext);
 const config = configContext.FitQuestConfig;
 // Build a fresh, isolated app for each test with fake browser storage and time.
 // No real browser or saved user data is touched.
-function tracker(now = '2026-10-08T16:00:00Z') {
+function tracker(now = '2026-10-08T16:00:00Z', presentAwards = null) {
   let failWrites = false;
   const storage = () => {
     const data = new Map();
@@ -52,6 +52,7 @@ function tracker(now = '2026-10-08T16:00:00Z') {
     },
     console: { error: (...args) => { throw new Error(args.map(String).join(' ')); } },
   });
+  if (presentAwards) context.QuestXPAnimation = { animate() {}, showCheckinAwards: presentAwards };
   // The application calls this hook before browser startup.
   context.__fitQuestTestHook = (api) => { context.tracker = api; };
   vm.runInContext(configSource, context, { filename: 'js/config.js' });
@@ -773,4 +774,88 @@ test('Journey trail handles Monday reset and a week spanning the year boundary',
   const newYear = tracker('2027-01-01T16:00:00Z').journeyPanel();
   assert.match(newYear, /Mon, 2026-12-28:/);
   assert.match(newYear, /Sun, 2027-01-03:/);
+});
+
+test('saved check-in fills in display order, celebrates at each crossing, then shows rank and completion once', () => {
+  let presentation, resumed = 0;
+  const t = tracker(undefined, (awards, done, options) => { presentation = { awards, done, options }; });
+  t.state().skills.forEach(skill => { skill.xp = 4; });
+  t.openDailyCheck();
+  for (let i=0;i<5;i++) t.submitDailyRating(i, 3, t.day());
+  assert.equal(t.saveDailyCheckin(t.day()), true);
+  assert.deepEqual(Array.from(presentation.awards, a => a.name), ['Strength','Cardio','Stretching','Diet','Sleep']);
+  assert.ok(t.state().skills.every(skill => skill.xp === 7), 'all XP is saved before animation');
+  assert.equal(t.queued().length, 0, 'no level popup before its bar fills');
+  for (const award of presentation.awards) {
+    presentation.options.onLevelUp(award, 2, () => { resumed++; });
+    assert.deepEqual(Array.from(t.queued(), item => [item.i,item.l]), [[award.id,2]]);
+    assert.match(t.levelHTML(), /Level Up!/);
+    assert.match(t.levelHTML(), new RegExp(award.name+' reached Level 2!'));
+    assert.match(t.levelHTML(), /class="skill-symbol"/);
+    t.nextCelebration();
+  }
+  assert.equal(resumed, 5);
+  presentation.done();
+  assert.equal(t.queued().filter(item => item.i !== undefined).length, 0, 'celebrated levels never replay');
+  assert.equal(t.queued()[0].milestone.title, 'Bronze');
+  assert.equal(t.queued()[1].saved, true);
+  t.nextCelebration();
+  assert.match(t.levelHTML(), /Fitness day complete/);
+  t.nextCelebration();
+  assert.equal(t.queued().length, 0);
+  assert.ok(t.state().skills.every(skill => skill.xp === 7));
+});
+
+test('skipping or reduced motion leaves every unseen level available before the rank and saved summary', () => {
+  let presentation;
+  const t = tracker(undefined, (awards, done, options) => { presentation = { awards, done, options }; });
+  t.state().skills.forEach(skill => { skill.xp = 4; });
+  t.openDailyCheck();
+  for (let i=0;i<5;i++) t.submitDailyRating(i, 3, t.day());
+  t.saveDailyCheckin(t.day());
+  presentation.options.onLevelUp(presentation.awards[0],2,()=>{});
+  t.nextCelebration();
+  presentation.done();
+  assert.deepEqual(Array.from(t.queued().filter(item => item.i !== undefined), item => item.i), [3,2,1,0]);
+  assert.equal(t.queued().filter(item => item.total).length, 1);
+  assert.ok(t.state().skills.every(skill => skill.xp === 7));
+});
+
+test('failed writes never start reward animation, and retry saves the XP once', () => {
+  let calls = 0;
+  const t = tracker(undefined, () => { calls++; });
+  t.openDailyCheck(); t.submitDailyRating(4, 5, t.day());
+  t.failWrites(true);
+  assert.equal(t.saveDailyCheckin(t.day()), false);
+  assert.equal(calls,0); assert.equal(t.state().skills[4].xp,0);
+  t.failWrites(false);
+  assert.equal(t.saveDailyCheckin(t.day()), true);
+  assert.equal(calls,1); assert.equal(t.state().skills[4].xp,5);
+});
+
+test('quest XP uses the same crossing presentation without re-awarding XP or repeating its level', () => {
+  let presentation;
+  const t = tracker(undefined, (awards, done, options) => { presentation={awards,done,options}; });
+  const quest={...t.dailyQuest()};
+  t.state().skills[quest.skill].xp=4;
+  const result=t.commitDailyQuest(true,t.day(),quest);
+  t.presentProgressAwards(result.beforeXP);
+  assert.equal(presentation.awards.length,1);
+  assert.equal(presentation.awards[0].delta,2);
+  presentation.options.onLevelUp(presentation.awards[0],2,()=>{});
+  t.nextCelebration(); presentation.done();
+  assert.equal(t.queued().length,0);
+  assert.equal(t.state().skills[quest.skill].xp,6);
+});
+
+test('XP presentation snapshots preserve corrections, maximum level and the five-for-five bonus', () => {
+  const p=createProgression(config);
+  const awards=p.checkinAwards([10,0,0,0,p.xpThresholds[49]], [1,0,0,0,p.xpThresholds[50]+8]);
+  assert.deepEqual(Array.from(awards,a=>a.id), [4,0]);
+  assert.equal(awards[0].after.level,50);
+  assert.equal(awards[0].after.need,0);
+  assert.equal(awards[1].delta,-9);
+  assert.equal(awards[1].levels.length,0);
+  const bonus=p.checkinAwards([0,0,0,0,0], [10,10,10,10,10]);
+  assert.ok(bonus.every(a=>a.delta===10 && a.levels.length===1));
 });

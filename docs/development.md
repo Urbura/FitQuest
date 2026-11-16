@@ -60,6 +60,20 @@ Journey opens. First Check-In is shown first for a new profile; subsequent
 visible, unearned day and level milestones are ranked by completion fraction.
 Secret achievements stay hidden until earned.
 
+### XP and level-up sequence
+
+After a successful save, the reward summary fills each changed skill's gauge
+in dashboard order. Each filled level pauses for its skill icon, level-up
+popup, fireworks, and sound; Continue resumes the remaining XP. Rank unlocks
+follow the skill awards, then the fitness-day confirmation. Daily Quest XP
+uses the same gauge and level-up path.
+
+The progression module captures XP before and after saving for presentation.
+Animations never award or write XP. Skipping or reduced motion settles the
+gauges and leaves unseen level celebrations queued; levels already shown do
+not replay. Native modal dialogs provide focus containment and pause later
+skills while a level popup is open.
+
 ## Checks
 
 Use Node.js 22 or newer:
