@@ -78,7 +78,7 @@
             safeText(skills[i].name) + ': ' + score + ' out of 5">' + score + '</button>').join('') +
           '</div></section>';
       }).join('') + '</div><p class="muted daily-rating-help">0 = not practised · 1 = a small start · 3 = about halfway · 5 = goal met. Rate effort toward your own goal; planned rest can count.</p>' +
-      '<button type="button" class="wide" id="save-daily-checkin" data-day="' + day + '">Save Today’s Check-In</button>';
+      '<div class="daily-checkin-actions"><button type="button" class="wide" id="save-daily-checkin" data-day="' + day + '">Save Today’s Check-In</button></div>';
   }
 
   function renderTotalRewards({ current, index, rewards, next, minTotal, maxTotal, preview, rewardBadge, safeText }) {

@@ -358,6 +358,21 @@ dialog::backdrop {
   padding: 7px 12px;
 }
 
+#check-dialog:has(.daily-checkin-skills) {
+  background: #172741;
+  color: #f7ebd3;
+  border-color: #e4b85b;
+  border-radius: 20px;
+}
+
+#check-dialog:has(.daily-checkin-skills) h2 { color: #f4c76a; }
+#check-dialog:has(.daily-checkin-skills) .muted { color: #c2ccdb; }
+#check-dialog:has(.daily-checkin-skills) .popup-close {
+  background: #293f5b;
+  color: #f7ebd3;
+  border: 1px solid #657a96;
+}
+
 main {
   padding: 10px 16px 24px;
   max-width: 720px;
@@ -649,8 +664,11 @@ body.tracker-home main {
 
 .daily-checkin-skill {
   width: 100%;
-  padding: 8px 0;
+  padding: 10px;
   text-align: left;
+  border: 1px solid #60729366;
+  border-radius: 14px;
+  background: #ffffff06;
 }
 
 .daily-checkin-ratings {
@@ -661,29 +679,67 @@ body.tracker-home main {
 }
 
 .daily-checkin-ratings button {
+  position: relative;
   min-width: 0;
   min-height: 44px;
   padding: 6px 0;
-  background: #edf6ff;
-  color: #203c55;
-  border: 1px solid #9dbad2;
+  background: #223958;
+  color: #f7ebd3;
+  border: 1px solid #607293;
   border-radius: 10px;
+  font-size: 18px;
 }
 
 .daily-checkin-ratings button[aria-pressed="true"] {
-  background: #087bd9;
-  border-color: #087bd9;
-  color: white;
+  background: #f4c76a;
+  border-color: #f8d77d;
+  color: #172741;
+  font-weight: 800;
+  box-shadow: inset 0 0 0 1px #fff2bd;
+}
+
+.daily-checkin-ratings button[aria-pressed="true"]::after {
+  content: "✓";
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  font-size: 11px;
+}
+
+.daily-checkin-ratings button:focus-visible,
+#save-daily-checkin:focus-visible {
+  outline: 3px solid #fff2bd;
+  outline-offset: 2px;
 }
 
 .daily-checkin-skill .row>span {
   white-space: nowrap;
   font-size: 14px;
+  color: #f4c76a;
 }
 
 .daily-rating-help {
   font-size: 14px;
 }
+
+.daily-checkin-actions {
+  position: sticky;
+  bottom: -1px;
+  z-index: 1;
+  padding-top: 12px;
+  background: #172741;
+}
+
+#save-daily-checkin {
+  min-height: 48px;
+  background: #f4c76a;
+  color: #172741;
+  border: 1px solid #f8d77d;
+  font-weight: 800;
+  box-shadow: 0 3px 0 #a5792d;
+}
+
+#save-daily-checkin:hover { background: #f8d77d; }
 
 .star-check {
   position: absolute;
@@ -1946,6 +2002,10 @@ header nav button[data-tab="settings"] .settings-icon {
   header>div { gap: 4px; }
   header .stats #overall-level { gap: 4px; padding: 4px; }
   .total-level-copy>span { font-size: 10px; }
+}
+
+@media (max-width:380px) {
+  .daily-checkin-ratings { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
 /* Responsive: (max-width:350px) */
