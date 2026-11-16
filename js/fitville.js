@@ -577,7 +577,7 @@
           rankBadge.title = rank + ' rank';
         }
       }
-      document.getElementById('overall-level-value').textContent = 'Total Level ' + totalLevel;
+      document.getElementById('overall-level-value').textContent = String(totalLevel);
       document.getElementById('overall-level').setAttribute('aria-label', (rank || 'Unranked') + ', Total Level ' + totalLevel + '. View rank progression.');
       if (document.getElementById('total-dialog').open)
         document.getElementById('total-content').innerHTML = totalRewardsPanel();
