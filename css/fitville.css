@@ -183,7 +183,7 @@ nav[hidden] {
 body {
   margin: 0;
   color: #203c33;
-  font: 16px system-ui,sans-serif;
+  font: 16px Calibri, "Segoe UI", sans-serif;
   isolation: isolate;
   background: var(--rank-artwork, var(--tracker-background, linear-gradient(145deg,#d8f3ff,#eefbff))) center / cover no-repeat fixed;
   min-height: 100vh;
@@ -606,7 +606,7 @@ body.tracker-home main {
 }
 
 .star-summary .central-checkin-prompt {
-  font-size: 14px;
+  font-size: 20px;
   font-weight: 700;
 }
 
@@ -763,7 +763,7 @@ body.tracker-home main {
 .star-skill .star-progress {
   order: 3;
   width: 80%;
-  height: 7px;
+  height: 9px;
   margin: 2px 0 0;
   border: 0;
   border-radius: 999px;
@@ -1137,7 +1137,7 @@ header nav .collection-count {
   border-radius: 12px;
   background: #e84e48;
   color: #fff;
-  font: 700 11px/17px system-ui, sans-serif;
+  font: 700 11px/17px Calibri, "Segoe UI", sans-serif;
   box-shadow: 0 1px 3px #1238;
 }
 
@@ -1295,7 +1295,7 @@ header nav .collections-icon {
   border-radius: 999px;
   background: #d93636;
   color: white;
-  font: 700 11px/1.4 system-ui,sans-serif;
+  font: 700 11px/1.4 Calibri, "Segoe UI", sans-serif;
   white-space: nowrap;
 }
 
@@ -1598,7 +1598,30 @@ body.tracker-home .star-xp,body.tracker-home .star-level,body.tracker-home .star
 #journey-dialog {
   max-height: 85dvh;
   overflow-y: auto;
+  background: linear-gradient(150deg, #203653, #172741);
+  color: #f7ebd3;
+  text-align: left;
+  max-width: 480px;
 }
+
+#journey-dialog .muted { color: #c2ccdb; }
+.fitness-trail { margin: 18px 0 24px; }
+.fitness-trail p { margin: 10px 0; }
+.fitness-trail p strong { color: #f4c76a; font-size: 24px; }
+.fitness-trail-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 5px; }
+.fitness-trail-day { display: grid; gap: 6px; padding: 10px 0; border: 1px solid #657a9655; border-radius: 10px; text-align: center; font-size: 12px; }
+.fitness-trail-day strong { display: grid; place-items: center; width: 26px; height: 26px; margin: auto; border-radius: 50%; background: #c2ccdb18; font-size: 18px; }
+.fitness-trail-day.is-active { background: #28574966; border-color: #86efac80; }
+.fitness-trail-day.is-active strong { color: #c9ffdf; background: #86efac29; }
+.fitness-trail-day[aria-current] { outline: 2px solid #f4c76a; outline-offset: 1px; }
+.fitness-trail-day.is-future { color: #abb9cf; border-style: dashed; }
+.milestone-preview { border: 1px solid #f4c76a88; background: #0c14264d; border-radius: 16px; padding: 16px; margin-bottom: 24px; }
+.milestone-preview h3 { color: #f4c76a; margin-bottom: 14px; }
+.milestone-preview-heading { display: flex; align-items: center; gap: 12px; }
+.milestone-preview-heading img { flex: none; object-fit: contain; }
+.milestone-preview-heading p { margin: 6px 0 0; }
+.milestone-preview > p { font-size: 14px; }
+.milestone-preview button { width: 100%; background: #293f5b; color: #f7ebd3; border: 1px solid #657a96; }
 
 .journey-grid {
   display: grid;
@@ -1608,7 +1631,7 @@ body.tracker-home .star-xp,body.tracker-home .star-level,body.tracker-home .star
 
 .journey-stat {
   padding: 14px 10px;
-  border: 1px solid #d5e2df;
+  border: 1px solid #657a9655;
   border-radius: 12px;
   text-align: center;
 }
@@ -1616,7 +1639,7 @@ body.tracker-home .star-xp,body.tracker-home .star-level,body.tracker-home .star
 .journey-stat strong {
   display: block;
   font-size: 22px;
-  color: #087cd9;
+  color: #f4c76a;
 }
 
 .journey-stat span {
@@ -1627,25 +1650,32 @@ body.tracker-home .star-xp,body.tracker-home .star-level,body.tracker-home .star
 
 /* Daily quest */
 .daily-quest {
-  display: grid;
-  grid-template-columns: 1fr auto;
+  display: flex;
+  flex-direction: column;
   gap: 6px 10px;
   padding: 10px 12px;
   margin-top: 8px;
-  background: #edf7ff;
-  border: 1px solid #b9d8e9;
-  border-radius: 12px;
+  background: linear-gradient(150deg, #203653, #172741);
+  color: #f7ebd3;
+  border: 1px solid #657a96;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 500px;
+  margin-inline: auto;
 }
 
-.daily-quest>div {
+.daily-quest-heading {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   gap: 10px;
-  grid-column: 1 / -1;
 }
 
+.daily-quest-heading > span { display: flex; flex-wrap: wrap; align-items: baseline; gap: 3px 8px; min-width: 0; }
+.daily-quest-heading strong, .daily-quest-heading small { white-space: nowrap; }
 .daily-quest small {
   font-size: 12px;
+  color: #c2ccdb;
 }
 
 .daily-quest label {
@@ -1655,6 +1685,7 @@ body.tracker-home .star-xp,body.tracker-home .star-level,body.tracker-home .star
   font-size: 13px;
   min-height: 44px;
   cursor: pointer;
+  overflow-wrap: anywhere;
 }
 
 .daily-quest input {
@@ -1668,6 +1699,11 @@ body.tracker-home .star-xp,body.tracker-home .star-level,body.tracker-home .star
   padding: 6px 10px;
   font-size: 12px;
   min-height: 44px;
+  flex: none;
+  white-space: nowrap;
+  background: #293f5b;
+  color: #f7ebd3;
+  border: 1px solid #657a96;
 }
 
 /* Collections summary and the repeatable Five for Five medal counter. */

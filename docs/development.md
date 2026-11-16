@@ -45,6 +45,21 @@ Changing the maximum level also requires checking title counts, Total Level rewa
 
 `dailyReset.utcHour` and `utcMinute` define the reset boundary; `label` is its display text. Keep the label consistent with the configured time. The current reset is fixed at 09:30 UTC: 03:30 CST (UTC−6) year-round. It does not follow daylight saving time.
 
+## WriteQuest-style progress screens
+
+The dashboard uses a single pending Check In action and a completed fitness-day
+summary. Daily Quest keeps its reward beside the title and Swap at the top right.
+Journey includes a seven-day fitness trail and the next attainable milestone.
+The trail follows FitQuest's existing Monday–Sunday reset week and check-in
+participation rules, including recorded zero ratings; a quest alone does not
+mark a day active. These presentation changes do not migrate saves, alter XP,
+or change the reset time.
+
+The achievement module renders the milestone from current progress each time
+Journey opens. First Check-In is shown first for a new profile; subsequent
+visible, unearned day and level milestones are ranked by completion fraction.
+Secret achievements stay hidden until earned.
+
 ## Checks
 
 Use Node.js 22 or newer:

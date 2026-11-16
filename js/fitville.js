@@ -234,7 +234,7 @@
     // Achievement UI and tracking are isolated from the main app coordinator.
     const { TOTAL_LEVEL_RANKS, ACHIEVEMENTS, achievementStats, earnedAchievements,
       unseenAchievements, updateCollectionBadge, expandedAchievementCategories,
-      renderCollections, renderBonusesPanel, markAchievementViewed } = globalThis.FitQuestAchievements.create({
+      renderCollections, renderBonusesPanel, markAchievementViewed, renderNextMilestone } = globalThis.FitQuestAchievements.create({
         SKILLS, SKILL_SYMBOLS, level, checkedCount, day, currentTotalLevel, safeText, save, bonusForLevel: skillBonus,
         getState: () => state, isDev: () => developer.active,
       });
@@ -322,10 +322,10 @@
     }
     function dailyQuestPanel() {
       const quest = dailyQuest();
-      return '<section class="daily-quest"><div><strong>Daily Quest</strong><small>+2 XP · ' + safeText(SKILLS[quest.skill].name) + '</small></div>' +
+      return '<section class="daily-quest" aria-label="Daily Quest"><div class="daily-quest-heading"><span><strong>Daily Quest</strong><small>+2 XP · ' + safeText(SKILLS[quest.skill].name) + '</small></span>' +
+        (quest.everCompleted ? '' : '<button type="button" data-swap-quest="' + day() + '"' + ((quest.swaps || 0) >= 2 ? ' disabled' : '') + '>Swap · ' + (2 - (quest.swaps || 0)) + ' left</button>') + '</div>' +
         '<label><input type="checkbox" id="daily-quest-check" data-quest-day="' + day() + '"' + (quest.completed ? ' checked' : '') + '>' +
-        '<span>' + safeText(CONFIG.dailyQuests[quest.skill][quest.index]) + '</span></label>' +
-        (quest.everCompleted ? '' : '<button type="button" data-swap-quest="' + day() + '"' + ((quest.swaps || 0) >= 2 ? ' disabled' : '') + '>Swap · ' + (2 - (quest.swaps || 0)) + ' left</button>') + '</section>';
+        '<span>' + safeText(CONFIG.dailyQuests[quest.skill][quest.index]) + '</span></label></section>';
     }
     function dashboard() {
       return globalThis.FitQuestScreens.renderDashboard({
@@ -765,8 +765,18 @@
       };
     }
     function journeyPanel() {
+      const today = day();
+      const start = new Date(today + 'T00:00:00Z');
+      start.setUTCDate(start.getUTCDate() - (start.getUTCDay() + 6) % 7);
+      const week = Array.from({ length: 7 }, (_, i) => {
+        const date = new Date(start);
+        date.setUTCDate(date.getUTCDate() + i);
+        const key = date.toISOString().slice(0, 10);
+        return { day: key, checked: key <= today && checkedCount(state.days[key]) > 0 };
+      });
       return globalThis.FitQuestScreens.renderJourney({
         summary: journeySummary(), weeklyText: weeklyCheckInText(), resetText: resetText(), safeText,
+        week, today, milestoneHTML: renderNextMilestone(),
       });
     }
     function rankProgressionPanel() {
@@ -813,6 +823,9 @@
       if (b.id === 'journey-close') {
         document.getElementById('journey-dialog').close();
         return;
+      }
+      if (b.dataset.tab === 'collections' && document.getElementById('journey-dialog').open) {
+        document.getElementById('journey-dialog').close();
       }
       if (b.id === 'journey-open') {
         if (syncSharedSave()) render(false);

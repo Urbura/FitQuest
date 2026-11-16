@@ -8,9 +8,9 @@
       '<div class="skill-star" aria-label="Five fitness skills"><button type="button" class="star-summary' +
       (complete ? ' is-complete' : '') + '" data-open-checkin aria-haspopup="dialog" aria-controls="check-dialog" aria-label="' +
       (complete ? 'Checked in. ' + doneCount + ' of 5 skills. Review today’s ratings.' : 'Daily check-in. ' + doneCount + ' of 5 skills checked in.') +
-      '"><span class="central-checkin-title">Fitness Skills</span>' +
-      (complete ? '<strong class="central-checkmark" aria-hidden="true">✓</strong><span class="central-checkin-status">Checked In</span>' :
-        '<strong>' + doneCount + ' / 5</strong><span class="central-checkin-prompt">Check In</span>') + '</button>' +
+      '">' +
+      (complete ? '<span class="central-checkin-title">Fitness day</span><strong class="central-checkmark" aria-hidden="true">✓</strong><span class="central-checkin-status">Complete</span><span>' + doneCount + ' of 5 skills</span>' :
+        '<span class="central-checkin-prompt">Check In</span>') + '</button>' +
       displayOrder.map((i, position) => {
         const s = skills[i],
           totalXP = skillState[i].xp,
@@ -77,7 +77,7 @@
             '" aria-pressed="' + (rating === score) + '" aria-label="' +
             safeText(skills[i].name) + ': ' + score + ' out of 5">' + score + '</button>').join('') +
           '</div></section>';
-      }).join('') + '</div><p class="muted daily-rating-help">0 = no progress · 5 = goal met. Planned rest can count as meeting your goal.</p>' +
+      }).join('') + '</div><p class="muted daily-rating-help">0 = not practised · 1 = a small start · 3 = about halfway · 5 = goal met. Rate effort toward your own goal; planned rest can count.</p>' +
       '<button type="button" class="wide" id="save-daily-checkin" data-day="' + day + '">Save Today’s Check-In</button>';
   }
 
@@ -141,14 +141,32 @@ ${developerMode ? '<button id="dev-open-settings" class="wide">Open test tools</
 </section>`;
   }
 
-  function renderJourney({ summary, weeklyText, resetText, safeText }) {
+  function renderWeeklyTrail({ week, today, safeText }) {
+    const count = week.filter(d => d.checked).length;
+    const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    return '<section class="fitness-trail" aria-labelledby="fitness-trail-heading"><h3 id="fitness-trail-heading">This week</h3>' +
+      '<p><strong>' + count + '</strong> active ' + (count === 1 ? 'day' : 'days') + ' this week</p>' +
+      '<div class="fitness-trail-days" role="list" aria-label="Weekly fitness activity, Monday through Sunday">' +
+      week.map((d, i) => {
+        const current = d.day === today;
+        const status = d.checked ? 'Checked in' : d.day > today ? 'Upcoming' : current ? 'Ready to check in' : 'No check-in';
+        return '<div role="listitem" class="fitness-trail-day' + (d.checked ? ' is-active' : '') +
+          (d.day > today ? ' is-future' : '') + '"' + (current ? ' aria-current="date"' : '') +
+          ' aria-label="' + safeText(labels[i] + ', ' + d.day + ': ' + status) + '"><span>' + labels[i] +
+          '</span><strong aria-hidden="true">' + (d.checked ? '✓' : '·') + '</strong><small aria-hidden="true">' +
+          Number(d.day.slice(-2)) + '</small></div>';
+      }).join('') + '</div></section>';
+  }
+
+  function renderJourney({ summary, weeklyText, resetText, safeText, week, today, milestoneHTML = '' }) {
     const items = [
       [summary.started ? String(summary.elapsedDays) : 'Not started', 'Days since first check-in'],
       [String(summary.checkIns), 'Total check-ins'],
       [summary.rank, 'Total Level ' + summary.totalLevel],
       [String(summary.medals), 'Five for Five medals'],
     ];
-    return '<div class="journey-grid">' + items.map(([value, label]) =>
+    return (week ? renderWeeklyTrail({ week, today, safeText }) : '') + milestoneHTML +
+      '<div class="journey-grid">' + items.map(([value, label]) =>
       '<div class="journey-stat"><strong>' + safeText(value) + '</strong><span>' + label + '</span></div>').join('') +
       '</div><p class="weekly-check-ins" aria-live="polite">' + weeklyText +
       '</p><p class="muted">' + resetText + '</p>' +
@@ -165,7 +183,7 @@ ${developerMode ? '<button id="dev-open-settings" class="wide">Open test tools</
         '<small class="rank-status">' + status + '</small></article>';
     }).join('') + '</div>';
   }
-  const screens = { renderDashboard, renderDailyCheckin, renderTotalRewards, renderSettings, renderJourney, renderRanks };
+  const screens = { renderDashboard, renderDailyCheckin, renderTotalRewards, renderSettings, renderWeeklyTrail, renderJourney, renderRanks };
   root.FitQuestScreens = screens;
   if (typeof module !== 'undefined' && module.exports) module.exports = screens;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

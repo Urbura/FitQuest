@@ -310,7 +310,7 @@ test('a positive skill completes the fitness day; all-zero ratings leave it open
   t.recordCheckIn(4, 1);
   assert.match(t.dashboard(), /class="star-summary is-complete"/);
   assert.match(t.dashboard(), /central-checkmark[^>]*>✓/);
-  assert.match(t.dashboard(), />Checked In</);
+  assert.match(t.dashboard(), />Complete</);
   assert.doesNotMatch(t.dashboard(), /Fitness day complete|Every small step adds up/);
   const tomorrow = tracker('2026-10-09T16:00:00Z');
   tomorrow.setState(tomorrow.readSave(JSON.stringify(t.state())));
@@ -741,4 +741,36 @@ test('failed quest save rolls back completion and XP so it can be retried', () =
   t.failWrites(false);
   assert.equal(t.commitDailyQuest(true, t.day(), quest).status, 'updated');
   assert.equal(t.state().skills[quest.skill].xp, before + 2);
+});
+
+test('Journey trail matches existing reset weeks, excludes future and quest-only days, and follows corrections', () => {
+  const t = tracker('2026-10-08T16:00:00Z');
+  t.state().days = {
+    '2026-10-04': { scores: [3,null,null,null,null] },
+    '2026-10-05': { scores: [0,null,null,null,null] },
+    '2026-10-06': { quest: {completed:true}, scores: [null,null,null,null,null] },
+    '2026-10-08': { scores: [3,null,null,null,null] },
+    '2026-10-09': { scores: [3,null,null,null,null] },
+  };
+  let html = t.journeyPanel();
+  assert.equal((html.match(/role="listitem"/g) || []).length, 7);
+  assert.match(html, /<strong>2<\/strong> active days this week/);
+  assert.match(html, /aria-current="date" aria-label="Thu, 2026-10-08: Checked in/);
+  assert.match(html, /Fri, 2026-10-09: Upcoming/);
+  assert.match(html, /Tue, 2026-10-06: No check-in/);
+  assert.equal(t.weeklyCheckInCount(), 2);
+  t.editCheckIn(0, 1);
+  html = t.journeyPanel();
+  assert.match(html, /<strong>2<\/strong> active days this week/);
+});
+
+test('Journey trail handles Monday reset and a week spanning the year boundary', () => {
+  const before = tracker('2026-10-05T09:29:59Z').journeyPanel();
+  assert.match(before, /Mon, 2026-09-28:/);
+  assert.match(before, /aria-current="date" aria-label="Sun, 2026-10-04:/);
+  const after = tracker('2026-10-05T09:30:00Z').journeyPanel();
+  assert.match(after, /aria-current="date" aria-label="Mon, 2026-10-05:/);
+  const newYear = tracker('2027-01-01T16:00:00Z').journeyPanel();
+  assert.match(newYear, /Mon, 2026-12-28:/);
+  assert.match(newYear, /Sun, 2027-01-03:/);
 });

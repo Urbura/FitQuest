@@ -176,6 +176,28 @@ globalThis.FitQuestAchievements = {
           '</strong><small>' + safeText(requirement) + '</small><small>' + distance + '</small></div></article>';
       }).join('') + '</div>';
     }
+    function renderNextMilestone() {
+      const stats = achievementStats();
+      const next = visibleAchievements(stats)
+        .filter(a => ['days', 'total', 'skill', 'specialist', 'mastery', 'all'].includes(a.kind))
+        .map(achievement => ({ achievement, progress: achievementProgress(achievement, stats) }))
+        .filter(({ achievement: a, progress }) => progress < a.goal)
+        .sort((a, b) => Number(b.achievement.id === 'first-check-in') - Number(a.achievement.id === 'first-check-in') ||
+          b.progress / b.achievement.goal - a.progress / a.achievement.goal ||
+          a.achievement.goal - a.progress - (b.achievement.goal - b.progress))[0];
+      if (!next) return '<section class="milestone-preview"><h3>Your next milestone</h3><p>Every fitness day adds to your journey.</p></section>';
+      const { achievement: a, progress } = next;
+      const remaining = a.goal - progress;
+      const unit = a.kind === 'days' ? 'active day' : a.kind === 'total' ? 'total level' : 'skill level';
+      return '<section class="milestone-preview" aria-labelledby="milestone-heading"><h3 id="milestone-heading">Your next milestone</h3>' +
+        '<div class="milestone-preview-heading"><img src="assets/icons/' + achievementImage(a) +
+        '" alt="" width="64" height="64"><div><strong>' + safeText(a.name) + '</strong><p class="muted">' +
+        safeText(a.description) + '</p></div></div><progress max="' + a.goal + '" value="' + progress +
+        '" aria-label="' + safeText(a.name + ': ' + progress + ' of ' + a.goal) + '"></progress><p>' +
+        (a.kind === 'all' ? 'Lowest skill: ' + progress + ' of ' + a.goal + '. Bring every skill to Level ' + a.goal :
+          progress + ' of ' + a.goal + ' · ' + remaining + ' more ' + unit + (remaining === 1 ? '' : 's') + ' to unlock') +
+        '</p><button type="button" data-tab="collections">View Achievements</button></section>';
+    }
     function achievementInReach(stats) {
       const count = Math.min(3, nearbyLevelAchievements(stats).length);
       return '<details class="achievement-in-reach"><summary>Achievements in reach' +
@@ -252,6 +274,6 @@ globalThis.FitQuestAchievements = {
     }
 
 
-    return { TOTAL_LEVEL_RANKS, ACHIEVEMENTS, achievementStats, earnedAchievements, unseenAchievements, updateCollectionBadge, expandedAchievementCategories, renderCollections, renderBonusesPanel, markAchievementViewed, nearbyLevelAchievements, renderNearbyMilestones };
+    return { TOTAL_LEVEL_RANKS, ACHIEVEMENTS, achievementStats, earnedAchievements, unseenAchievements, updateCollectionBadge, expandedAchievementCategories, renderCollections, renderBonusesPanel, markAchievementViewed, nearbyLevelAchievements, renderNearbyMilestones, renderNextMilestone };
   }
 };
