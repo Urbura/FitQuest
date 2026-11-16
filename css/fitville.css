@@ -1604,7 +1604,8 @@ body.tracker-home .star-xp,body.tracker-home .star-level,body.tracker-home .star
   max-width: 480px;
 }
 
-#journey-dialog .muted { color: #c2ccdb; }
+#journey-dialog .muted,
+#journey-dialog .weekly-check-ins { color: #c2ccdb; }
 .fitness-trail { margin: 18px 0 24px; }
 .fitness-trail p { margin: 10px 0; }
 .fitness-trail p strong { color: #f4c76a; font-size: 24px; }
