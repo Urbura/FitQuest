@@ -542,8 +542,9 @@ body.tracker-home main {
 }
 
 .star-skill .skill-symbol>span {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
+  background: var(--skill-icon, var(--skill));
 }
 
 .star-skill strong {
