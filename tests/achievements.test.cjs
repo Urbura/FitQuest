@@ -329,3 +329,18 @@ test('First Check-In retains its own badge and every rendered achievement asset 
     assert.ok(fs.existsSync(path.join(__dirname,'..',match[1])),match[1]);
   }
 });
+
+test('next milestone starts with first check-in, excludes earned and secret rewards, and never changes progress', () => {
+  const f = fixture();
+  const before = JSON.stringify(f.state);
+  assert.match(f.achievements.renderNextMilestone(), /<strong>First Check-In<\/strong>/);
+  assert.equal(JSON.stringify(f.state), before);
+  assert.equal(f.saves(), 0);
+  f.addDay('2026-10-14', [1,null,null,null,null]);
+  const html = f.achievements.renderNextMilestone();
+  assert.doesNotMatch(html, /First Check-In|FitQuest Legend|All Skills Level 50/);
+  assert.match(html, /aria-label="Bronze: 5 of 10"/);
+  assert.match(html, /data-tab="collections"/);
+  f.state.days = {};
+  assert.match(f.achievements.renderNextMilestone(), /<strong>First Check-In<\/strong>/);
+});
