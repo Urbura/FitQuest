@@ -40,6 +40,7 @@
         days: {},
         last: Date.now(),
         bank: 0,
+        achievementRewards: {},
       };
     }
     // Save parsing and compatibility checks live in storage.js.
@@ -235,7 +236,7 @@
     // Achievement UI and tracking are isolated from the main app coordinator.
     const { TOTAL_LEVEL_RANKS, ACHIEVEMENTS, achievementStats, earnedAchievements,
       unseenAchievements, updateCollectionBadge, expandedAchievementCategories,
-      renderCollections, renderBonusesPanel, markAchievementViewed, renderNextMilestone } = globalThis.FitQuestAchievements.create({
+      renderCollections, renderBonusesPanel, markAchievementViewed, renderNextMilestone, pendingAchievementRewards } = globalThis.FitQuestAchievements.create({
         SKILLS, SKILL_SYMBOLS, level, checkedCount, day, currentTotalLevel, safeText, save, bonusForLevel: skillBonus,
         getState: () => state, isDev: () => developer.active,
       });
@@ -908,6 +909,25 @@
         if (swapDailyQuest(b.dataset.swapQuest)) { save(); render(false); }
         return;
       }
+      if (b.dataset.claimAchievement !== undefined) {
+        openAchievementReward(b.dataset.claimAchievement);
+        return;
+      }
+      if (b.id === 'achievement-reward-later') {
+        document.getElementById('achievement-reward-dialog').close();
+        return;
+      }
+      if (b.dataset.achievementReward !== undefined) {
+        const result = claimAchievementReward(b.dataset.achievementReward, Number(b.dataset.rewardSkill));
+        if (result.status === 'claimed') {
+          document.getElementById('achievement-reward-dialog').close();
+          notify(SKILLS[result.skill].name + ' · +3 XP' + (developer.active ? ' · preview only.' : ' · saved.'));
+          presentProgressAwards(result.beforeXP);
+        } else {
+          notify(result.status === 'failed' ? 'Reward was not saved. Please try again.' : 'Reward unavailable. Review your achievements and skill levels.');
+        }
+        return;
+      }
       if (b.dataset.viewAchievement !== undefined) {
         markAchievementViewed(b.dataset.viewAchievement);
         render(false);
@@ -1029,6 +1049,42 @@
         a.click();
         setTimeout(() => URL.revokeObjectURL(url), 1000);
       }
+    }
+    function openAchievementReward(id) {
+      if (syncSharedSave()) render(false);
+      const achievement = pendingAchievementRewards().find(a => a.id === id);
+      if (!achievement) { notify('This achievement reward is no longer available.'); return false; }
+      const allMaxed = state.skills.every(skill => level(skill.xp) >= MAX_LEVEL);
+      document.getElementById('achievement-reward-content').innerHTML =
+        '<h2 id="achievement-reward-heading">Choose your +3 XP</h2><p>' + safeText(achievement.name) + '</p>' +
+        '<div class="reward-skill-list">' + SKILL_DISPLAY_ORDER.map(i =>
+          '<button type="button" data-achievement-reward="' + id + '" data-reward-skill="' + i + '"' +
+          (level(state.skills[i].xp) >= MAX_LEVEL ? ' disabled' : '') + '>' + safeText(SKILLS[i].name) +
+          (level(state.skills[i].xp) >= MAX_LEVEL ? ' · MAX' : ' · +3 XP') + '</button>').join('') + '</div>' +
+        '<p class="muted">' + (allMaxed ? 'All skills are at maximum level. Your reward will remain unclaimed.' :
+          'Choose a skill, or claim this reward later in Collections.') + '</p>';
+      document.getElementById('achievement-reward-dialog').showModal();
+      return true;
+    }
+    // Persist XP and its claim marker together; failed writes leave both untouched.
+    function claimAchievementReward(id, skill) {
+      if (syncSharedSave()) return { status: 'expired' };
+      if (!Number.isInteger(skill) || skill < 0 || skill >= SKILLS.length ||
+          !pendingAchievementRewards().some(a => a.id === id)) return { status: 'unavailable' };
+      if (level(state.skills[skill].xp) >= MAX_LEVEL) return { status: 'maxed' };
+      const original = state;
+      const beforeXP = state.skills.map(s => s.xp);
+      state = readSave(JSON.stringify(state));
+      state.achievementRewards[id] = skill;
+      state.skills[skill].xp += 3;
+      const working = state;
+      const persisted = save();
+      if (state !== working) return { status: 'expired' };
+      if (!persisted && !developer.active) {
+        state = original;
+        return { status: 'failed' };
+      }
+      return { status: 'claimed', skill, beforeXP };
     }
     // Confirmation captures the exact task; a changed day or task cannot receive its XP.
     function commitDailyQuest(completed, expectedDay, expectedQuest) {
@@ -1332,7 +1388,7 @@
         enableSaving: () => saves.markReady(),
         XP, MAX_LEVEL, MAX_TOTAL_LEVEL, fresh, level, readSave, recordCheckIn,
         achievementStats, earnedAchievements, setProfileLevels: developer.setProfileLevels, journeySummary, journeyPanel, dailyQuest, setQuestCompleted, swapDailyQuest, commitDailyQuest,
-        unseenAchievements, markAchievementViewed,
+        unseenAchievements, markAchievementViewed, pendingAchievementRewards, claimAchievementReward, openAchievementReward, renderCollections,
         editCheckIn, skillBonus, checkInXP, totalSkillLevel, totalReward,
         TOTAL_REWARDS, weeklyCheckInCount, day, nextReset,
         queueLevels, queueLegendCelebration, previewCelebration, presentProgressAwards, nextCelebration,

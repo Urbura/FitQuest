@@ -859,3 +859,73 @@ test('XP presentation snapshots preserve corrections, maximum level and the five
   const bonus=p.checkinAwards([0,0,0,0,0], [10,10,10,10,10]);
   assert.ok(bonus.every(a=>a.delta===10 && a.levels.length===1));
 });
+
+test('legacy achievements can claim exactly 3 XP once in the chosen skill and survive reload', () => {
+  const t = tracker();
+  t.recordCheckIn(4, 1);
+  assert.ok(t.pendingAchievementRewards().some(a => a.id === 'first-check-in'));
+  const before = Array.from(t.state().skills, s => s.xp);
+  const result = t.claimAchievementReward('first-check-in', 0);
+  assert.equal(result.status, 'claimed');
+  assert.deepEqual(Array.from(t.state().skills, s => s.xp), before.map((xp, i) => xp + (i === 0 ? 3 : 0)));
+  assert.equal(t.state().achievementRewards['first-check-in'], 0);
+  assert.equal(t.claimAchievementReward('first-check-in', 1).status, 'unavailable');
+  t.setState(t.readSave(JSON.stringify(t.state())));
+  assert.ok(!t.pendingAchievementRewards().some(a => a.id === 'first-check-in'));
+  assert.match(t.renderCollections(), /\+3 XP claimed · Sleep/);
+});
+
+test('locked, invalid and max-level reward claims do not consume a reward', () => {
+  const t = tracker();
+  const before = JSON.stringify(t.state());
+  for (const [id, skill] of [['first-check-in', 0], ['unknown', 0], ['total-250', 3]])
+    assert.equal(t.claimAchievementReward(id, skill).status, 'unavailable');
+  assert.equal(JSON.stringify(t.state()), before);
+  t.recordCheckIn(4, 1);
+  t.state().skills[0].xp = t.XP[50];
+  for (const skill of [-1, 5, NaN, 1.5])
+    assert.equal(t.claimAchievementReward('first-check-in', skill).status, 'unavailable');
+  assert.equal(t.claimAchievementReward('first-check-in', 0).status, 'maxed');
+  assert.equal(t.state().achievementRewards['first-check-in'], undefined);
+  assert.ok(t.pendingAchievementRewards().some(a => a.id === 'first-check-in'));
+});
+
+test('failed achievement save rolls back XP and claim marker and allows one retry', () => {
+  const t = tracker();
+  t.recordCheckIn(4, 1);
+  const before = JSON.stringify(t.state());
+  t.failWrites(true);
+  assert.equal(t.claimAchievementReward('first-check-in', 2).status, 'failed');
+  assert.equal(JSON.stringify(t.state()), before);
+  t.failWrites(false);
+  assert.equal(t.claimAchievementReward('first-check-in', 2).status, 'claimed');
+  assert.equal(t.state().skills[2].xp, 3);
+  assert.equal(t.claimAchievementReward('first-check-in', 2).status, 'unavailable');
+});
+
+test('achievement XP feeds the existing level-up sequence and can unlock another reward', () => {
+  let presented;
+  const t = tracker(undefined, (awards, finish, hooks) => { presented = { awards, finish, hooks }; });
+  t.recordCheckIn(4, 1);
+  t.state().skills[0].xp = t.XP[10] - 3;
+  const result = t.claimAchievementReward('first-check-in', 0);
+  assert.equal(result.status, 'claimed');
+  assert.ok(t.pendingAchievementRewards().some(a => a.id === 'skill-any-10'));
+  t.presentProgressAwards(result.beforeXP);
+  assert.equal(presented.awards.length, 1);
+  assert.equal(presented.awards[0].delta, 3);
+  assert.equal(presented.awards[0].levels[0].level, 10);
+});
+
+test('reward claims survive check-in corrections and malformed claim maps are rejected', () => {
+  const t = tracker();
+  t.recordCheckIn(4, 3);
+  assert.equal(t.claimAchievementReward('first-check-in', 4).status, 'claimed');
+  t.editCheckIn(4, 1, t.day());
+  assert.equal(t.state().skills[4].xp, 4);
+  assert.equal(t.claimAchievementReward('first-check-in', 4).status, 'unavailable');
+  for (const rewards of [null, [], {'first-check-in': 5}, {'first-check-in': '0'}, {'bad_id': 1}])
+    assert.throws(() => t.readSave(JSON.stringify({ ...t.fresh(), achievementRewards: rewards })), /Invalid achievement rewards/);
+  const legacy = t.fresh(); delete legacy.achievementRewards;
+  assert.equal(Object.keys(t.readSave(JSON.stringify(legacy)).achievementRewards).length, 0);
+});

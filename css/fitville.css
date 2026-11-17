@@ -321,6 +321,18 @@ dialog::backdrop {
 .xp-reward-fill { height: 100%; border-radius: inherit; }
 .checkin-reward-row.is-awarding .xp-reward-fill { filter: brightness(1.3); }
 
+.achievement-rewards { margin: 20px 0; padding: 16px; border: 1px solid #b59049; border-radius: 14px; }
+.achievement-rewards summary { cursor: pointer; font-weight: 700; padding: 8px 0; }
+.achievement-reward-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding: 10px 0; }
+.achievement-reward-row button { min-height: 44px; }
+#achievement-reward-dialog { max-width: 420px; max-height: 85dvh; overflow-y: auto; background: #172741; color: #f7ebd3; border: 1px solid #e4b85b; border-radius: 20px; }
+#achievement-reward-dialog h2 { color: #f4c76a; }
+#achievement-reward-dialog .muted { color: #c2ccdb; }
+#achievement-reward-dialog button { background: #293f5b; color: #f7ebd3; border: 1px solid #657a96; min-height: 44px; }
+.reward-skill-list { display: grid; gap: 8px; margin-bottom: 16px; }
+.reward-skill-list button { width: 100%; }
+#achievement-reward-dialog button:focus-visible { outline: 3px solid #f4c76a; outline-offset: 2px; }
+
 #fireworks {
   position: absolute;
   inset: 0;

@@ -2,7 +2,7 @@
 // Updates wait for existing windows to close; never mix releases in an open session.
 'use strict';
 const CACHE_PREFIX = 'fitquest-shell-';
-const CACHE_NAME = CACHE_PREFIX + '20261117-v70';
+const CACHE_NAME = CACHE_PREFIX + '20261117-v71';
 const APP_FILES = [
   "./",
   "index.html",
@@ -12,20 +12,20 @@ const APP_FILES = [
   "assets/app/icon-dev-180.png",
   "assets/app/icon-dev-192.png",
   "assets/app/icon-dev-512.png",
-  "css/fitville.css?v=20261117-visible-save",
+  "css/fitville.css?v=20261117-achievement-xp",
   "js/sounds.js?v=20261016-distinct-melodies",
   "js/config.js?v=20261116-brighter-icons",
   "js/progression.js?v=20261116-reward-snapshots",
-  "js/storage.js?v=20261014-two-swaps",
+  "js/storage.js?v=20261117-achievement-xp",
   "js/intro.js?v=20261013-intro-module",
-  "js/achievements.js?v=20261116-milestone-preview",
+  "js/achievements.js?v=20261117-achievement-xp",
   "js/save-manager.js?v=20261015-module",
   "js/developer.js?v=20261028-phone-dev-tools",
   "js/celebrations.js?v=20261015-legend",
   "js/xp-animation.js?v=20261116-sequential-xp",
-  "js/screens.js?v=20261117-visible-save",
+  "js/screens.js?v=20261117-achievement-xp",
   "js/pwa.js?v=20261015-offline",
-  "js/fitville.js?v=20261116-dark-checkin",
+  "js/fitville.js?v=20261117-achievement-xp",
   "assets/app/icon-fq-180.png",
   "assets/app/icon-fq-192.png",
   "assets/app/icon-fq-512.png",
