@@ -80,6 +80,12 @@
           Object.entries(s.achievementRewards).some(([id, skill]) =>
             !/^[a-z0-9-]{1,79}$/.test(id) || !Number.isInteger(skill) || skill < 0 || skill >= skillCount))
         throw Error('Invalid achievement rewards');
+      for (const field of ['earnedAchievements', 'recentAchievements', 'achievementsSeen']) {
+        if (s[field] !== undefined && (!Array.isArray(s[field]) || s[field].some(id => typeof id !== 'string' || !/^[a-z0-9-]{1,79}$/.test(id))))
+          throw Error('Invalid achievement records');
+      }
+      if (s.autosavedAt !== undefined && (typeof s.autosavedAt !== 'string' || !Number.isFinite(Date.parse(s.autosavedAt))))
+        throw Error('Invalid save timestamp');
       validateCheckInHistory(s);
       return s;
     }

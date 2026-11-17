@@ -2,7 +2,7 @@
 // Updates wait for existing windows to close; never mix releases in an open session.
 'use strict';
 const CACHE_PREFIX = 'fitquest-shell-';
-const CACHE_NAME = CACHE_PREFIX + '20261117-v72';
+const CACHE_NAME = CACHE_PREFIX + '20261117-v73';
 const APP_FILES = [
   "./",
   "index.html",
@@ -12,21 +12,21 @@ const APP_FILES = [
   "assets/app/icon-dev-180.png",
   "assets/app/icon-dev-192.png",
   "assets/app/icon-dev-512.png",
-  "css/fitville.css?v=20261117-achievement-xp",
+  "css/fitville.css?v=20261117-save-achievement-parity",
   "js/sounds.js?v=20261016-distinct-melodies",
   "js/config.js?v=20261117-local-streaks",
   "js/calendar.js?v=20261117-local-streaks",
   "js/progression.js?v=20261116-reward-snapshots",
-  "js/storage.js?v=20261117-achievement-xp",
+  "js/storage.js?v=20261117-save-achievement-parity",
   "js/intro.js?v=20261013-intro-module",
-  "js/achievements.js?v=20261117-local-streaks",
-  "js/save-manager.js?v=20261015-module",
-  "js/developer.js?v=20261117-local-streaks",
+  "js/achievements.js?v=20261117-save-achievement-parity",
+  "js/save-manager.js?v=20261117-save-achievement-parity",
+  "js/developer.js?v=20261117-save-achievement-parity",
   "js/celebrations.js?v=20261015-legend",
   "js/xp-animation.js?v=20261116-sequential-xp",
-  "js/screens.js?v=20261117-local-streaks",
+  "js/screens.js?v=20261117-save-achievement-parity",
   "js/pwa.js?v=20261015-offline",
-  "js/fitville.js?v=20261117-local-streaks",
+  "js/fitville.js?v=20261117-save-achievement-parity",
   "assets/app/icon-fq-180.png",
   "assets/app/icon-fq-192.png",
   "assets/app/icon-fq-512.png",

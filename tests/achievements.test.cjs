@@ -169,7 +169,7 @@ test('Five for Five lives in the Collections toolbar rather than the Skills rows
   assert.doesNotMatch(f.achievements.renderCollections(), /class="medal-new"/);
 });
 
-test('bonus details distinguish active skill XP from repeatable medal payouts', () => {
+test('bonus details explain optional milestone rewards without recurring payouts', () => {
   const f = fixture();
   assert.match(f.achievements.renderBonusesPanel(), /No skill bonuses unlocked/);
   f.setLevel(0,10);
@@ -177,12 +177,11 @@ test('bonus details distinguish active skill XP from repeatable medal payouts', 
   let html = f.achievements.renderBonusesPanel();
   assert.match(html, /Sleep<\/strong><span>\+1 XP/);
   assert.match(html, /Strength<\/strong><span>\+4 XP/);
-  assert.match(html, /one-time reward for each set of 5 medals/);
+  assert.match(html, /1, 5, and 25 separate days/);
+  assert.match(html, /No recurring all-skill XP bonus/);
   f.addDay('2026-10-14', [5,5,5,5,5]);
-  assert.match(f.achievements.renderBonusesPanel(), /4 more medals/);
-  // Editing away a previous medal must not promise a duplicate paid reward.
-  f.state.fiveForFivePaidMilestones = 1;
-  assert.match(f.achievements.renderBonusesPanel(), /9 more medals/);
+  assert.match(f.achievements.renderBonusesPanel(), /1 perfect day/);
+
 });
 
 
@@ -221,7 +220,7 @@ function completeLegendProfile(f) {
   for (let i=0;i<5;i++) f.setLevel(i,50);
   for(let i=0;i<120;i++) {
     const d=new Date('2026-06-10T00:00:00Z'); d.setUTCDate(d.getUTCDate()+i);
-    f.addDay(d.toISOString().slice(0,10), i===0 ? [5,5,5,5,5] : [1,1,1,1,1]);
+    f.addDay(d.toISOString().slice(0,10), i<25 ? [5,5,5,5,5] : [1,1,1,1,1]);
   }
 }
 
@@ -240,12 +239,12 @@ test('Legend is hidden until every other achievement including secret mastery is
   assert.doesNotMatch(f.achievements.renderCollections(), /FitQuest Legend/);
 });
 
-test('Legend requires consistency and a Five for Five medal, not just maxed levels', () => {
+test('Legend requires consistency and 25 Well-Rounded Days, not just maxed levels', () => {
   const f=fixture();
   for(let i=0;i<5;i++)f.setLevel(i,50);
   assert.ok(!f.achievements.earnedAchievements().includes('fitquest-legend'));
   completeLegendProfile(f);
-  assert.equal(f.achievements.achievementStats().perfectDayMedals,1);
+  assert.equal(f.achievements.achievementStats().perfectDayMedals,25);
   f.state.days['2026-06-10'].scores=[4,5,5,5,5];
   assert.ok(!f.achievements.earnedAchievements().includes('fitquest-legend'));
 });

@@ -114,7 +114,7 @@
     // Save coordination returns outcomes; this layer handles dialogs and notices.
     function prepareReplacement() {
       if (saves.prepareReplacement()) return true;
-      notify('Device saving is blocked. Export your progress before reloading.');
+      notify('Device saving is blocked. Keep this page open and retry saving.');
       return false;
     }
     function syncSharedSave() {
@@ -123,13 +123,22 @@
       return outcome === 'loaded' || outcome === 'rejected';
     }
     function save() {
+      const profile = state, previousEarned = state.earnedAchievements, previousRecent = state.recentAchievements;
+      const earned = earnedAchievements();
+      const unlocked = earned.filter(id => !(previousEarned || []).includes(id));
+      state.earnedAchievements = [...new Set([...(previousEarned || []), ...earned])];
+      if (unlocked.length) state.recentAchievements = [...unlocked.reverse(), ...(previousRecent || [])].slice(0, 50);
       const outcome = saves.write();
+      if (!['saved','paused'].includes(outcome) && state === profile) {
+        if (previousEarned === undefined) delete state.earnedAchievements; else state.earnedAchievements = previousEarned;
+        if (previousRecent === undefined) delete state.recentAchievements; else state.recentAchievements = previousRecent;
+      }
       if (outcome === 'conflict-loaded') document.getElementById('check-dialog').close();
       if (outcome === 'conflict' || outcome === 'conflict-loaded') {
         render(false);
         notify('Progress changed in another tab. The latest save has been loaded.');
       } else if (outcome === 'unavailable') {
-        notify('Saving is unavailable. Keep this page open or export a backup.');
+        notify('Saving is unavailable. Keep this page open and retry saving.');
       }
       return outcome === 'saved';
     }
@@ -195,7 +204,7 @@
     // Achievement UI and tracking are isolated from the main app coordinator.
     const { TOTAL_LEVEL_RANKS, ACHIEVEMENTS, achievementStats, earnedAchievements,
       unseenAchievements, updateCollectionBadge, expandedAchievementCategories,
-      renderCollections, renderBonusesPanel, markAchievementViewed, renderNextMilestone, pendingAchievementRewards } = globalThis.FitQuestAchievements.create({
+      renderCollections, renderBonusesPanel, markAchievementViewed, renderNextMilestone, pendingAchievementRewards, achievementImage, recentAchievement, clearAchievementNotifications } = globalThis.FitQuestAchievements.create({
         SKILLS, SKILL_SYMBOLS, level, checkedCount, day, currentTotalLevel, safeText, save, bonusForLevel: skillBonus,
         getState: () => state, isDev: () => developer.active,
       });
@@ -328,9 +337,9 @@
       ranks: TOTAL_LEVEL_RANKS, rewardBadge, safeText,
     });
     let celebrations = [],
-      celebrationFocus, celebrationResume = null, xpPresentationActive = false;
+      celebrationFocus, celebrationResume = null, xpPresentationActive = false, afterCelebrations = null, rewardFromCelebration = false;
 
-    function presentProgressAwards(beforeXP, { savedSummary = false } = {}) {
+    function presentProgressAwards(beforeXP, { savedSummary = false, newAchievements = [], onComplete = null } = {}) {
       const awards = checkinAwards(beforeXP, state.skills.map(skill => skill.xp));
       const beforeTotal = beforeXP.reduce((sum, experience) => sum + level(experience), 0);
       const afterTotal = totalSkillLevel();
@@ -341,16 +350,18 @@
       xpPresentationActive = true;
       render(false);
       const finish = () => {
+        afterCelebrations = onComplete;
         xpPresentationActive = false;
         celebrations = leveled.filter(item => !celebrated.has(item.i + ':' + item.l));
         for (const milestone of TOTAL_REWARDS) {
           if (milestone.level > beforeTotal && milestone.level <= afterTotal)
             celebrations.push({ total: true, l: milestone.level, milestone });
         }
+        for (const id of newAchievements) if (id !== 'fitquest-legend' && earnedAchievements().includes(id)) celebrations.push({ achievement: id });
         queueLegendCelebration(false);
         if (savedSummary) celebrations.push({ saved: true, count });
         if (celebrations.length) showLevel();
-        else restoreCelebrationFocus();
+        else finishCelebrations();
       };
       if (awards.length && globalThis.QuestXPAnimation?.showCheckinAwards) {
         globalThis.FitQuestSounds?.play('checkin');
@@ -365,6 +376,16 @@
       } else finish();
     }
 
+    function finishCelebrations() {
+      const finish = afterCelebrations; afterCelebrations = null;
+      if (finish) finish(); else restoreCelebrationFocus();
+    }
+    function achievementCelebration(id) {
+      if (!earnedAchievements().includes(id)) return false;
+      celebrations = [{ achievement: id }]; afterCelebrations = null;
+      celebrationFocus = document.activeElement;
+      showLevel(); return true;
+    }
     function restoreCelebrationFocus() {
       if (celebrationFocus?.isConnected) celebrationFocus.focus();
       else document.querySelector('[data-open-checkin]')?.focus();
@@ -410,13 +431,23 @@
       const item = celebrations[0];
       if (!item) return;
       const { i, l, total, milestone } = item;
-      globalThis.FitQuestSounds?.play(item.saved ? 'checkin' : item.legend ? 'legend' : total && milestone ? 'rank' : 'level');
+      const achievementId = item.achievement || (item.legend ? 'fitquest-legend' : null);
+      const achievement = ACHIEVEMENTS.find(a => a.id === achievementId);
+      const claimable = achievementId && pendingAchievementRewards().some(a => a.id === achievementId);
+      document.getElementById('level-claim').hidden = !claimable;
+      document.getElementById('level-claim').dataset.achievement = achievementId || '';
+      globalThis.FitQuestSounds?.play(item.saved ? 'checkin' : item.legend ? 'legend' : achievement ? 'achievement' : total && milestone ? 'rank' : 'level');
       if (item.saved) {
         document.getElementById('level-content').innerHTML =
           '<div class="level-saved-check" aria-hidden="true">✓</div><h2 id="level-heading">' +
           (item.count ? 'Fitness day complete' : 'Check-in saved') + '</h2><p>' +
           (item.count ? item.count + ' of 5 skills checked in. Progress saved.' : 'Your ratings are saved. A positive rating in any skill completes your fitness day.') +
           '</p>' + (developer.active ? '<p class="muted">Test Mode preview · normal progress unchanged.</p>' : '');
+      } else if (item.achievement && achievement) {
+        document.getElementById('level-content').innerHTML = '<img class="level-achievement-image" src="assets/icons/' +
+          achievementImage(achievement) + '" alt=""><h2 id="level-heading">Achievement Unlocked!</h2><h3>' + safeText(achievement.name) +
+          '</h3><p>' + safeText(achievement.description) + '</p>' +
+          (claimable ? '<p>Reward: +3 XP to a skill of your choice.</p>' : '<p>+3 XP reward already claimed.</p>');
       } else if (item.legend) {
         document.getElementById('level-content').innerHTML = celebrationMarkup.legend();
       } else if (total) {
@@ -438,7 +469,7 @@
           (developer.active ? '<p class="muted">Test Mode preview · normal progress unchanged.</p>' : '');
       }
       document.getElementById('level-next').textContent =
-        item.saved ? 'Done' : 'Continue →';
+        claimable ? 'Choose later' : item.saved ? 'Done' : 'Continue →';
       const dialog = document.getElementById('level-dialog');
       if (!dialog.open) dialog.showModal();
       document.getElementById('level-next').focus();
@@ -497,7 +528,7 @@
           const resume = celebrationResume;
           celebrationResume = null;
           resume();
-        } else restoreCelebrationFocus();
+        } else finishCelebrations();
       }
     }
 
@@ -590,10 +621,64 @@
       tab = 'dashboard';
       render(false);
     }
+    let loadChoices = null;
+    function manualSaveStatus() {
+      try {
+        const slot = saves.readSlot('manual');
+        return slot ? 'Saved on this device: ' + new Date(slot.savedAt).toLocaleString() : 'No manual save yet. Select Save to create one.';
+      } catch (_) { return 'Manual save unavailable. Try Load or save a new copy.'; }
+    }
+    function saveLocal() {
+      if (developer.active) { notify('Exit Test Mode before saving normal progress.'); return false; }
+      try {
+        const raw = saves.manualRaw();
+        if (raw !== null && !confirm('Replace your manual save with your current progress?')) return false;
+        const result = saves.saveManual(raw);
+        if (result !== 'saved') {
+          notify(result === 'stale' ? 'A save changed in another tab. Open Load to review it.' : 'Manual save was not created. Keep this page open and retry.');
+          return false;
+        }
+        render(false); notify('Manual Save saved on this device.'); return true;
+      } catch (_) { notify('Manual save is unavailable. Keep this page open and retry.'); return false; }
+    }
+    function loadSlotMarkup(kind, label, slot) {
+      if (!slot) return '<button class="load-slot" disabled><strong>' + label + '</strong><small>No save available</small></button>';
+      const total = calculateTotalLevel(slot.data.skills);
+      const lastDay = Object.keys(slot.data.days).sort().pop();
+      const when = slot.savedAt ? new Date(slot.savedAt).toLocaleString() : lastDay ? 'Last check-in ' + lastDay : 'Latest on this device';
+      return '<button type="button" class="load-slot" data-load-slot="' + kind + '"><strong>' + label +
+        '</strong><span>Total Level ' + total + ' · ' + safeText(rankForTotalLevel(total) || 'Beginner') + '</span>' +
+        '<span class="load-slot-skills">' + SKILL_DISPLAY_ORDER.map(i => '<span>' + safeText(SKILLS[i].name) +
+          ' <b>Lv ' + level(slot.data.skills[i].xp) + '</b></span>').join('') + '</span><small>' + safeText(when) + '</small></button>';
+    }
+    function openLoadMenu() {
+      if (developer.active) { notify('Exit Test Mode before loading normal progress.'); return false; }
+      loadChoices = {};
+      for (const kind of ['autosave','manual']) {
+        try { loadChoices[kind] = saves.readSlot(kind); } catch (_) { loadChoices[kind] = null; }
+      }
+      document.getElementById('load-content').innerHTML = loadSlotMarkup('autosave', 'Last Autosave', loadChoices.autosave) +
+        loadSlotMarkup('manual', 'Manual Save', loadChoices.manual);
+      document.getElementById('load-dialog').showModal();
+      return true;
+    }
+    function loadSelectedSlot(kind) {
+      const snapshot = loadChoices?.[kind];
+      if (!snapshot || !confirm(kind === 'manual' ? 'Load this Manual Save and replace current progress?' : 'Load the Last Autosave? Unfinished ratings will be discarded.')) return false;
+      const result = saves.loadSlot(snapshot);
+      if (result !== 'loaded') {
+        notify(result === 'stale' ? 'This save changed in another tab. Open Load again.' : 'The save could not be loaded. Current progress is unchanged.');
+        return false;
+      }
+      draftRatings = null; draftDay = null; celebrations = []; celebrationResume = null;
+      document.getElementById('check-dialog').close(); document.getElementById('load-dialog').close();
+      loadChoices = null; tab = 'dashboard';
+      render(false); notify(kind === 'manual' ? 'Manual Save loaded.' : 'Last Autosave loaded.'); return true;
+    }
     function renderScreen() {
       if (introStep >= 0) return introScreen();
       if (tab === 'collections') return renderCollections();
-      if (tab === 'settings') return globalThis.FitQuestScreens.renderSettings({ developerMode: developer.active, soundEnabled: globalThis.FitQuestSounds?.isEnabled() ?? true });
+      if (tab === 'settings') return globalThis.FitQuestScreens.renderSettings({ developerMode: developer.active, soundEnabled: globalThis.FitQuestSounds?.isEnabled() ?? true, manualStatus: safeText(manualSaveStatus()) });
       return dashboard();
     }
 
@@ -606,11 +691,11 @@
 
       document.querySelector('nav').hidden = false;
       let html =
-        saves.rejectedRaw !== null
-          ? '<section class="card" role="alert"><h2>Your original save is protected</h2><p>We could not read your saved progress. Automatic saving is paused so the original data stays untouched.</p><p>Export the original save first. Then use Settings to import a working backup or explicitly reset progress. Check-ins made while recovery is pending are temporary.</p><button id="export">Export original save</button><button data-tab="settings">Recovery settings</button></section>'
+        saves.recoveryPending
+          ? '<section class="card" role="alert"><h2>Your original save is protected</h2><p>We could not read your saved progress. Automatic saving is paused so the original data stays untouched.</p><p>Automatic saving is paused. If a recovery copy was found, it is shown here. Use Settings → Save to keep a manual copy, then Load → Manual Save to resume saving.</p><button data-tab="settings">Save / Load</button></section>'
           : saves.available
             ? ''
-            : '<p class="card">Device saving is unavailable. Use Settings to export a backup before closing this page.</p>';
+            : '<p class="card">Device saving is unavailable. Keep this page open and retry Save in Settings.</p>';
       html += renderScreen();
       document.getElementById('view').innerHTML = html;
       globalThis.QuestXPAnimation?.animate(document.getElementById('view'));
@@ -685,6 +770,7 @@
       return { status: 'updated', delta, state };
     }
     function submitCorrection(i, score, expectedDay, keepDailyOpen = false) {
+      const earnedBefore = earnedAchievements();
       const beforeXP = state.skills.map(skill => skill.xp);
       const result = editCheckIn(i, score, expectedDay);
       if (!keepDailyOpen) document.getElementById('check-dialog').close();
@@ -696,41 +782,15 @@
       if (state !== result.state) return;
       if (keepDailyOpen) openDailyCheck(i, score);
       if (persisted || developer.active)
-        presentProgressAwards(beforeXP, { savedSummary: true });
+        presentProgressAwards(beforeXP, { savedSummary: true, newAchievements: earnedAchievements().filter(id => !earnedBefore.includes(id)) });
       else render(false);
       notify(SKILLS[i].name + ' · corrected to ' + score + '/5 · ' +
         (result.delta > 0 ? '+' : '') + result.delta + ' XP' +
-        (developer.active ? ' · preview only.' : persisted ? ' · saved.' : ' · temporary; export a backup.'));
-    }
-    // The first bonus-enabled session establishes a baseline for older saves.
-    // A paid milestone is never paid twice, even if today's ratings are edited.
-    function initializeFiveForFiveRewards() {
-      if (!Number.isInteger(state.fiveForFivePaidMilestones) || state.fiveForFivePaidMilestones < 0)
-        state.fiveForFivePaidMilestones = Math.floor(achievementStats().perfectDayMedals / 5);
-    }
-    function awardFiveForFiveBonus(queueCelebrations = true) {
-      const medals = achievementStats().perfectDayMedals;
-      const reached = Math.floor(medals / 5);
-      if (reached <= state.fiveForFivePaidMilestones) return null;
-      const before = state.skills.map(skill => level(skill.xp));
-      const totalBefore = totalSkillLevel();
-      // Catch up at most one new milestone per check-in. No retroactive bulk payouts.
-      state.fiveForFivePaidMilestones = reached;
-      state.skills.forEach(skill => { skill.xp += 5; });
-      const after = state.skills.map(skill => level(skill.xp));
-      const totalAfter = totalSkillLevel();
-      let priorTotal = totalBefore;
-      SKILLS.forEach((_, index) => {
-        const nextTotal = priorTotal + after[index] - before[index];
-        if (queueCelebrations) queueLevels(index, before[index], after[index], priorTotal, nextTotal);
-        priorTotal = nextTotal;
-      });
-      return { medals };
+        (developer.active ? ' · preview only.' : persisted ? ' · saved.' : ' · temporary; retry saving.'));
     }
     function submitCheckIn(i, score, keepDailyOpen = false) {
       const beforeXP = state.skills.map(skill => skill.xp);
       const earnedBefore = developer.active ? [] : earnedAchievements();
-      initializeFiveForFiveRewards();
       const result = recordCheckIn(i, score);
       if (result.status === 'invalid') return;
       if (!keepDailyOpen) document.getElementById('check-dialog').close();
@@ -738,12 +798,11 @@
         notify(SKILLS[i].name + ' is already checked in today.');
         return;
       }
-      const bonus = awardFiveForFiveBonus(false);
       const persisted = save();
       // A newer shared save can replace this state during saving.
       if (state !== result.state) return;
       if (keepDailyOpen) openDailyCheck(i, score);
-      if (persisted || developer.active) presentProgressAwards(beforeXP, { savedSummary: true });
+      if (persisted || developer.active) presentProgressAwards(beforeXP, { savedSummary: true, newAchievements: earnedAchievements().filter(id => !earnedBefore.includes(id)) });
       else render(false);
       notify(
         SKILLS[i].name +
@@ -754,11 +813,10 @@
             ? ' · preview only.'
             : persisted
               ? ' · saved.'
-              : ' · temporary; export a backup to keep this progress.'),
+              : ' · temporary; retry saving to keep this progress.'),
       );
-      if (bonus) { reward('+5 XP to all five skills'); notify('🏅 Five for Five! ' + bonus.medals + ' medals · +5 XP to every skill!'); }
       const newBadges = developer.active ? [] : earnedAchievements().filter(id => !earnedBefore.includes(id));
-      if (persisted && !developer.active && !celebrations.length) globalThis.FitQuestSounds?.play(bonus ? 'medal' : newBadges.length ? 'achievement' : 'checkin');
+      if (persisted && !developer.active && !celebrations.length) globalThis.FitQuestSounds?.play(newBadges.length ? 'achievement' : 'checkin');
       if (newBadges.length) notify('🏆 ' + newBadges.length + ' achievement' + (newBadges.length === 1 ? '' : 's') + ' unlocked! Check Collections at the top.');
     }
 
@@ -804,7 +862,7 @@
           return;
         }
         if (!save() || !developer.enter(saves.loaded, saves.lastRaw)) {
-          notify('Save your progress or export a backup before opening Developer Mode.');
+          notify('Save your progress before opening Developer Mode.');
           return;
         }
         render(false);
@@ -812,6 +870,10 @@
         notify('Developer Mode opened. Your normal save is protected.');
         return;
       }
+      if (b.id === 'save-local') { saveLocal(); return; }
+      if (b.id === 'load-local') { openLoadMenu(); return; }
+      if (b.id === 'cancel-load') { document.getElementById('load-dialog').close(); loadChoices = null; return; }
+      if (b.dataset.loadSlot) { loadSelectedSlot(b.dataset.loadSlot); return; }
       if (b.id === 'sound-toggle') {
         const sounds = globalThis.FitQuestSounds;
         if (sounds) { sounds.setEnabled(!sounds.isEnabled()); sounds.unlock(); sounds.play('checkin'); }
@@ -861,12 +923,26 @@
         if (swapDailyQuest(b.dataset.swapQuest)) { save(); render(false); }
         return;
       }
+      if (b.id === 'clear-achievement-notifications') {
+        if (clearAchievementNotifications()) { render(false); notify('All achievement notifications cleared.'); }
+        return;
+      }
+      if (b.id === 'open-recent-achievement') {
+        const a = recentAchievement();
+        if (a && markAchievementViewed(a.id)) { expandedAchievementCategories.add(a.category); render(false); achievementCelebration(a.id); }
+        return;
+      }
+      if (b.id === 'level-claim') {
+        openAchievementReward(b.dataset.achievement, true);
+        return;
+      }
       if (b.dataset.claimAchievement !== undefined) {
         openAchievementReward(b.dataset.claimAchievement);
         return;
       }
       if (b.id === 'achievement-reward-later') {
         document.getElementById('achievement-reward-dialog').close();
+        rewardFromCelebration = false;
         return;
       }
       if (b.dataset.achievementReward !== undefined) {
@@ -874,15 +950,23 @@
         if (result.status === 'claimed') {
           document.getElementById('achievement-reward-dialog').close();
           notify(SKILLS[result.skill].name + ' · +3 XP' + (developer.active ? ' · preview only.' : ' · saved.'));
-          presentProgressAwards(result.beforeXP);
+          const current = celebrations[0];
+          const currentId = current?.achievement || (current?.legend ? 'fitquest-legend' : null);
+          const remaining = rewardFromCelebration && currentId === b.dataset.achievementReward ? celebrations.slice(1) : [];
+          const previousAfter = rewardFromCelebration ? afterCelebrations : null;
+          rewardFromCelebration = false;
+          document.getElementById('level-dialog').close();
+          presentProgressAwards(result.beforeXP, { newAchievements: result.newAchievements, onComplete: () => {
+            celebrations = remaining; afterCelebrations = previousAfter;
+            if (celebrations.length) showLevel(); else finishCelebrations();
+          } });
         } else {
           notify(result.status === 'failed' ? 'Reward was not saved. Please try again.' : 'Reward unavailable. Review your achievements and skill levels.');
         }
         return;
       }
       if (b.dataset.viewAchievement !== undefined) {
-        markAchievementViewed(b.dataset.viewAchievement);
-        render(false);
+        if (markAchievementViewed(b.dataset.viewAchievement)) { render(false); achievementCelebration(b.dataset.viewAchievement); }
         return;
       }
       if (b.id === 'overall-level') {
@@ -929,7 +1013,7 @@
       if (b.id === 'restart') {
         if (
           !confirm(
-            'Start fresh? This removes all XP and check-ins on this device. Export a backup first if you want to keep them.',
+            'Start fresh? This removes all XP and check-ins on this device. Your Manual Save will be kept.',
           )
         )
           return;
@@ -985,24 +1069,10 @@
         submitCheckIn(Number(b.dataset.skill), Number(b.dataset.quickScore));
         return;
       }
-      if (b.id === 'export') {
-        save();
-        const url = URL.createObjectURL(
-          new Blob([saves.rejectedRaw !== null ? saves.rejectedRaw : JSON.stringify(state, null, 2)], {
-            type: 'application/json',
-          }),
-        );
-        const a = document.createElement('a');
-        a.href = url;
-        a.download =
-          (saves.rejectedRaw !== null ? 'fitquest-original-save-' : 'fitquest-save-') +
-          day() +
-          '.json';
-        a.click();
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
-      }
     }
-    function openAchievementReward(id) {
+
+    function openAchievementReward(id, fromCelebration = false) {
+      rewardFromCelebration = fromCelebration;
       if (syncSharedSave()) render(false);
       const achievement = pendingAchievementRewards().find(a => a.id === id);
       if (!achievement) { notify('This achievement reward is no longer available.'); return false; }
@@ -1026,8 +1096,10 @@
       if (level(state.skills[skill].xp) >= MAX_LEVEL) return { status: 'maxed' };
       const original = state;
       const beforeXP = state.skills.map(s => s.xp);
+      const earnedBefore = earnedAchievements();
       state = readSave(JSON.stringify(state));
       state.achievementRewards[id] = skill;
+      state.achievementsSeen = [...new Set([...(state.achievementsSeen || []), id])];
       state.skills[skill].xp += 3;
       const working = state;
       const persisted = save();
@@ -1036,7 +1108,7 @@
         state = original;
         return { status: 'failed' };
       }
-      return { status: 'claimed', skill, beforeXP };
+      return { status: 'claimed', skill, beforeXP, newAchievements: earnedAchievements().filter(id => !earnedBefore.includes(id)) };
     }
     // Confirmation captures the exact task; a changed day or task cannot receive its XP.
     function commitDailyQuest(completed, expectedDay, expectedQuest) {
@@ -1047,6 +1119,7 @@
         return { status: 'expired' };
       const original = readSave(JSON.stringify(state));
       const beforeXP = state.skills.map(skill => skill.xp);
+      const earnedBefore = earnedAchievements();
       const result = setQuestCompleted(completed, expectedDay);
       if (result.status !== 'updated') return result;
       const working = state;
@@ -1056,7 +1129,7 @@
         state = original;
         return { status: 'failed' };
       }
-      return { ...result, beforeXP };
+      return { ...result, beforeXP, newAchievements: earnedAchievements().filter(id => !earnedBefore.includes(id)) };
     }
     function confirmDailyQuest() {
       const dialog = document.getElementById('daily-quest-confirm');
@@ -1099,7 +1172,7 @@
         notify(SKILLS[result.skill].name + (completed ? ' · +2 XP' : ' · quest reward removed') +
           (developer.active ? ' · preview only.' : ' · saved.'));
         if (completed) {
-          presentProgressAwards(result.beforeXP);
+          presentProgressAwards(result.beforeXP, { newAchievements: result.newAchievements });
         } else render(false);
       };
       if (typeof navigator !== 'undefined' && navigator.locks)
@@ -1117,25 +1190,6 @@
           });
       } else {
         handleTrackerClick(e);
-      }
-    });
-    document.addEventListener('change', async (e) => {
-      if (e.target.id !== 'import' || !e.target.files[0]) return;
-      try {
-        const s = readSave(await e.target.files[0].text());
-        if (!confirm('Replace progress on this device with this backup?')) return;
-        if (!prepareReplacement()) return;
-        state = s;
-        saves.clearRejected();
-        const persisted = save();
-        render(false);
-        notify(
-          persisted
-            ? 'Backup restored.'
-            : 'Backup loaded in this page only. Export before closing; device saving is unavailable.',
-        );
-      } catch (err) {
-        notify('This file is not a valid FitQuest save.');
       }
     });
     document.getElementById('level-dialog').addEventListener('cancel', (e) => {
@@ -1200,7 +1254,6 @@
       const beforeXP = state.skills.map(skill => skill.xp);
       state = readSave(JSON.stringify(state));
       const working = state;
-      initializeFiveForFiveRewards();
       for (let i = 0; i < SKILLS.length; i++) {
         const entry = dailyEntry();
         const result = entry && Number.isInteger(entry.scores[i])
@@ -1212,18 +1265,17 @@
           return false;
         }
       }
-      awardFiveForFiveBonus(false);
       const persisted = developer.active || save();
       if (!persisted) {
         if (state === working) state = original;
-        notify('Ratings were not saved. Keep this form open and try again, or export a backup.');
+        notify('Ratings were not saved. Keep this form open and try again, or use Save in Settings.');
         return false;
       }
       const earned = state.skills.reduce((sum, skill, i) => sum + skill.xp - original.skills[i].xp, 0);
       draftRatings = null;
       document.getElementById('check-dialog').close();
       const newBadges = developer.active ? [] : earnedAchievements().filter(id => !earnedBefore.includes(id));
-      presentProgressAwards(beforeXP, { savedSummary: true });
+      presentProgressAwards(beforeXP, { savedSummary: true, newAchievements: newBadges });
       notify('Today’s check-in saved' + (developer.active ? ' · preview only' : '') +
         '. ' + (earned > 0 ? '+' : '') + earned + ' XP.' +
         (newBadges.length ? ' ' + newBadges.length + ' achievements unlocked.' : ''));
@@ -1338,6 +1390,10 @@
     if (typeof globalThis.__fitQuestTestHook === 'function') {
       globalThis.__fitQuestTestHook({
         enableSaving: () => saves.markReady(),
+        saveLocal, openLoadMenu, loadSelectedSlot, manualSaveStatus, saves,
+        achievementCelebration, clearAchievementNotifications, recentAchievement,
+        click: (id, dataset = {}) => handleTrackerClick({ target: { closest: () => ({ id, dataset, closest: () => null }) } }),
+        element: id => document.getElementById(id),
         XP, MAX_LEVEL, MAX_TOTAL_LEVEL, fresh, level, readSave, recordCheckIn,
         achievementStats, earnedAchievements, setProfileLevels: developer.setProfileLevels, journeySummary, journeyPanel, dailyQuest, setQuestCompleted, swapDailyQuest, commitDailyQuest,
         unseenAchievements, markAchievementViewed, pendingAchievementRewards, claimAchievementReward, openAchievementReward, renderCollections,
@@ -1396,7 +1452,6 @@
     });
     setupNoticeDismissal();
     developer.setupUI();
-    if (!developer.active && saves.rejectedRaw === null) initializeFiveForFiveRewards();
     try {
       // Do not interrupt returning players or developer/test sessions.
       if (!developer.active && saves.rejectedRaw === null && !saves.lastRaw && localStorage.getItem(INTRO_KEY) !== '1') introStep = 0;

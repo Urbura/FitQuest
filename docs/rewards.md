@@ -10,11 +10,11 @@ Collections shows a collapsed **Achievements in reach** disclosure with up to th
 
 ## FitQuest Legend
 
-The hidden `fitquest-legend` achievement requires every other registered achievement, including the hidden all-skills mastery medal. Completionist entries are excluded from their own requirement to avoid circular evaluation. Five for Five requires its first medal, rather than an unlimited repeat count. Legend enters Collections only when earned, uses `assets/icons/achievement-legend.png`, and triggers a dedicated gold-and-blue badge reveal with a brief, single fireworks burst. The saved `legendCelebrated` flag prevents repeat celebrations after reopening or restoring the same save. Developer previews never set that flag. Existing qualifying profiles receive the reveal on their next normal render.
+The hidden `fitquest-legend` achievement requires every other registered achievement, including the hidden all-skills mastery medal. Completionist entries are excluded from their own requirement to avoid circular evaluation. The Well-Rounded Day achievements require 1, 5, and 25 perfect days. Previously earned Legend badges are retained. Legend enters Collections only when earned, uses `assets/icons/achievement-legend.png`, and triggers a dedicated gold-and-blue badge reveal with a brief, single fireworks burst. The saved `legendCelebrated` flag prevents repeat celebrations after reopening or restoring the same save. Developer previews never set that flag. Existing qualifying profiles receive the reveal on their next normal render.
 
-## Five for Five
+## Well-Rounded Days
 
-The medal appears as a Collections toolbar counter. Opening it shows active skill check-in bonuses and progress toward the next automatic +5 XP reward for every skill. Rewards are paid once per set of five medals; paid milestones are preserved when ratings are corrected.
+Optional achievements at 1, 5, and 25 days rated 5/5 in all five skills. These days need not be consecutive. Each milestone offers the standard one-time +3 XP to a chosen skill. There is no recurring +5 XP to all skills; existing XP and historical paid-milestone fields remain untouched. The first achievement retains `five-perfect-scores` and its previous claim marker. New milestones use `five-perfect-days-5` and `five-perfect-days-25`.
 
 ## Secret rewards
 
@@ -24,6 +24,12 @@ The refined Legend badge keeps the crown, central star, one wing layer, and all 
 
 ## Achievement XP
 
-Every earned achievement offers one +3 XP reward in Collections, including achievements earned before this feature was added and the first Five for Five achievement. Repeated Five for Five medals retain their existing automatic +5 XP per skill for each set of five; they do not create additional achievement claims.
+Every earned achievement offers one +3 XP reward in Collections, including achievements earned before this feature was added and the Well-Rounded Day milestones.
 
 Choose any skill below Level 50. Later leaves the reward available; maxed skills are disabled. Claims store the achievement ID and chosen skill index in `achievementRewards`, written atomically with XP. Missing claim maps on older saves default to empty. Failed writes roll back the claim and XP. Rewards use the existing XP and level-up presentation and may unlock further achievements. Developer Mode rewards affect only the protected preview.
+
+## Achievement display and celebrations
+
+Collections highlights the most recent unlock and offers Clear all notifications. Clearing only acknowledges New markers; unclaimed XP stays available. Earned IDs and recent unlock order are saved alongside progress, preserving badges after rating corrections. Save/Load and explicit Reset restore their own snapshots.
+
+New unlocks follow XP/level/rank feedback in the celebration queue. Each achievement popup offers Choose your +3 XP or Choose later. Claiming runs the shared XP animation and then resumes the remaining queue. Unlocked badges can be reopened from Collections; claimed rewards cannot be awarded again.

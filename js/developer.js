@@ -95,7 +95,7 @@
     function unlockAllAchievements() {
       if (!DEV) return false;
       setProfileLevels(Array(SKILLS.length).fill(MAX_LEVEL));
-      setHistory({ activeDays: 120, streakDays: 30, perfectDays: 5 });
+      setHistory({ activeDays: 120, streakDays: 30, perfectDays: 25 });
       syncDevProfileInputs();
       return true;
     }
