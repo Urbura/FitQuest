@@ -37,7 +37,7 @@ Each entry in `skills` contains its name, hint, icon, colour, regular titles, ma
 - Total Level is the sum of all five skill levels, ranging from 5–250.
 - The central Daily Check-In stages all five ratings (unrated skills default to zero) until Save Today’s Check-In. Closing discards unsaved ratings. Skill buttons open progress details with a link to Daily Check-In. Saving writes the form once; failed writes restore the original in-memory progress and retain the draft to retry. Check-ins are limited to one per skill per reset day. Completed skills offer **Edit today’s rating** until the daily reset. Corrections replace the original XP contribution, retain the original bonus, and do not replay celebrations or increase participation counts. A zero rating earns zero XP; positive ratings receive the bonus earned by the skill level before that check-in.
 
-Each skill needs 552 total XP to reach level 50. Consistent 3/5 daily ratings with milestone bonuses take 108 check-ins, matching WriteQuest. Daily quest XP and the Five for Five medal bonus can shorten that time. Existing XP and history stay unchanged; the faster curve can raise existing levels.
+Each skill needs 552 total XP to reach level 50. Consistent 3/5 daily ratings with milestone bonuses take 108 check-ins, matching WriteQuest. Daily quest XP and claimable achievement rewards can shorten that time. Existing XP and history stay unchanged; the faster curve can raise existing levels.
 
 Changing the maximum level also requires checking title counts, Total Level reward milestones, developer input limits in `index.html`, and regression expectations.
 
@@ -90,7 +90,7 @@ The repository uses two-space indentation and LF line endings, recorded in `.edi
 
 Developer Mode can replace preview history with up to 365 active days, a chosen longest streak, and a chosen Five for Five medal count. Counts must be whole numbers; streak/medal counts cannot exceed active days, and a non-empty history needs a streak of at least one day. Active history is generated from the current reset day, with separated older dates; weekly-best achievements use this generated history. Applying history does not award XP.
 
-**Unlock All Achievements (Preview)** applies all Level 50 skills, 120 active days, a 30-day streak, and five perfect days, revealing the secret rewards in Collections. **Play reward celebrations** can replay any rank-up or FitQuest Legend on demand without changing the normal `legendCelebrated` marker. The test panel minimizes so the preview can be seen; reopen it from Test Mode. Restore Original Save or Exit Developer Mode returns the backed-up profile. Normal browser saves remain paused throughout previews.
+**Unlock All Achievements (Preview)** applies all Level 50 skills, 120 active days, a 30-day streak, and 25 perfect days, revealing the secret rewards in Collections. **Play reward celebrations** can replay any rank-up or FitQuest Legend on demand without changing the normal `legendCelebrated` marker. The test panel minimizes so the preview can be seen; reopen it from Test Mode. Restore Original Save or Exit Developer Mode returns the backed-up profile. Normal browser saves remain paused throughout previews.
 
 ## Developer home-screen icon
 

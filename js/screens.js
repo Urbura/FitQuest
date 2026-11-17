@@ -109,20 +109,18 @@
       (!next ? '<p class="muted">All Total Level rewards unlocked!</p>' : '');
   }
 
-  function renderSettings({ developerMode = false, soundEnabled = true } = {}) {
+  function renderSettings({ developerMode = false, soundEnabled = true, manualStatus = 'No manual save yet. Select Save to create one.' } = {}) {
     return `<button class="back-button" data-tab="dashboard">← Back to Dashboard</button>
 <section class="card tools">
 <h2>⚙ Settings</h2>
 <button id="sound-toggle" class="wide" aria-pressed="${soundEnabled}">Sound effects: ${soundEnabled ? 'On' : 'Off'}</button>
 <p class="muted">Soft check-in and reward chimes. No background music.</p>
-<p class="muted">Progress stays in this browser. Export before switching devices or clearing browser data.</p>
-<button id="export" class="wide">Export Backup</button>
-<details class="backup-options">
-<summary>Restore Backup</summary>
-<p><label>Import FitQuest backup<br>
-<input id="import" type="file" accept=".json,application/json" style="max-width:100%;margin-top:10px" aria-label="Import FitQuest backup">
-</label></p>
-</details>
+<h3>Save / Load</h3>
+<p class="muted">Progress saves automatically. Save keeps a separate manual copy on this device. Load offers your last autosave or manual save.</p>
+<button id="save-local" class="wide">Save</button>
+<p id="manual-save-status" class="muted" role="status">${manualStatus}</p>
+<button id="load-local" class="wide">Load</button>
+<p class="muted">No download needed. Local saves stay in this browser or installed app. Clearing its data removes them. Reset Progress preserves your Manual Save.</p>
 <button id="restart" class="restart wide">Reset tracker progress</button>
 </section>
 <section class="card">
@@ -137,7 +135,7 @@ ${developerMode ? '<button id="dev-open-settings" class="wide">Open test tools</
 <button id="install-app" hidden>Install FitQuest</button>
 <p id="install-help" class="muted">
 </p>
-<p class="muted">Progress stays on this device. Keep a backup before clearing browser data or switching devices.</p>
+<p class="muted">Progress stays on this device. Local saves do not transfer to another device.</p>
 </section>`;
   }
 
@@ -163,7 +161,7 @@ ${developerMode ? '<button id="dev-open-settings" class="wide">Open test tools</
       [summary.started ? String(summary.elapsedDays) : 'Not started', 'Days since first check-in'],
       [String(summary.checkIns), 'Total check-ins'],
       [summary.rank, 'Total Level ' + summary.totalLevel],
-      [String(summary.medals), 'Five for Five medals'],
+      [String(summary.medals), 'Well-Rounded Days'],
       [String(summary.currentStreak ?? 0), 'Current streak'],
       [String(summary.longestStreak ?? 0), 'Longest streak'],
     ];

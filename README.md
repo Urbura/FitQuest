@@ -45,4 +45,4 @@ GitHub checks changes before deploying `main`.
 - [Rewards and visual assets](docs/rewards.md)
 - [Save compatibility, offline access, and releases](docs/releases.md)
 
-Progress stays in the current browser. Export a backup before clearing browser data or moving devices. Preserve the `fitville-v1` storage key and skill array order when editing the code.
+Settings provides a device-local Manual Save and Load menu, alongside automatic saving and a previous valid recovery copy. Reset preserves the Manual Save; clearing browser data removes local saves. There is no cloud sync. Preserve the `fitville-v1` storage key and skill array order when editing the code.

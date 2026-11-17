@@ -34,7 +34,7 @@ function tracker(now = '2026-10-08T16:00:00Z', presentAwards = null) {
   };
   const nodes = new Map();
   const node = (id) => {
-    if (!nodes.has(id)) nodes.set(id, { open: true, querySelector: () => null, addEventListener() {}, focus() {}, setAttribute() {}, removeAttribute() {}, showModal() { this.open = true; }, close() { this.open = false; } });
+    if (!nodes.has(id)) nodes.set(id, { dataset: {}, open: true, querySelector: () => null, addEventListener() {}, focus() {}, setAttribute() {}, removeAttribute() {}, showModal() { this.open = true; }, close() { this.open = false; } });
     return nodes.get(id);
   };
   const clock = Date.parse(now);
@@ -43,7 +43,7 @@ function tracker(now = '2026-10-08T16:00:00Z', presentAwards = null) {
     static now() { return clock; }
   }
   const context = vm.createContext({
-    Date: Clock, URL, URLSearchParams, Map, setTimeout: () => 1, clearTimeout() {}, matchMedia: () => ({ matches: true }), localStorage: storage(), sessionStorage: storage(),
+    Date: Clock, confirm: () => true, URL, URLSearchParams, Map, setTimeout: () => 1, clearTimeout() {}, matchMedia: () => ({ matches: true }), localStorage: storage(), sessionStorage: storage(),
     location: { search: '' },
     document: {
       baseURI: 'https://example.com/FitQuest/',
@@ -558,7 +558,7 @@ test('journey counts elapsed reset days and does not count corrections twice', (
   assert.equal(t.journeySummary().checkIns, 3);
   t.recordCheckIn(1, 5); t.recordCheckIn(2, 5); t.recordCheckIn(3, 5); t.recordCheckIn(4, 5);
   assert.equal(t.journeySummary().medals, 1);
-  assert.match(t.journeyPanel(), /Five for Five medals/);
+  assert.match(t.journeyPanel(), /Well-Rounded Days/);
 });
 
 test('daily quest awards exactly two XP to its skill, survives reload and reverses without duplicates', () => {
@@ -689,7 +689,7 @@ test('failed daily saves preserve the original XP and keep the draft available t
   assert.equal(t.state().skills[4].xp, 5);
 });
 
-test('batch save retains the fifth Five for Five bonus and never pays it twice', () => {
+test('fifth Well-Rounded Day unlocks a reward without recurring all-skill XP', () => {
   const t = tracker();
   for (const day of ['2026-10-01','2026-10-02','2026-10-03','2026-10-04']) {
     t.state().days[day] = { scores:[5,5,5,5,5], rates:[1,1,1,1,1] };
@@ -697,11 +697,11 @@ test('batch save retains the fifth Five for Five bonus and never pays it twice',
   t.openDailyCheck();
   for (let i = 0; i < 5; i++) t.submitDailyRating(i, 5, t.day());
   assert.equal(t.saveDailyCheckin(t.day()), true);
-  assert.equal(t.state().fiveForFivePaidMilestones, 1);
-  assert.ok(t.state().skills.every(skill => skill.xp === 10));
+  assert.ok(t.earnedAchievements().includes('five-perfect-days-5'));
+  assert.ok(t.state().skills.every(skill => skill.xp === 5));
   t.openDailyCheck();
   assert.equal(t.saveDailyCheckin(t.day()), true);
-  assert.ok(t.state().skills.every(skill => skill.xp === 10));
+  assert.ok(t.state().skills.every(skill => skill.xp === 5));
 });
 
  test('every newly gained skill level queues once, and unchanged or lowered levels stay quiet', () => {
@@ -800,8 +800,9 @@ test('saved check-in fills in display order, celebrates at each crossing, then s
   presentation.done();
   assert.equal(t.queued().filter(item => item.i !== undefined).length, 0, 'celebrated levels never replay');
   assert.equal(t.queued()[0].milestone.title, 'Bronze');
-  assert.equal(t.queued()[1].saved, true);
-  t.nextCelebration();
+  assert.ok(t.queued().some(item => item.achievement === 'first-check-in'));
+  assert.equal(t.queued().at(-1).saved, true);
+  while (t.queued()[0] && !t.queued()[0].saved) t.nextCelebration();
   assert.match(t.levelHTML(), /Fitness day complete/);
   t.nextCelebration();
   assert.equal(t.queued().length, 0);
@@ -965,4 +966,97 @@ test('Journey and achievements share positive-day and flexible streak rules', ()
   assert.equal(t.weeklyCheckInCount(), 0);
   assert.equal(t.journeySummary().started, false);
   assert.equal(t.achievementStats().activeDays, 0);
+});
+
+test('achievement celebration offers skill choice, claiming resumes the remaining queue', () => {
+  let presentation;
+  const t = tracker(undefined, (awards, done, options) => { presentation = {awards,done,options}; });
+  t.openDailyCheck(); t.submitDailyRating(4, 3, t.day()); t.saveDailyCheckin(t.day());
+  presentation.done();
+  assert.equal(t.queued()[0].achievement, 'first-check-in');
+  assert.equal(t.element('level-claim').hidden, false);
+  assert.match(t.levelHTML(), /Achievement Unlocked!/);
+  t.click('level-claim', {achievement:'first-check-in'});
+  assert.equal(t.element('achievement-reward-dialog').open, true);
+  t.click('achievement-reward-later');
+  assert.equal(t.queued()[0].achievement, 'first-check-in');
+  assert.ok(t.pendingAchievementRewards().some(a => a.id === 'first-check-in'));
+  t.click('level-claim', {achievement:'first-check-in'});
+  t.click('', {achievementReward:'first-check-in',rewardSkill:'0'});
+  assert.equal(t.state().skills[0].xp, 3);
+  assert.equal(t.state().achievementRewards['first-check-in'], 0);
+  presentation.done();
+  assert.equal(t.queued()[0].saved, true);
+  t.nextCelebration(); assert.equal(t.queued().length, 0);
+  assert.equal(t.claimAchievementReward('first-check-in',0).status, 'unavailable');
+});
+
+test('clear all notifications is durable and leaves unclaimed rewards available', () => {
+  const t = tracker(); t.openDailyCheck(); t.submitDailyRating(4,1,t.day()); t.saveDailyCheckin(t.day());
+  assert.ok(t.unseenAchievements().length);
+  assert.equal(t.clearAchievementNotifications(), true);
+  assert.equal(t.unseenAchievements().length, 0);
+  assert.ok(t.pendingAchievementRewards().some(a => a.id === 'first-check-in'));
+  t.setState(t.readSave(JSON.stringify(t.state())));
+  assert.equal(t.unseenAchievements().length, 0);
+  assert.equal(t.recentAchievement().id, 'first-check-in');
+  assert.match(t.renderCollections(), /Most recent unlock/);
+  assert.match(t.renderCollections(), /All notifications cleared/);
+});
+
+test('failed notification saves preserve New markers', () => {
+  const t = tracker(); t.openDailyCheck(); t.submitDailyRating(4,1,t.day()); t.saveDailyCheckin(t.day());
+  t.failWrites(true);
+  assert.equal(t.clearAchievementNotifications(), false);
+  assert.ok(t.unseenAchievements().includes('first-check-in'));
+});
+
+test('manual save keeps full progress and Reset preserves the manual slot', () => {
+  const t = tracker(); t.openDailyCheck(); t.submitDailyRating(4,3,t.day()); t.saveDailyCheckin(t.day());
+  assert.equal(t.saveLocal(), true);
+  const manual = t.saves.readSlot('manual');
+  t.click('restart');
+  assert.ok(t.state().skills.every(s => s.xp === 0));
+  assert.equal(t.saves.readSlot('manual').raw, manual.raw);
+  assert.equal(t.openLoadMenu(), true);
+  assert.match(t.element('load-content').innerHTML, /Last Autosave/);
+  assert.match(t.element('load-content').innerHTML, /Manual Save/);
+  assert.match(t.element('load-content').innerHTML, /Strength/);
+  assert.equal(t.loadSelectedSlot('manual'), true);
+  assert.equal(t.state().skills[4].xp, 3);
+  assert.ok(t.state().earnedAchievements.includes('first-check-in'));
+});
+
+test('Well-Rounded Days unlock at 1, 5, 25 and preserve legacy XP without recurring grants', () => {
+  const t = tracker('2026-11-17T16:00:00Z');
+  t.state().skills.forEach(s => { s.xp = 100; });
+  t.state().fiveForFivePaidMilestones = 4;
+  for (let i=0;i<24;i++) {
+    const d = new Date(Date.UTC(2026,9,24+i)).toISOString().slice(0,10);
+    t.state().days[d] = {scores:[5,5,5,5,5],rates:[1,1,1,1,1]};
+  }
+  assert.ok(t.earnedAchievements().includes('five-perfect-scores'));
+  assert.ok(t.earnedAchievements().includes('five-perfect-days-5'));
+  assert.ok(!t.earnedAchievements().includes('five-perfect-days-25'));
+  const expectedXP = 100 + t.checkInXP(5, t.level(100));
+  t.openDailyCheck(); for (let i=0;i<5;i++) t.submitDailyRating(i,5,t.day());
+  assert.equal(t.saveDailyCheckin(t.day()), true);
+  assert.ok(t.earnedAchievements().includes('five-perfect-days-25'));
+  assert.ok(t.state().skills.every(s => s.xp === expectedXP)); // Rating and skill bonus only; no +5 medal payout.
+  assert.equal(t.state().fiveForFivePaidMilestones, 4);
+  assert.equal(t.claimAchievementReward('five-perfect-days-25',0).status,'claimed');
+  assert.equal(t.state().skills[0].xp,expectedXP + 3);
+  assert.equal(t.claimAchievementReward('five-perfect-days-25',0).status,'unavailable');
+});
+
+test('legacy first Five for Five claim is retained under the new Well-Rounded name', () => {
+  const t = tracker();
+  t.state().days[t.day()] = {scores:[5,5,5,5,5],rates:[1,1,1,1,1]};
+  t.state().skills[4].xp = 20;
+  t.state().achievementRewards['five-perfect-scores'] = 4;
+  assert.ok(t.earnedAchievements().includes('five-perfect-scores'));
+  assert.ok(!t.pendingAchievementRewards().some(a => a.id === 'five-perfect-scores'));
+  assert.equal(t.claimAchievementReward('five-perfect-scores',0).status, 'unavailable');
+  assert.equal(t.state().skills[4].xp,20);
+  assert.match(t.renderCollections(), /Well-Rounded Day · 1 Day/);
 });

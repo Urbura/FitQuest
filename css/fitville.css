@@ -333,6 +333,18 @@ dialog::backdrop {
 .reward-skill-list button { width: 100%; }
 #achievement-reward-dialog button:focus-visible { outline: 3px solid #f4c76a; outline-offset: 2px; }
 
+#load-dialog { max-width: 440px; max-height: 85dvh; overflow-y: auto; background: #172741; color: #f7ebd3; border: 1px solid #e4b85b; border-radius: 20px; }
+#load-dialog h2 { color: #f4c76a; }
+#load-dialog button { color: #f7ebd3; background: #293f5b; border: 1px solid #657a96; }
+.load-slot { width: 100%; display: grid; gap: 10px; margin-bottom: 14px; padding: 16px; text-align: left; }
+.load-slot-skills { display: grid; gap: 6px; }
+.load-slot-skills>span { display: flex; justify-content: space-between; gap: 12px; }
+.recent-achievement { display: flex; width: 100%; align-items: center; gap: 14px; margin: 16px 0; padding: 14px; text-align: left; }
+.recent-achievement>span { display: grid; gap: 5px; }
+.recent-achievement img { object-fit: contain; flex-shrink: 0; }
+#level-claim { background: #f4c76a; color: #172741; min-height: 44px; margin-bottom: 10px; }
+.level-achievement-image { width: 104px; height: 104px; object-fit: contain; }
+
 #fireworks {
   position: absolute;
   inset: 0;
