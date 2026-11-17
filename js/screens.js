@@ -64,9 +64,9 @@
   }
 
   function renderDailyCheckin({ ratings, skills, displayOrder, safeText, day }) {
-    return '<div class="row"><h2 id="check-heading">Daily Check-In</h2>' +
+    return '<div class="row daily-checkin-heading"><h2 id="check-heading">Daily Check-In</h2>' +
       '<button id="check-close" class="popup-close" aria-label="Close check-in">×</button></div>' +
-      '<div class="daily-checkin-skills">' + displayOrder.map(i => {
+      '<div class="daily-checkin-body"><div class="daily-checkin-skills">' + displayOrder.map(i => {
         const rating = ratings[i];
         return '<section class="daily-checkin-skill"><div class="row">' +
           '<strong id="daily-skill-' + i + '">' + safeText(skills[i].name) + '</strong><span>' +
@@ -77,7 +77,7 @@
             '" aria-pressed="' + (rating === score) + '" aria-label="' +
             safeText(skills[i].name) + ': ' + score + ' out of 5">' + score + '</button>').join('') +
           '</div></section>';
-      }).join('') + '</div><p class="muted daily-rating-help">0 = not practised · 1 = a small start · 3 = about halfway · 5 = goal met. Rate effort toward your own goal; planned rest can count.</p>' +
+      }).join('') + '</div><p class="muted daily-rating-help">0 = not practised · 1 = a small start · 3 = about halfway · 5 = goal met. Rate effort toward your own goal; planned rest can count.</p></div>' +
       '<div class="daily-checkin-actions"><button type="button" class="wide" id="save-daily-checkin" data-day="' + day + '">Save Today’s Check-In</button></div>';
   }
 

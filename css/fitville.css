@@ -363,6 +363,23 @@ dialog::backdrop {
   color: #f7ebd3;
   border-color: #e4b85b;
   border-radius: 20px;
+  padding: 0;
+  overflow: hidden;
+}
+
+#check-content:has(.daily-checkin-body) {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  max-height: calc(min(85dvh, 100dvh - 32px - var(--safe-top) - var(--safe-bottom)) - 4px);
+}
+
+.daily-checkin-heading { padding: 16px 20px 12px; }
+.daily-checkin-heading h2 { margin-bottom: 0; }
+.daily-checkin-body {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 20px;
 }
 
 #check-dialog:has(.daily-checkin-skills) h2 { color: #f4c76a; }
@@ -724,10 +741,8 @@ body.tracker-home main {
 }
 
 .daily-checkin-actions {
-  position: sticky;
-  bottom: -1px;
-  z-index: 1;
-  padding-top: 12px;
+  padding: 12px 20px 20px;
+  border-top: 1px solid #60729366;
   background: #172741;
 }
 
