@@ -2,7 +2,7 @@
 // IMPORTANT: Skill array positions identify existing saved progress; never reorder skills.
 // Change skillDisplayOrder to rearrange the interface.
 // Milestones must remain sorted from lowest to highest.
-// Daily reset uses fixed UTC time: 09:30 UTC is 03:30 CST (UTC-6), year-round.
+// Daily reset follows the device local calendar, including daylight saving changes.
 globalThis.FitQuestConfig = {
   "dailyQuests": [
   [
@@ -89,9 +89,7 @@ globalThis.FitQuestConfig = {
     }
   ],
   "dailyReset": {
-    "utcHour": 9,
-    "utcMinute": 30,
-    "label": "3:30 a.m. CST (UTC−6)"
+    "label": "3:30 a.m. local time"
   },
   "skillDisplayOrder": [
     4,

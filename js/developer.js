@@ -80,7 +80,7 @@
         return date.toISOString().slice(0, 10);
       }
       for (let i = 0; i < streakDays; i++) dates.push(dateBefore(i));
-      for (let i = 0; i < activeDays - streakDays; i++) dates.push(dateBefore(streakDays + 1 + i * 2));
+      for (let i = 0; i < activeDays - streakDays; i++) dates.push(dateBefore(streakDays + 3 + i * 4));
       const profile = getState();
       profile.days = Object.fromEntries(dates.map((date, i) => [date, {
         scores: Array(SKILLS.length).fill(i < perfectDays ? 5 : 1),

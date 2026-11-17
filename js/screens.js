@@ -143,10 +143,10 @@ ${developerMode ? '<button id="dev-open-settings" class="wide">Open test tools</
 
   function renderWeeklyTrail({ week, today, safeText }) {
     const count = week.filter(d => d.checked).length;
-    const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const labels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     return '<section class="fitness-trail" aria-labelledby="fitness-trail-heading"><h3 id="fitness-trail-heading">This week</h3>' +
       '<p><strong>' + count + '</strong> active ' + (count === 1 ? 'day' : 'days') + ' this week</p>' +
-      '<div class="fitness-trail-days" role="list" aria-label="Weekly fitness activity, Monday through Sunday">' +
+      '<div class="fitness-trail-days" role="list" aria-label="Weekly fitness activity, Sunday through Saturday">' +
       week.map((d, i) => {
         const current = d.day === today;
         const status = d.checked ? 'Checked in' : d.day > today ? 'Upcoming' : current ? 'Ready to check in' : 'No check-in';
@@ -164,12 +164,14 @@ ${developerMode ? '<button id="dev-open-settings" class="wide">Open test tools</
       [String(summary.checkIns), 'Total check-ins'],
       [summary.rank, 'Total Level ' + summary.totalLevel],
       [String(summary.medals), 'Five for Five medals'],
+      [String(summary.currentStreak ?? 0), 'Current streak'],
+      [String(summary.longestStreak ?? 0), 'Longest streak'],
     ];
     return (week ? renderWeeklyTrail({ week, today, safeText }) : '') + milestoneHTML +
       '<div class="journey-grid">' + items.map(([value, label]) =>
       '<div class="journey-stat"><strong>' + safeText(value) + '</strong><span>' + label + '</span></div>').join('') +
       '</div><p class="weekly-check-ins" aria-live="polite">' + weeklyText +
-      '</p><p class="muted">' + resetText + '</p>' +
+      '</p><p class="muted">A rating of 1–5 in any skill counts as an active day. Two missed days per Sunday–Saturday week are allowed. A third miss that week, or three missed days in a row, resets your streak. Rest days add no points.</p><p class="muted">' + resetText + '</p>' +
       (summary.started ? '' : '<p class="muted">Your journey begins with your first check-in.</p>');
   }
 

@@ -1,6 +1,6 @@
 globalThis.FitQuestAchievements = {
   create(context) {
-    const { SKILLS, SKILL_SYMBOLS, level, checkedCount, day, currentTotalLevel, safeText, save, getState, isDev, bonusForLevel } = context;
+    const { SKILLS, SKILL_SYMBOLS, level, day, currentTotalLevel, safeText, save, getState, isDev, bonusForLevel } = context;
     const state = new Proxy({}, { get: (_, key) => getState()[key], set: (_, key, value) => { getState()[key] = value; return true; } });
     // Collections: achievements are derived from existing levels and check-in history.
     // Viewed badges and one-time XP claims are saved separately from unlock progress.
@@ -11,7 +11,7 @@ globalThis.FitQuestAchievements = {
     const ACHIEVEMENTS = [
       { id: 'first-check-in', category: 'Consistency', name: 'First Check-In', description: 'Complete your first check-in in any skill', goal: 1, kind: 'days' },
       ...[3, 7, 14, 30, 100].map(n => ({ id: 'days-' + n, category: 'Consistency', name: n + ' Active Days', description: 'Check in on ' + n + ' different days', goal: n, kind: 'days' })),
-      ...[3, 7, 14, 30].map(n => ({ id: 'streak-' + n, category: 'Consistency', name: n + '-Day Streak', description: 'Check in ' + n + ' days in a row', goal: n, kind: 'streak' })),
+      ...[3, 7, 14, 30].map(n => ({ id: 'streak-' + n, category: 'Consistency', name: n + '-Day Streak', description: 'Reach ' + n + ' positive check-in days in one streak. Two missed days per Sunday–Saturday week are allowed; a third miss that week or three in a row resets it.', goal: n, kind: 'streak' })),
       ...[10, 25, 50, 75, 100, 150, 200, 250].map(n => ({ id: 'total-' + n, category: 'Levels', name: TOTAL_LEVEL_RANKS[n], description: 'Reach Total Level ' + n, goal: n, kind: 'total' })),
       ...[10, 25, 50].map(n => ({ id: 'skill-any-' + n, category: 'Skills', name: 'Skill Level ' + n, description: 'Reach Level ' + n + ' in any skill', goal: n, kind: 'skill' })),
       ...SKILLS.map((skill, i) => ({ id: 'specialist-' + i, category: 'Skills', name: skill.name + ' Specialist', description: 'Reach Level 25 in ' + skill.name, goal: 25, kind: 'specialist', skill: i })),
@@ -24,33 +24,16 @@ globalThis.FitQuestAchievements = {
       { id: 'fitquest-legend', category: 'Legend', hiddenUntilEarned: true, name: 'FitQuest Legend', description: 'Earn every other achievement', goal: 1, kind: 'completionist' },
     ];
     function achievementStats() {
-      const active = Object.keys(state.days).filter(k => /^\d{4}-\d{2}-\d{2}$/.test(k) && checkedCount(state.days[k]) > 0).sort();
-      const activeSet = new Set(active);
-      let longest = 0;
-      for (const key of active) {
-        const prior = new Date(key + 'T00:00:00Z');
-        prior.setUTCDate(prior.getUTCDate() - 1);
-        const previous = prior.toISOString().slice(0, 10);
-        let length = 1;
-        for (let d = previous; activeSet.has(d);) {
-          length++;
-          const date = new Date(d + 'T00:00:00Z');
-          date.setUTCDate(date.getUTCDate() - 1);
-          d = date.toISOString().slice(0, 10);
-        }
-        longest = Math.max(longest, length);
-      }
+      const { positiveDays, streakSummary, startOfWeek } = globalThis.FitQuestCalendar;
+      const active = positiveDays(state.days, day());
+      const { longest } = streakSummary(active, day());
       const weekly = new Map();
       for (const key of active) {
-        const date = new Date(key + 'T00:00:00Z');
-        date.setUTCDate(date.getUTCDate() - (date.getUTCDay() + 6) % 7);
-        const monday = date.toISOString().slice(0, 10);
-        weekly.set(monday, (weekly.get(monday) || 0) + 1);
+        const sunday = startOfWeek(key);
+        weekly.set(sunday, (weekly.get(sunday) || 0) + 1);
       }
-      const current = new Date(day() + 'T00:00:00Z');
-      current.setUTCDate(current.getUTCDate() - (current.getUTCDay() + 6) % 7);
-      const currentMonday = current.toISOString().slice(0, 10);
-      const completeWeeks = [...weekly].filter(([m]) => m < currentMonday).sort(([a], [b]) => a.localeCompare(b));
+      const currentSunday = startOfWeek(day());
+      const completeWeeks = [...weekly].filter(([s]) => s < currentSunday).sort(([a], [b]) => a.localeCompare(b));
       let weeklyBest = false, improved = false, best = 0, previous = null;
       for (const [, count] of completeWeeks) {
         if (previous !== null) {

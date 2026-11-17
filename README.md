@@ -4,6 +4,8 @@ A lightweight, mobile-friendly habit RPG. Rate Sleep, Diet, Stretching, Cardio, 
 
 [Open FitQuest](https://urbura.github.io/FitQuest/) · [Developer Mode](https://urbura.github.io/FitQuest/?dev)
 
+Daily check-ins reset at 3:30 a.m. device local time. Weeks run Sunday–Saturday. Positive ratings count toward flexible streaks: two missed days per week are allowed; a third miss that week or three in a row resets the streak.
+
 ## Run locally
 
 No build step or npm packages are required. From the repository folder:
