@@ -75,6 +75,11 @@
     function readSave(raw) {
       const s = JSON.parse(raw);
       if (!validSharedSave(s) || s.bank < 0) throw Error('Invalid save');
+      if (s.achievementRewards === undefined) s.achievementRewards = {};
+      if (!s.achievementRewards || typeof s.achievementRewards !== 'object' || Array.isArray(s.achievementRewards) ||
+          Object.entries(s.achievementRewards).some(([id, skill]) =>
+            !/^[a-z0-9-]{1,79}$/.test(id) || !Number.isInteger(skill) || skill < 0 || skill >= skillCount))
+        throw Error('Invalid achievement rewards');
       validateCheckInHistory(s);
       return s;
     }

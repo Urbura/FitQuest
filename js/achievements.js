@@ -3,7 +3,7 @@ globalThis.FitQuestAchievements = {
     const { SKILLS, SKILL_SYMBOLS, level, checkedCount, day, currentTotalLevel, safeText, save, getState, isDev, bonusForLevel } = context;
     const state = new Proxy({}, { get: (_, key) => getState()[key], set: (_, key, value) => { getState()[key] = value; return true; } });
     // Collections: achievements are derived from existing levels and check-in history.
-    // Only the list of viewed badge IDs is saved; earned achievements cannot be lost.
+    // Viewed badges and one-time XP claims are saved separately from unlock progress.
     const TOTAL_LEVEL_RANKS = {
       10: 'Bronze', 25: 'Silver', 50: 'Gold', 75: 'Platinum',
       100: 'Emerald', 150: 'Diamond', 200: 'Master', 250: 'Grandmaster',
@@ -228,6 +228,19 @@ globalThis.FitQuestAchievements = {
         '<p>Every 5 medals awards <strong>+5 XP to each skill</strong>, automatically. This is a one-time reward for each set of 5 medals.</p>' +
         '<p class="muted">' + remaining + ' more medal' + (remaining === 1 ? '' : 's') + ' to the next reward.</p>';
     }
+    function pendingAchievementRewards() {
+      const earned = new Set(earnedAchievements());
+      return ACHIEVEMENTS.filter(a => earned.has(a.id) && !Object.hasOwn(state.achievementRewards || {}, a.id));
+    }
+    function renderAchievementRewards() {
+      const pending = pendingAchievementRewards();
+      return '<section class="achievement-rewards" aria-label="Achievement XP rewards"><h3>Achievement rewards</h3>' +
+        '<p>Each achievement awards <strong>+3 XP to a skill of your choice</strong>, once. Previously earned achievements count too.</p>' +
+        (pending.length ? '<details open><summary>' + pending.length + ' reward' + (pending.length === 1 ? '' : 's') + ' ready to claim</summary>' +
+          pending.map(a => '<div class="achievement-reward-row"><strong>' + safeText(a.name) + '</strong>' +
+            '<button type="button" data-claim-achievement="' + a.id + '" aria-haspopup="dialog" aria-controls="achievement-reward-dialog" aria-label="Claim +3 XP for ' + safeText(a.name) + '">Claim +3 XP</button></div>').join('') + '</details>' :
+          '<p class="muted">No rewards waiting. Unlock an achievement to earn +3 XP.</p>') + '</section>';
+    }
     function renderCollections() {
       const stats = achievementStats(), earned = earnedAchievements(), unseen = new Set(unseenAchievements());
       const visible = visibleAchievements(stats);
@@ -236,7 +249,7 @@ globalThis.FitQuestAchievements = {
         '</strong> achievements unlocked</p><progress max="' + visible.length + '" value="' + earned.length +
         '" aria-label="Collection completion"></progress>' +
         (isDev() ? '<p class="muted">Developer preview. Click badges to test notifications; your normal save is unchanged.</p>' : '') +
-        achievementInReach(stats) +
+        renderAchievementRewards() + achievementInReach(stats) +
         ['Consistency', 'Levels', 'Personal Bests', 'Skills', 'Legend'].map((category, index) => {
           const achievements = visible.filter(a => a.category === category && a.id !== 'five-perfect-scores');
           if (!achievements.length) return '';
@@ -262,7 +275,9 @@ globalThis.FitQuestAchievements = {
               '</small><progress max="' + a.goal + '" value="' + Math.min(a.goal, progress) +
               '" aria-label="' + safeText(a.name) + ' progress"></progress><small>' +
               Math.min(a.goal, progress) + ' / ' + a.goal + (unlocked ? ' · ' + achievementRewardLabel(a) + ' · Unlocked!' : '') +
-              '</small></div></' + tag + '>';
+              '</small><small>' + (Object.hasOwn(state.achievementRewards || {}, a.id)
+                ? '+3 XP claimed · ' + safeText(SKILLS[state.achievementRewards[a.id]].name)
+                : unlocked ? '+3 XP ready to claim' : 'Reward: +3 XP to a chosen skill') + '</small></div></' + tag + '>';
           }).join('') + '</div></section>';
         }).join('') + '</section>';
     }
@@ -274,6 +289,6 @@ globalThis.FitQuestAchievements = {
     }
 
 
-    return { TOTAL_LEVEL_RANKS, ACHIEVEMENTS, achievementStats, earnedAchievements, unseenAchievements, updateCollectionBadge, expandedAchievementCategories, renderCollections, renderBonusesPanel, markAchievementViewed, nearbyLevelAchievements, renderNearbyMilestones, renderNextMilestone };
+    return { TOTAL_LEVEL_RANKS, ACHIEVEMENTS, achievementStats, earnedAchievements, unseenAchievements, updateCollectionBadge, expandedAchievementCategories, renderCollections, renderBonusesPanel, markAchievementViewed, nearbyLevelAchievements, renderNearbyMilestones, renderNextMilestone, pendingAchievementRewards };
   }
 };

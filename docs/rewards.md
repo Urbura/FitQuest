@@ -21,3 +21,9 @@ The medal appears as a Collections toolbar counter. Opening it shows active skil
 All Skills Level 50 and FitQuest Legend are excluded from locked rows, nearby previews, and visible achievement totals until earned. Keep their existing IDs when changing artwork or presentation.
 
 The refined Legend badge keeps the crown, central star, one wing layer, and all five skill medallions. Its reveal uses a soft glow, a gentle scale-up, and one fireworks burst. Reduced-motion preferences disable these effects.
+
+## Achievement XP
+
+Every earned achievement offers one +3 XP reward in Collections, including achievements earned before this feature was added and the first Five for Five achievement. Repeated Five for Five medals retain their existing automatic +5 XP per skill for each set of five; they do not create additional achievement claims.
+
+Choose any skill below Level 50. Later leaves the reward available; maxed skills are disabled. Claims store the achievement ID and chosen skill index in `achievementRewards`, written atomically with XP. Missing claim maps on older saves default to empty. Failed writes roll back the claim and XP. Rewards use the existing XP and level-up presentation and may unlock further achievements. Developer Mode rewards affect only the protected preview.
