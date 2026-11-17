@@ -12,6 +12,7 @@ const progression = require('../js/progression.js');
 function fixture() {
   const context = vm.createContext({ globalThis: {}, Date, Set, Map });
   vm.runInContext(configSource, context);
+  vm.runInContext(fs.readFileSync(path.join(__dirname, '../js/calendar.js'), 'utf8'), context);
   vm.runInContext(source, context);
   const config = context.globalThis.FitQuestConfig;
   const xp = progression.createProgression(config);
@@ -71,11 +72,11 @@ test('locked achievements cannot be marked as viewed', () => {
   assert.equal(f.saves(), 0);
 });
 
-test('three active days and consecutive streak unlock separately', () => {
+test('three positive days retain a streak across two permitted rest days', () => {
   const f = fixture();
   ['2026-10-10', '2026-10-12', '2026-10-14'].forEach(d => f.addDay(d, [1, null, null, null, null]));
   assert.ok(f.achievements.earnedAchievements().includes('days-3'));
-  assert.ok(!f.achievements.earnedAchievements().includes('streak-3'));
+  assert.ok(f.achievements.earnedAchievements().includes('streak-3'));
   f.addDay('2026-10-11', [1, null, null, null, null]);
   assert.ok(f.achievements.earnedAchievements().includes('streak-3'));
 });

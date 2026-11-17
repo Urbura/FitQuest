@@ -1,4 +1,5 @@
 'use strict';
+process.env.TZ = 'UTC';
 // Exercise the production tracker logic without starting its browser UI.
 const assert = require('node:assert/strict');
 const { readFileSync } = require('node:fs');
@@ -56,6 +57,7 @@ function tracker(now = '2026-10-08T16:00:00Z', presentAwards = null) {
   // The application calls this hook before browser startup.
   context.__fitQuestTestHook = (api) => { context.tracker = api; };
   vm.runInContext(configSource, context, { filename: 'js/config.js' });
+  vm.runInContext(readFileSync(join(__dirname, '../js/calendar.js'), 'utf8'), context);
   vm.runInContext(progressionSource, context, { filename: 'js/progression.js' });
   vm.runInContext(storageSource, context, { filename: 'js/storage.js' });
   vm.runInContext(achievementsSource, context, { filename: 'js/achievements.js' });
@@ -158,24 +160,24 @@ test('check-ins award rating XP once per skill per reset day, including zero', (
 });
 
 test('a skill can be checked in again after the daily reset', () => {
-  const before = tracker('2026-10-08T09:29:59Z');
+  const before = tracker('2026-10-08T03:29:59Z');
   before.recordCheckIn(0, 5);
-  const after = tracker('2026-10-08T09:30:00Z');
+  const after = tracker('2026-10-08T03:30:00Z');
   after.setState(after.readSave(JSON.stringify(before.state())));
   assert.equal(after.recordCheckIn(0, 4).status, 'recorded');
   assert.equal(after.state().skills[0].xp, 9);
 });
 
-test('daily reset changes at 09:30 UTC, including month and year boundaries', () => {
+test('daily reset changes at 03:30 local time, including month and year boundaries', () => {
   const t = tracker();
-  assert.equal(t.day(Date.parse('2026-10-08T09:29:59Z')), '2026-10-07');
-  assert.equal(t.day(Date.parse('2026-10-08T09:30:00Z')), '2026-10-08');
-  assert.equal(t.day(Date.parse('2027-01-01T09:29:59Z')), '2026-12-31');
-  assert.equal(t.nextReset(Date.parse('2026-10-08T09:29:59Z')), Date.parse('2026-10-08T09:30:00Z'));
-  assert.equal(t.nextReset(Date.parse('2026-10-08T09:30:00Z')), Date.parse('2026-10-09T09:30:00Z'));
+  assert.equal(t.day(Date.parse('2026-10-08T03:29:59Z')), '2026-10-07');
+  assert.equal(t.day(Date.parse('2026-10-08T03:30:00Z')), '2026-10-08');
+  assert.equal(t.day(Date.parse('2027-01-01T03:29:59Z')), '2026-12-31');
+  assert.equal(t.nextReset(Date.parse('2026-10-08T03:29:59Z')), Date.parse('2026-10-08T03:30:00Z'));
+  assert.equal(t.nextReset(Date.parse('2026-10-08T03:30:00Z')), Date.parse('2026-10-09T03:30:00Z'));
 });
 
-test('weekly encouragement counts distinct days, includes zero scores, excludes other weeks', () => {
+test('weekly encouragement counts positive days in the Sunday–Saturday week', () => {
   const t = tracker();
   const entry = (score) => ({ scores: [score, null, null, null, null] });
   t.state().days = {
@@ -184,8 +186,8 @@ test('weekly encouragement counts distinct days, includes zero scores, excludes 
     '2026-10-07': entry(null), '2026-10-08': entry(2), '2026-10-09': entry(5),
   };
   assert.equal(t.weeklyCheckInCount(), 3);
-  assert.equal(t.weeklyCheckInCount(Date.parse('2026-10-05T09:29:59Z')), 1);
-  assert.equal(t.weeklyCheckInCount(Date.parse('2026-10-05T09:30:00Z')), 1);
+  assert.equal(t.weeklyCheckInCount(Date.parse('2026-10-05T03:29:59Z')), 1);
+  assert.equal(t.weeklyCheckInCount(Date.parse('2026-10-05T03:30:00Z')), 1);
 });
 
 // Total Level rewards and celebrations
@@ -400,9 +402,9 @@ test('corrections retain pre-check-in bonus across milestones, zero and reload',
 });
 
 test('expired corrections cannot affect the new day', () => {
-  const before = tracker('2026-10-08T09:29:59Z');
+  const before = tracker('2026-10-08T03:29:59Z');
   before.recordCheckIn(0, 2);
-  const after = tracker('2026-10-08T09:30:00Z');
+  const after = tracker('2026-10-08T03:30:00Z');
   after.setState(after.readSave(JSON.stringify(before.state())));
   assert.equal(after.editCheckIn(0, 5, before.day()).status, 'expired');
   assert.equal(after.state().skills[0].xp, 2);
@@ -541,7 +543,7 @@ test('achievement notifications clear individually and reject locked achievement
   assert.equal(t.unseenAchievements().length, before - 1);
 });
 
-test('journey counts elapsed reset days, includes zero check-ins and does not count corrections twice', () => {
+test('journey counts elapsed reset days and does not count corrections twice', () => {
   const t = tracker('2026-10-14T16:00:00Z');
   assert.equal(t.journeySummary().started, false);
   assert.equal(t.journeySummary().checkIns, 0);
@@ -765,15 +767,15 @@ test('Journey trail matches existing reset weeks, excludes future and quest-only
   assert.match(html, /<strong>2<\/strong> active days this week/);
 });
 
-test('Journey trail handles Monday reset and a week spanning the year boundary', () => {
-  const before = tracker('2026-10-05T09:29:59Z').journeyPanel();
-  assert.match(before, /Mon, 2026-09-28:/);
-  assert.match(before, /aria-current="date" aria-label="Sun, 2026-10-04:/);
-  const after = tracker('2026-10-05T09:30:00Z').journeyPanel();
-  assert.match(after, /aria-current="date" aria-label="Mon, 2026-10-05:/);
+test('Journey trail handles Sunday reset and a week spanning the year boundary', () => {
+  const before = tracker('2026-10-04T03:29:59Z').journeyPanel();
+  assert.match(before, /Sun, 2026-09-27:/);
+  assert.match(before, /aria-current="date" aria-label="Sat, 2026-10-03:/);
+  const after = tracker('2026-10-04T03:30:00Z').journeyPanel();
+  assert.match(after, /aria-current="date" aria-label="Sun, 2026-10-04:/);
   const newYear = tracker('2027-01-01T16:00:00Z').journeyPanel();
-  assert.match(newYear, /Mon, 2026-12-28:/);
-  assert.match(newYear, /Sun, 2027-01-03:/);
+  assert.match(newYear, /Sun, 2026-12-27:/);
+  assert.match(newYear, /Sat, 2027-01-02:/);
 });
 
 test('saved check-in fills in display order, celebrates at each crossing, then shows rank and completion once', () => {
@@ -928,4 +930,39 @@ test('reward claims survive check-in corrections and malformed claim maps are re
     assert.throws(() => t.readSave(JSON.stringify({ ...t.fresh(), achievementRewards: rewards })), /Invalid achievement rewards/);
   const legacy = t.fresh(); delete legacy.achievementRewards;
   assert.equal(Object.keys(t.readSave(JSON.stringify(legacy)).achievementRewards).length, 0);
+});
+
+test('local reset upgrade preserves historical date keys, XP, and achievement claims', () => {
+  const t = tracker('2026-11-17T08:00:00Z');
+  const profile = t.fresh();
+  profile.dailyResetVersion = 1;
+  profile.days['2026-11-16'] = {scores:[3,null,null,null,null], rates:[null,null,null,null,null]};
+  profile.skills[0].xp = 6;
+  profile.achievementRewards['first-check-in'] = 0;
+  t.setState(t.readSave(JSON.stringify(profile)));
+  const before = JSON.stringify(t.state());
+  t.dashboard(); t.journeyPanel(); t.openDailyCheck();
+  assert.equal(JSON.stringify(t.state()), before);
+  assert.equal(t.recordCheckIn(0, 1).status, 'recorded');
+  assert.ok(t.state().days['2026-11-16']);
+  assert.ok(t.state().days['2026-11-17']);
+  assert.equal(t.state().skills[0].xp, 7);
+  assert.equal(t.state().achievementRewards['first-check-in'], 0);
+});
+
+test('Journey and achievements share positive-day and flexible streak rules', () => {
+  const t = tracker('2026-11-19T16:00:00Z');
+  t.state().days = Object.fromEntries(['2026-11-15','2026-11-17','2026-11-19'].map(d => [d,{scores:[1,0,0,0,0]}]));
+  t.state().days['2026-11-16'] = {scores:[0,0,0,0,0]};
+  t.state().days['2026-11-18'] = {scores:[null,null,null,null,null],quest:{completed:true}};
+  assert.equal(t.weeklyCheckInCount(), 3);
+  assert.equal(t.journeySummary().currentStreak, 3);
+  assert.equal(t.journeySummary().longestStreak, 3);
+  assert.equal(t.achievementStats().activeDays, 3);
+  assert.equal(t.achievementStats().longest, 3);
+  assert.ok(t.earnedAchievements().includes('streak-3'));
+  t.state().days = {'2026-11-16': {scores:[0,0,0,0,0]}};
+  assert.equal(t.weeklyCheckInCount(), 0);
+  assert.equal(t.journeySummary().started, false);
+  assert.equal(t.achievementStats().activeDays, 0);
 });

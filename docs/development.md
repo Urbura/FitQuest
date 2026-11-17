@@ -43,17 +43,14 @@ Changing the maximum level also requires checking title counts, Total Level rewa
 
 ### Reset settings
 
-`dailyReset.utcHour` and `utcMinute` define the reset boundary; `label` is its display text. Keep the label consistent with the configured time. The current reset is fixed at 09:30 UTC: 03:30 CST (UTC−6) year-round. It does not follow daylight saving time.
+`js/calendar.js` defines the 3:30 a.m. device-local reset, using local calendar arithmetic so time zones and daylight saving changes follow the device. `dailyReset.label` supplies its display text. Next-reset scheduling advances the local date, rather than adding a fixed 24 hours. Existing date keys, XP, ratings, and achievement claims remain unchanged on upgrade. No fixed-CST date migration runs. A draft spanning a reset must be reviewed again.
 
 ## WriteQuest-style progress screens
 
 The dashboard uses a single pending Check In action and a completed fitness-day
 summary. Daily Quest keeps its reward beside the title and Swap at the top right.
 Journey includes a seven-day fitness trail and the next attainable milestone.
-The trail follows FitQuest's existing Monday–Sunday reset week and check-in
-participation rules, including recorded zero ratings; a quest alone does not
-mark a day active. These presentation changes do not migrate saves, alter XP,
-or change the reset time.
+The trail and weekly achievements use Sunday–Saturday weeks. An active day needs a rating of 1–5 in at least one skill; all-zero and quest-only days do not count. Journey shows current and longest streaks. Two missed days per week are allowed; a third missed day in the week, or three consecutive misses across weeks, resets the current streak. Today stays open until the local reset, and rest days add no streak points. These are the same rules as WriteQuest.
 
 The achievement module renders the milestone from current progress each time
 Journey opens. First Check-In is shown first for a new profile; subsequent

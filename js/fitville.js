@@ -3,6 +3,7 @@
     // Editable names, progression settings, and rewards live in config.js.
     const CONFIG = globalThis.FitQuestConfig;
     if (!CONFIG) throw Error('FitQuest configuration did not load');
+    const { localDay: day, nextReset, startOfWeek, shiftDay, positiveDays, streakSummary } = globalThis.FitQuestCalendar;
     const SKILLS = CONFIG.skills;
     const SKILL_DISPLAY_ORDER = CONFIG.skillDisplayOrder;
     const SKILL_SYMBOLS = SKILLS.map((skill) => skill.icon);
@@ -76,56 +77,14 @@
       renderedDay = null,
       dailyResetTimer;
     let draftRatings = null, draftDay = null;
-    const RESET_UTC_HOUR = CONFIG.dailyReset.utcHour,
-      RESET_UTC_MINUTE = CONFIG.dailyReset.utcMinute,
-      RESET_SHIFT = (RESET_UTC_HOUR * 60 + RESET_UTC_MINUTE) * 60 * 1000;
-    function day(now = Date.now()) {
-      return new Date(now - RESET_SHIFT).toISOString().slice(0, 10);
-    }
-    function nextReset(now = Date.now()) {
-      const d = new Date(now),
-        reset = Date.UTC(
-          d.getUTCFullYear(),
-          d.getUTCMonth(),
-          d.getUTCDate(),
-          RESET_UTC_HOUR,
-          RESET_UTC_MINUTE,
-        );
-      return now < reset ? reset : reset + 86400000;
-    }
     function checkedCount(entry) {
       return entry && Array.isArray(entry.scores)
         ? entry.scores.filter(Number.isInteger).length
         : 0;
     }
     function dailyEntry() {
-      const key = day();
-      let e = state.days[key];
-      if (e) {
-        state.dailyResetVersion = 2;
-        return e;
-      }
-      // Old versions stored local calendar dates. Preserve any skill check-ins already completed during migration.
-      const local = new Date(),
-        oldKey =
-          local.getFullYear() +
-          '-' +
-          String(local.getMonth() + 1).padStart(2, '0') +
-          '-' +
-          String(local.getDate()).padStart(2, '0');
-      if ((state.dailyResetVersion || 0) < 2) {
-        state.dailyResetVersion = 2;
-        const old = state.days[oldKey];
-        if (old && old.scores.some(Number.isInteger)) {
-          if (oldKey !== key) {
-            state.days[key] = old;
-            delete state.days[oldKey];
-          }
-          e = old;
-        }
-        save();
-      }
-      return e;
+      // Keep saved date keys unchanged when moving from the fixed CST reset.
+      return state.days[day()];
     }
     function resetText() {
       const remaining = Math.max(0, nextReset() - Date.now()),
@@ -243,16 +202,10 @@
 
     // Dashboard and level celebrations
     const COLORS = SKILLS.map((skill) => skill.color);
-    // Count distinct check-in days in the Monday–Sunday week, using the daily reset boundary.
+    // Positive fitness days in the Sunday–Saturday reset week.
     function weeklyCheckInCount(now = Date.now()) {
-      const today = day(now),
-        date = new Date(today + 'T00:00:00Z'),
-        weekday = (date.getUTCDay() + 6) % 7;
-      date.setUTCDate(date.getUTCDate() - weekday);
-      const monday = date.toISOString().slice(0, 10);
-      return Object.entries(state.days).filter(
-        ([key, entry]) => key >= monday && key <= today && checkedCount(entry) > 0,
-      ).length;
+      const today = day(now), sunday = startOfWeek(today);
+      return positiveDays(state.days, today).filter(key => key >= sunday).length;
     }
     function weeklyCheckInText() {
       const count = weeklyCheckInCount();
@@ -812,11 +765,13 @@
     // User actions and backup import
     function journeySummary() {
       const today = day();
-      const dates = Object.keys(state.days).filter(key => /^\d{4}-\d{2}-\d{2}$/.test(key) && key <= today && checkedCount(state.days[key]) > 0).sort();
+      const dates = positiveDays(state.days, today);
+      const streak = streakSummary(dates, today);
       const elapsedDays = dates.length ? Math.floor((Date.parse(today + 'T00:00:00Z') - Date.parse(dates[0] + 'T00:00:00Z')) / 86400000) : 0;
       return {
         started: dates.length > 0,
         elapsedDays,
+        currentStreak: streak.current, longestStreak: streak.longest,
         checkIns: dates.reduce((sum, key) => sum + checkedCount(state.days[key]), 0),
         totalLevel: currentTotalLevel(),
         rank: rankForTotalLevel(currentTotalLevel()) || 'Unranked',
@@ -825,13 +780,10 @@
     }
     function journeyPanel() {
       const today = day();
-      const start = new Date(today + 'T00:00:00Z');
-      start.setUTCDate(start.getUTCDate() - (start.getUTCDay() + 6) % 7);
+      const sunday = startOfWeek(today), active = new Set(positiveDays(state.days, today));
       const week = Array.from({ length: 7 }, (_, i) => {
-        const date = new Date(start);
-        date.setUTCDate(date.getUTCDate() + i);
-        const key = date.toISOString().slice(0, 10);
-        return { day: key, checked: key <= today && checkedCount(state.days[key]) > 0 };
+        const key = shiftDay(sunday, i);
+        return { day: key, checked: active.has(key) };
       });
       return globalThis.FitQuestScreens.renderJourney({
         summary: journeySummary(), weeklyText: weeklyCheckInText(), resetText: resetText(), safeText,
@@ -1463,6 +1415,7 @@
         if (syncSharedSave()) render(false);
         refreshDayIfNeeded();
         renderHUD();
+        scheduleDailyReset();
       }
     });
     window.addEventListener('pagehide', () => {
